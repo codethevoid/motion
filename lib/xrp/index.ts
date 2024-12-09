@@ -1,1 +1,1 @@
-export { createWallet } from "./create-wallet";
+export { testAddress, testSeed } from "./test";

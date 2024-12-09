@@ -1,4 +1,4 @@
-import { createWallet } from "@/lib/xrp";
+import { createWallet } from "@/lib/api/xrp/create-wallet";
 import { NextResponse, NextRequest } from "next/server";
 import { z } from "zod";
 

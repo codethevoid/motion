@@ -38,9 +38,11 @@ export const issueToken = async (payload: TokenPayload, address: string, passwor
   return signedToken;
 };
 
+// decrypt token with user provided password and return the payload (seed)
+// can only do this when the user has provided a password
 export const decryptToken = async (token: string, password: string) => {
   const { payload } = await jwtVerify(token, encodedSecret);
-  const { jwe, salt } = payload as { jwe: string; salt: string; address: string };
+  const { jwe, salt } = payload as { jwe: string; salt: string };
   if (!jwe || !salt) throw new Error("Invalid token");
 
   const key = deriveKey(password, salt);
@@ -62,8 +64,8 @@ export const setCookie = async (token: string) => {
   });
 };
 
-export const getAddress = async (token: string) => {
+export const getWallet = async (token: string) => {
   const { payload } = await jwtVerify(token, encodedSecret);
-  const { address } = payload as { address: string };
-  return address;
+  const { address, salt } = payload as { address: string; salt: string };
+  return { address, salt };
 };

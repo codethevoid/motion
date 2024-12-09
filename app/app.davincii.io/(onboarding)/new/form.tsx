@@ -173,7 +173,7 @@ export const CreateWalletForm = () => {
                 variant="ghost"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <EyeOff /> : <Eye />}
+                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </Button>
             </div>
             <div className="flex items-center space-x-2">

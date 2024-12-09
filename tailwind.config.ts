@@ -9,6 +9,9 @@ export default {
   ],
   theme: {
     extend: {
+      maxWidth: {
+        "screen-sm": "600px",
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
