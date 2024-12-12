@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { withWallet } from "@/lib/auth/with-wallet";
 import xrplClient from "@/lib/xrp/xrp-client";
-import { testAddress } from "@/lib/xrp";
 import { getXrpValueInUsd } from "@/lib/xrp/get-xrp-value-in-usd";
-import { BookOffer, IssuedCurrency, Wallet } from "xrpl";
 
 export const GET = withWallet(async ({ wallet }) => {
   const { address } = wallet;
@@ -27,12 +25,6 @@ export const GET = withWallet(async ({ wallet }) => {
     const availableBalance = balance - totalReserve / 1_000_000;
     const xrpPrice = await getXrpValueInUsd();
 
-    const accountLines = await xrplClient.request({
-      command: "account_lines",
-      account: address,
-      ledger_index: "validated",
-    });
-
     const tokens = [
       {
         key: "XRP",
@@ -43,14 +35,20 @@ export const GET = withWallet(async ({ wallet }) => {
       },
     ];
 
-    for (const line of accountLines.result.lines) {
-      if (line.balance === "0") continue;
+    const balances = await xrplClient.getBalances(address, {});
+
+    for (const token of balances) {
+      // skip xrp
+      if (token.currency === "XRP" && !token.issuer) {
+        continue;
+      }
+
       // get book info and calculate price
       const offers = await xrplClient.request({
         command: "book_offers",
         taker_gets: {
-          currency: line.currency,
-          issuer: line.account,
+          currency: token.currency,
+          issuer: token.issuer,
         },
         taker_pays: {
           currency: "XRP",
@@ -66,20 +64,20 @@ export const GET = withWallet(async ({ wallet }) => {
             : Number(bestOffer.TakerGets) / 1_000_000;
         const priceInXrp = xrpAmount / tokenAmount;
         const priceInUsd = priceInXrp * xrpPrice;
-        const balanceInUsd = priceInUsd * Number(line.balance);
+        const balanceInUsd = priceInUsd * Number(token.value);
         tokens.push({
-          key: `${line.currency}-${line.account}`,
-          issuer: line.account,
-          currency: line.currency,
-          balance: Number(line.balance),
+          key: `${token.currency}-${token.issuer}`,
+          issuer: token.issuer as string,
+          currency: token.currency,
+          balance: Number(token.value),
           balanceInUsd,
         });
       } else {
         tokens.push({
-          key: `${line.currency}-${line.account}`,
-          issuer: line.account,
-          currency: line.currency,
-          balance: Number(line.balance),
+          key: `${token.currency}-${token.issuer}`,
+          issuer: token.issuer as string,
+          currency: token.currency,
+          balance: Number(token.value),
           balanceInUsd: 0,
         });
       }
@@ -156,6 +154,7 @@ export const GET = withWallet(async ({ wallet }) => {
         ],
       });
     }
+    console.error(e);
     return NextResponse.json({ error: "an error occured" }, { status: 500 });
   }
 });

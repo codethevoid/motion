@@ -11,9 +11,9 @@ export const createWallet = () => {
   const keypair = deriveKeypair(seed);
   const address = deriveAddress(keypair.publicKey);
 
-  const wallet = Wallet.fromSeed(seed);
   // fund wallet if env is not production
   if (process.env.NODE_ENV === "development") {
+    const wallet = Wallet.fromSeed(seed);
     xrplClient.fundWallet(wallet);
     console.log("Test wallet funded");
   }

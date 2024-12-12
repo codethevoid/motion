@@ -47,7 +47,7 @@ export const Tokens = () => {
               </div>
             </div>
             <div>
-              <p className="text-right text-xs">
+              <p className="text-right text-[13px]">
                 {token.balance.toLocaleString("en-us")} {token.currency}
               </p>
               <p className="text-right text-xs text-muted-foreground">

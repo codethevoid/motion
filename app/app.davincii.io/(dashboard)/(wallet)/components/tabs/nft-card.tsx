@@ -5,7 +5,9 @@ import type { Wallet } from "@/hooks/use-wallet";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImageIcon } from "lucide-react";
-import { Dialog } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 type NftCardProps = {
   nft: Wallet["nfts"][number];
@@ -58,15 +60,19 @@ export const NftCard = ({ nft }: NftCardProps) => {
   if (isLoading) return <NftCardSkeleton />;
 
   return (
-    <div>
+    <>
       {metadata.image ? (
         <img
           src={metadata.image}
           alt={metadata.name || `#${nft.id}`}
           className="aspect-square cursor-pointer rounded-xl object-cover transition-all hover:opacity-90"
+          onClick={() => setIsOpen(true)}
         />
       ) : (
-        <Card className="flex aspect-square h-auto cursor-pointer items-center justify-center p-2 hover:opacity-90">
+        <Card
+          className="flex aspect-square h-auto cursor-pointer items-center justify-center p-2 hover:opacity-90"
+          onClick={() => setIsOpen(true)}
+        >
           <div className="space-y-2">
             <div className="mx-auto w-fit">
               <ImageIcon size={16} />
@@ -77,7 +83,67 @@ export const NftCard = ({ nft }: NftCardProps) => {
           </div>
         </Card>
       )}
-    </div>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent aria-describedby={undefined} className="w-auto">
+          <DialogTitle className="hidden">{metadata?.name || `#${nft.id}`}</DialogTitle>
+          {metadata.image ? (
+            <img
+              src={metadata.image}
+              alt={metadata.name || `#${nft.id}`}
+              className="aspect-square max-w-[300px] rounded-xl object-cover"
+            />
+          ) : (
+            <Card className="flex aspect-square h-auto w-[240px] items-center justify-center p-2">
+              <div className="space-y-2">
+                <div className="mx-auto w-fit">
+                  <ImageIcon size={16} />
+                </div>
+                <p className="text-center text-xs text-muted-foreground">
+                  {metadata.name || `#${nft.id}`}
+                </p>
+              </div>
+            </Card>
+          )}
+          <div className="space-y-2.5">
+            {metadata?.name && (
+              <div>
+                <p className="text-[13px] font-medium">Name</p>
+                <p className="text-[13px] text-muted-foreground">{metadata.name}</p>
+              </div>
+            )}
+            {metadata?.collection?.name && (
+              <div>
+                <p className="text-[13px] font-medium">Collection</p>
+                <p className="text-[13px] text-muted-foreground">{metadata.collection.name}</p>
+              </div>
+            )}
+            <div>
+              <p className="text-[13px] font-medium">Issuer</p>
+              <div className="flex">
+                <a
+                  href={`https://xrpscan.com/account/${nft.issuer}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="min-w-0 truncate text-[13px] text-blue-500 hover:underline"
+                >
+                  {nft.issuer}
+                </a>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button size="sm" variant="secondary" onClick={() => setIsOpen(false)}>
+              Close
+            </Button>
+            <Button size="sm" asChild>
+              <a href={`https://xrpscan.com/nft/${nft.id}`} target="_blank" rel="noreferrer">
+                View on XRPScan
+              </a>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

@@ -6,48 +6,48 @@ import { NftCard } from "./nft-card";
 import { ImageIcon } from "lucide-react";
 
 // create a mock nft
-const nfts = [
-  {
-    id: "some-id-1",
-    taxon: 1,
-    uri: "https://ipfs.io/ipfs/bafybeihg3gqmtsoq76xz5cvdqeqfrbmxwup6r6tfsjvylpjifwexb4uwle/metadata.json",
-    isDirectImage: false,
-    issuer: "some-issuer",
-    flags: 1,
-  },
-  {
-    id: "some-id-2",
-    taxon: 1,
-    uri: "https://ipfs.io/ipfs/bafybeifaw6dcim25jn7kn4fkgyhmexbd77bar7qdwasadae3krylwpscdi/metadata.json",
-    isDirectImage: false,
-    issuer: "some-issuer",
-    flags: 1,
-  },
-  {
-    id: "some-id-3",
-    taxon: 1,
-    uri: "https://ipfs.io/ipfs/bafybeihfq5t3kzptkkujubw35zsitbfw7q43vrgv6ow626uxpt4plyrcia/metadata.json",
-    isDirectImage: false,
-    issuer: "some-issuer",
-    flags: 1,
-  },
-  {
-    id: "some-id-5",
-    taxon: 1,
-    uri: "https://ipfs.io/ipfs/bafybeied3g225t762q2cspjbal5eantejsnxaedufeaw4gm4yb4vbo6num/metadata.json",
-    isDirectImage: false,
-    issuer: "some-issuer",
-    flags: 1,
-  },
-  {
-    id: "some-id-6",
-    taxon: 1,
-    uri: "https://ecrg3juyzqj6ireug26rcfmtu5etbawrmtj7ewli3d7vh2ydtngq.arweave.net/IKJtppjME-RElDa9ERWTp0kwgtFk0_JZaNj_U-sDm00/1203.json",
-    isDirectImage: false,
-    issuer: "some-issuer",
-    flags: 1,
-  },
-];
+// const nfts = [
+//   {
+//     id: "some-id-1",
+//     taxon: 1,
+//     uri: "https://ipfs.io/ipfs/bafybeihg3gqmtsoq76xz5cvdqeqfrbmxwup6r6tfsjvylpjifwexb4uwle/metadata.json",
+//     isDirectImage: false,
+//     issuer: "some-issuer",
+//     flags: 1,
+//   },
+//   {
+//     id: "some-id-2",
+//     taxon: 1,
+//     uri: "https://ipfs.io/ipfs/bafybeifaw6dcim25jn7kn4fkgyhmexbd77bar7qdwasadae3krylwpscdi/metadata.json",
+//     isDirectImage: false,
+//     issuer: "some-issuer",
+//     flags: 1,
+//   },
+//   {
+//     id: "some-id-3",
+//     taxon: 1,
+//     uri: "https://ipfs.io/ipfs/bafybeihfq5t3kzptkkujubw35zsitbfw7q43vrgv6ow626uxpt4plyrcia/metadata.json",
+//     isDirectImage: false,
+//     issuer: "some-issuer",
+//     flags: 1,
+//   },
+//   {
+//     id: "some-id-5",
+//     taxon: 1,
+//     uri: "https://ipfs.io/ipfs/bafybeied3g225t762q2cspjbal5eantejsnxaedufeaw4gm4yb4vbo6num/metadata.json",
+//     isDirectImage: false,
+//     issuer: "some-issuer",
+//     flags: 1,
+//   },
+//   {
+//     id: "some-id-6",
+//     taxon: 1,
+//     uri: "https://ecrg3juyzqj6ireug26rcfmtu5etbawrmtj7ewli3d7vh2ydtngq.arweave.net/IKJtppjME-RElDa9ERWTp0kwgtFk0_JZaNj_U-sDm00/1203.json",
+//     isDirectImage: false,
+//     issuer: "some-issuer",
+//     flags: 1,
+//   },
+// ];
 
 export const Nfts = () => {
   const { wallet, isLoading } = useWallet();
@@ -56,7 +56,7 @@ export const Nfts = () => {
 
   return (
     <div>
-      {/* {wallet?.nfts.length === 0 && (
+      {wallet?.nfts.length === 0 ? (
         <EmptyState
           label="No NFTs found"
           icon={
@@ -71,12 +71,11 @@ export const Nfts = () => {
             <ImageIcon size={16} />
           }
         />
-      )} */}
-      <div className="grid grid-cols-4 gap-3">
-        {nfts.map((nft) => (
-          <NftCard key={nft.id} nft={nft} />
-        ))}
-      </div>
+      ) : (
+        <div className="grid grid-cols-4 gap-2">
+          {wallet?.nfts.map((nft) => <NftCard key={nft.id} nft={nft} />)}
+        </div>
+      )}
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { Wallet, Client } from "xrpl";
 const ISSUER_SEED = "sEd78uEQu1WFiFtfpQzLBk4jdZNwj6Z";
 const issuerWallet = Wallet.fromSeed(ISSUER_SEED);
 
-const receiverWallet = Wallet.fromSeed("sEdSK7iA3pvR1oeHDgT9DBjDK11rw4N");
+const receiverWallet = Wallet.fromSeed("sEdTVExHgTpdP8izEg2D1nzpF5Rkbr5");
 
 const TESTNET_TOKENS = {
   TST: {

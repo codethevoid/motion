@@ -8,6 +8,7 @@ import { useState } from "react";
 import { WalletNav } from "./wallet-nav";
 import { Tokens } from "./tabs/tokens";
 import { Nfts } from "./tabs/nfts";
+import { Transactions } from "./tabs/transactions";
 
 export const WalletOverview = () => {
   const { wallet, isLoading } = useWallet();
@@ -35,7 +36,9 @@ export const WalletOverview = () => {
         </div>
         <div className="space-y-2">
           {isLoading ? (
-            <Skeleton className="h-8 w-20 rounded-lg" />
+            <div className="flex h-8 items-center">
+              <Skeleton className="h-7 w-20 rounded-lg" />
+            </div>
           ) : (
             <p className="text-2xl font-bold">
               {wallet?.balanceInUsdIncludingTokens.toLocaleString("en-us", {
@@ -46,6 +49,7 @@ export const WalletOverview = () => {
               })}
             </p>
           )}
+
           {isLoading ? (
             <div className="flex h-[19.5px] items-center">
               <Skeleton className="h-4 w-full max-w-[160px]" />
@@ -72,6 +76,7 @@ export const WalletOverview = () => {
       <WalletNav tab={tab} setTab={setTab} />
       {tab === "tokens" && <Tokens />}
       {tab === "nfts" && <Nfts />}
+      {tab === "transactions" && <Transactions />}
     </>
   );
 };

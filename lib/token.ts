@@ -29,7 +29,7 @@ export const issueToken = async (payload: TokenPayload, address: string, passwor
     .encrypt(key);
 
   // sign jwe with our secret to verify integrity
-  const signedToken = await new SignJWT({ jwe, salt, address })
+  const signedToken = await new SignJWT({ jwe, salt, address, isCurrent: true })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("30d")
@@ -42,7 +42,7 @@ export const issueToken = async (payload: TokenPayload, address: string, passwor
 // can only do this when the user has provided a password
 export const decryptToken = async (token: string, password: string) => {
   const { payload } = await jwtVerify(token, encodedSecret);
-  const { jwe, salt } = payload as { jwe: string; salt: string };
+  const { jwe, salt, isCurrent } = payload as { jwe: string; salt: string; isCurrent: boolean };
   if (!jwe || !salt) throw new Error("Invalid token");
 
   const key = deriveKey(password, salt);
@@ -66,6 +66,10 @@ export const setCookie = async (token: string) => {
 
 export const getWallet = async (token: string) => {
   const { payload } = await jwtVerify(token, encodedSecret);
-  const { address, salt } = payload as { address: string; salt: string };
-  return { address, salt };
+  const { address, salt, isCurrent } = payload as {
+    address: string;
+    salt: string;
+    isCurrent: boolean;
+  };
+  return { address, salt, isCurrent };
 };
