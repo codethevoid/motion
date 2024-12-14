@@ -7,7 +7,7 @@ export const GET = withWallet(async ({ req }) => {
   try {
     const url = req.nextUrl;
     const nameLike = url.searchParams.get("name_like") || "";
-    const res = await fetch(`https://s1.xrplmeta.org/tokens?name_like=${nameLike}`);
+    const res = await fetch(`https://s1.xrplmeta.org/tokens?name_like=${nameLike}&limit=80`);
     if (!res.ok) throw new Error("Error fetching tokens");
     const data = await res.json();
 
