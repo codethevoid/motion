@@ -5,28 +5,28 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "./empty";
 import { HandCoins } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { AccountTxTransaction, TransactionMetadata } from "xrpl";
 import { CircleArrowOutUpRight, CircleArrowOutDownLeft, RefreshCcw } from "lucide-react";
-import { useWallet } from "@/hooks/use-wallet";
+import type { Transaction } from "@/utils/process-transaction";
+import { format } from "date-fns";
+import { useState } from "react";
 
 const iconMap = {
-  Payment: {
-    send: <CircleArrowOutUpRight size={16} />,
-    receive: <CircleArrowOutDownLeft size={16} />,
-  },
-  OfferCreate: <RefreshCcw size={16} />,
-  NFTokenCreateOffer: {
-    send: <CircleArrowOutUpRight size={16} />,
-    receive: <CircleArrowOutDownLeft size={16} />,
-  },
+  send: <CircleArrowOutUpRight size={16} />,
+  receive: <CircleArrowOutDownLeft size={16} />,
+  swap: <RefreshCcw size={16} />,
+  // NFTokenCreateOffer: {
+  //   send: <CircleArrowOutUpRight size={16} />,
+  //   receive: <CircleArrowOutDownLeft size={16} />,
+  // },
 };
 
 export const Transactions = () => {
   const { transactions, isLoading, error } = useTransactions(undefined);
-  const { wallet, isLoading: isWalletLoading } = useWallet();
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
   console.log(transactions);
 
-  if (isLoading || isWalletLoading) return <TransactionsSkeleton />;
+  if (isLoading) return <TransactionsSkeleton />;
 
   if (error) {
     return <EmptyState icon={<HandCoins size={18} />} label="Failed to fetch transactions" />;
@@ -36,67 +36,66 @@ export const Transactions = () => {
     return <EmptyState icon={<HandCoins size={18} />} label="No transactions found" />;
   }
 
-  // const getTransactionInfo = (tx: AccountTxTransaction) => {
-  //   const type = tx.tx_json?.TransactionType;
-  //   switch (type) {
-  //     case "Payment":
-  //       const destination = tx.tx_json?.Destination;
-  //       const icon =
-  //         destination === wallet?.address ? iconMap.Payment.receive : iconMap.Payment.send;
-  //       const deliveredAmount =
-  //         typeof (tx.meta as TransactionMetadata).delivered_amount === "string"
-  //           ? (tx.meta as TransactionMetadata).delivered_amount
-  //           : (
-  //               (tx.meta as TransactionMetadata).delivered_amount as {
-  //                 value: string;
-  //                 currency: string;
-  //               }
-  //             )?.value;
-  //       const currency =
-  //         typeof (tx.meta as TransactionMetadata).delivered_amount === "string"
-  //           ? "XRP"
-  //           : ((tx.meta as TransactionMetadata).delivered_amount as { currency: string })
-  //               ?.currency || "XRP";
-  //       const label = destination === wallet?.address ? `Received ${currency}` : `Sent ${currency}`;
-  //       return {
-  //         icon,
-  //         label,
-  //         deliveredAmount,
-  //       };
-  //       break;
-  //     case "OfferCreate":
-  //       return iconMap.OfferCreate;
-  //   }
-  // };
+  const formatLabel = (tx: Transaction) => {
+    if (tx.direction === "receive") {
+      return `Received ${typeof tx.amountDelivered === "string" ? "XRP" : typeof tx.amountDelivered === "object" ? tx.amountDelivered.currency : ""}`;
+    }
+    if (tx.direction === "send") {
+      return `Sent ${
+        typeof tx.amountDelivered === "string"
+          ? "XRP"
+          : typeof tx.amountDelivered === "object"
+            ? tx.amountDelivered.currency
+            : ""
+      }`;
+    }
+    return `Swapped`;
+  };
 
   return (
     <div className="space-y-1.5">
-      {transactions?.map((tx: AccountTxTransaction) => (
-        <Card key={tx.hash} className="p-0">
-          <div className="flex items-center justify-between px-3 py-2.5">
-            <div className="flex items-center space-x-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary">
-                {iconMap["Payment"].receive}
+      {transactions
+        ?.filter((tx) => Number(tx.amountDelivered) > 1)
+        .map((tx: Transaction) => (
+          <Card key={tx.hash} className="p-0">
+            <div className="flex items-center justify-between px-3 py-2.5">
+              <div className="flex items-center space-x-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary">
+                  {iconMap[tx.direction]}
+                </div>
+                <div>
+                  <p className="text-[13px]">{formatLabel(tx)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {tx.date
+                      ? format(new Date((tx.date + 946684800) * 1000), "MMM d, yyyy h:mm a")
+                      : "No date available"}
+                  </p>
+                </div>
               </div>
               <div>
-                <p className="text-[13px]">Received XRP</p>
-                <p className="text-xs text-muted-foreground">Dec 11, 2024 3:00 PM</p>
+                <p className="text-right text-[13px]">
+                  {tx.direction === "receive" || tx.direction === "send" ? "+" : "-"}
+                  {typeof tx.amountDelivered === "string"
+                    ? (Number(tx.amountDelivered) / 1_000_000).toLocaleString("en-us", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 4,
+                      })
+                    : typeof tx.amountDelivered === "object"
+                      ? Number(tx.amountDelivered.value).toLocaleString("en-us", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 4,
+                        })
+                      : ""}{" "}
+                  {typeof tx.amountDelivered === "string"
+                    ? "XRP"
+                    : typeof tx.amountDelivered === "object"
+                      ? tx.amountDelivered.currency
+                      : ""}
+                </p>
               </div>
             </div>
-            <div>
-              <p className="text-right text-[13px]">+100 XRP</p>
-              {/* <p className="text-right text-xs text-muted-foreground">
-                {token.balanceInUsd.toLocaleString("en-us", {
-                  style: "currency",
-                  currency: "USD",
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </p> */}
-            </div>
-          </div>
-        </Card>
-      ))}
+          </Card>
+        ))}
     </div>
   );
 };

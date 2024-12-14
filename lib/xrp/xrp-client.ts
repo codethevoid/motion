@@ -1,9 +1,11 @@
 import xrpl from "xrpl";
 
-const XRPL_URL =
-  process.env.NODE_ENV === "production"
-    ? "wss://s1.ripple.com:51233"
-    : "wss://s.altnet.rippletest.net:51233";
+// const XRPL_URL =
+//   process.env.NODE_ENV === "production"
+//     ? "wss://s1.ripple.com:51233"
+//     : "wss://s.altnet.rippletest.net:51233";
+
+const XRPL_URL = "wss://s1.ripple.com:51233";
 
 const xrplClientSingleton = () => {
   const client = new xrpl.Client(XRPL_URL);

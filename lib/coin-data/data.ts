@@ -8,8 +8,8 @@ export type CoinData = {
 };
 
 export const coinData: Record<string, CoinData> = {
-  XRP: {
-    key: "XRP",
+  "XRP-": {
+    key: "XRP-",
     currency: "XRP",
     name: "XRP",
     icon: "https://cdn.qryptic.io/crypto/xrp.png",

@@ -13,7 +13,10 @@ export const GET = withWallet(async ({ wallet }) => {
       ledger_index: "validated",
     });
 
-    const serverState = await xrplClient.request({ command: "server_state" });
+    const serverState = await xrplClient.request({
+      command: "server_state",
+      ledger_index: "validated",
+    });
 
     const ownerCount = walletInfo.result.account_data.OwnerCount;
     const baseReserve = serverState.result.state.validated_ledger?.reserve_base;

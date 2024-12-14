@@ -2,9 +2,10 @@ import { AccountTxTransaction, TransactionMetadata, Amount } from "xrpl";
 
 export type Transaction = {
   type: "Payment" | "OfferCreate";
-  direction: "received" | "sent" | "swap";
-  pays: string | Amount | undefined;
-  gets: string | Amount | undefined;
+  direction: "receive" | "send" | "swap";
+  amountDelivered: string | Amount | undefined;
+  takerPays: string | Amount | undefined;
+  takerGets: string | Amount | undefined;
   fee: string | undefined;
   hash: string | undefined;
   date: number | undefined;
@@ -25,21 +26,23 @@ export const processTransaction = (
       const destination = tx_json?.Destination;
       return {
         type: "Payment",
-        direction: destination === address ? "received" : "sent",
-        pays:
-        gets: typeof meta === "string" ? meta : meta.delivered_amount,
+        direction: destination === address ? "receive" : "send",
+        amountDelivered: typeof meta === "string" ? meta : meta.delivered_amount,
+        takerPays: undefined,
+        takerGets: undefined,
         fee: tx_json?.Fee,
         hash: transaction.hash,
         date: tx_json?.date,
         status: typeof meta === "string" ? meta : meta.TransactionResult,
         validated: transaction.validated,
       };
-      break;
     case "OfferCreate":
       return {
         type: "OfferCreate",
         direction: "swap",
-        delivered: tx_json?.TakerGets,
+        amountDelivered: undefined,
+        takerPays: tx_json?.TakerPays,
+        takerGets: tx_json?.TakerGets,
         fee: tx_json?.Fee,
         hash: transaction.hash,
         date: tx_json?.date,

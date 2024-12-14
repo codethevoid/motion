@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { withWallet } from "@/lib/auth/with-wallet";
 import xrplClient from "@/lib/xrp/xrp-client";
+import { processTransaction } from "@/utils/process-transaction";
 
 export const GET = withWallet(async ({ wallet, req }) => {
   try {
@@ -17,12 +18,13 @@ export const GET = withWallet(async ({ wallet, req }) => {
     // Payment (receive)
     // OfferCreate (swap)
 
-    const transactions = allTransactions.result.transactions.filter((tx) => {
-      return (
-        tx.tx_json?.TransactionType === "Payment" || tx.tx_json?.TransactionType === "OfferCreate"
-        // tx.tx_json?.TransactionType === "NFTokenCreateOffer"
-      );
-    });
+    const transactions = allTransactions.result.transactions
+      .filter((tx) => {
+        return (
+          tx.tx_json?.TransactionType === "Payment" || tx.tx_json?.TransactionType === "OfferCreate"
+        );
+      })
+      .map((tx) => processTransaction(tx, wallet.address));
 
     return NextResponse.json(transactions);
   } catch (e) {

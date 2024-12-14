@@ -18,12 +18,11 @@ export const Tokens = () => {
           <div className="flex items-center justify-between px-3 py-2.5">
             <div className="flex items-center space-x-2.5">
               {coinData[token.key] ? (
-                <NextImage
+                <img
                   src={coinData[token.key].icon}
                   alt={coinData[token.key].currency}
                   width={32}
                   height={32}
-                  quality={100}
                   className="rounded-full"
                 />
               ) : (
@@ -48,7 +47,11 @@ export const Tokens = () => {
             </div>
             <div>
               <p className="text-right text-[13px]">
-                {token.balance.toLocaleString("en-us")} {token.currency}
+                {token.balance.toLocaleString("en-us", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 4,
+                })}{" "}
+                {token.currency}
               </p>
               <p className="text-right text-xs text-muted-foreground">
                 {token.balanceInUsd.toLocaleString("en-us", {

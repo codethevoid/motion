@@ -240,7 +240,7 @@ export const CreateWalletForm = () => {
                       </p>
                       <Input
                         type="text"
-                        className="h-[20.5px] bg-card px-1.5 text-[10px] shadow-none"
+                        className="h-[20.5px] rounded-md bg-card px-1.5 text-[10px] shadow-none"
                         onChange={(e) => {
                           const newConfirmMnemonic = [...confirmMnemonic];
                           newConfirmMnemonic[i] = e.target.value;

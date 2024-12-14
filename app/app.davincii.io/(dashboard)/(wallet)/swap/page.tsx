@@ -1,5 +1,7 @@
+import { SwapClient } from "./client";
+
 const SwapPage = () => {
-  return <div>SwapPage</div>;
+  return <SwapClient />;
 };
 
 export default SwapPage;
