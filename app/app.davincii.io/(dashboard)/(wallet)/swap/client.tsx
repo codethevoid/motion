@@ -22,6 +22,9 @@ import { FEE_PERCENTAGE } from "@/lib/xrp/constants";
 import { useNetworkFee } from "@/hooks/use-network-fee";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
+import { ButtonSpinner } from "@/components/ui/button-spinner";
+import { toast } from "sonner";
+import { PasswordDialog } from "./components/password-dialog";
 
 export const SwapClient = () => {
   const [from, setFrom] = useState<Token | null>(xrpMeta);
@@ -38,6 +41,10 @@ export const SwapClient = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [slippage, setSlippage] = useState<number>(5); // percentage
   const { data: networkFee } = useNetworkFee();
+  const [isSwapping, setIsSwapping] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>("");
+  const [isPasswordOpen, setIsPasswordOpen] = useState<boolean>(false);
+  const [isMax, setIsMax] = useState<boolean>(false);
 
   useEffect(() => {
     if (fromPrice?.price && fromPrice.price > 0 && toPrice?.price && toPrice.price > 0) {
@@ -53,15 +60,60 @@ export const SwapClient = () => {
     if (activeInput === "from" && fromValue && rate > 0) {
       // Calculate the amount after fee when user inputs the "from" amount
       const rawToAmount = Number(fromValue) * rate;
-      const amountAfterFee = rawToAmount * (1 - FEE_PERCENTAGE);
+      // const amountAfterFee = rawToAmount * (1 - FEE_PERCENTAGE);
+      const amountAfterFee = rawToAmount;
       setToValue(parseFloat(amountAfterFee.toFixed(8)).toString());
     } else if (activeInput === "to" && toValue && rate > 0) {
       // When user inputs the "to" amount, we need to work backwards to include the fee
       const rawFromAmount = Number(toValue) / rate;
-      const fromAmountWithFee = rawFromAmount / (1 - FEE_PERCENTAGE);
+      // const fromAmountWithFee = rawFromAmount / (1 - FEE_PERCENTAGE);
+      const fromAmountWithFee = rawFromAmount;
       setFromValue(parseFloat(fromAmountWithFee.toFixed(8)).toString());
     }
   }, [fromValue, toValue, rate]);
+
+  const confirmSwap = async () => {
+    if (!password) return setIsPasswordOpen(true);
+    setIsSwapping(true);
+    try {
+      const res = await fetch("/api/swap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: { ...from, value: fromValue },
+          to: { ...to, value: toValue },
+          slippage,
+          password,
+          isMax,
+          balance: balance?.balance,
+        }),
+      });
+
+      if (!res.ok) {
+        setIsSwapping(false);
+        const data = await res.json();
+        toast.error(data.error);
+        return;
+      }
+
+      setIsSwapping(false);
+      toast.success("Successfully submitted swap");
+      // reset the form
+      setFrom(xrpMeta);
+      setTo(null);
+      setFromValue("");
+      setToValue("");
+      setActiveInput("from");
+      setRate(0);
+      setSlippage(5);
+    } catch (e) {
+      console.error(e);
+      setIsSwapping(false);
+      toast.error("Something went wrong");
+    }
+  };
+
+  console.log(from, to);
 
   return (
     <>
@@ -93,6 +145,7 @@ export const SwapClient = () => {
                   onChange={(e) => {
                     setActiveInput("from");
                     setFromValue(e.target.value);
+                    setIsMax(false);
                   }}
                   value={fromValue}
                 />
@@ -131,20 +184,39 @@ export const SwapClient = () => {
                 {isLoadingBalance ? (
                   <div className="flex items-center space-x-1.5">
                     <Skeleton className="h-4 w-10" />
-                    <p className="text-sm text-muted-foreground">available</p>
+                    <p className="text-sm text-muted-foreground">{from?.currency}</p>
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">
-                    <span
-                      className={cn("text-foreground", balance?.balance === 0 && "text-red-500")}
-                    >
-                      {balance?.balance.toLocaleString("en-us", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 4,
-                      })}
-                    </span>{" "}
-                    available
-                  </p>
+                  <div className="flex items-center space-x-1.5">
+                    <p className="text-sm text-muted-foreground">
+                      <span
+                        className={cn("text-foreground", balance?.balance === 0 && "text-red-500")}
+                      >
+                        {balance?.balance && balance?.balance > 0
+                          ? balance?.balance.toLocaleString("en-us", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 6,
+                            })
+                          : 0}
+                      </span>{" "}
+                      {from?.currency}
+                    </p>
+                    {from?.currency !== "XRP" && from?.issuer && balance?.balance ? (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="h-5 rounded-full px-2 text-[11px]"
+                        onClick={() => {
+                          setFromValue(balance?.balance.toString() || "");
+                          setIsMax(true);
+                        }}
+                      >
+                        Max
+                      </Button>
+                    ) : (
+                      ""
+                    )}
+                  </div>
                 )}
               </div>
             </Card>
@@ -166,7 +238,7 @@ export const SwapClient = () => {
                 <Button
                   size="sm"
                   variant="secondary"
-                  className="shrink-0 rounded-full px-2"
+                  className={cn("shrink-0 rounded-full px-2", !to && "pl-3")}
                   onClick={() => {
                     setIsSelectingFor("to");
                     setIsTokenSelectorOpen(true);
@@ -209,6 +281,7 @@ export const SwapClient = () => {
                 setTo(from);
                 setFromValue(toValue);
                 setToValue(fromValue);
+                setIsMax(false);
               }}
             >
               <ArrowUpDown size={16} />
@@ -224,16 +297,24 @@ export const SwapClient = () => {
             !fromValue ||
             !toValue ||
             !rate ||
-            Number(fromValue) > Number(balance?.balance)
+            Number(fromValue) > Number(balance?.balance) ||
+            fromPrice?.price === 0 ||
+            toPrice?.price === 0 ||
+            isSwapping
           }
+          onClick={confirmSwap}
         >
-          {Number(fromValue) > Number(balance?.balance)
-            ? `Insufficient ${from?.currency}`
-            : !to
-              ? "Select token"
-              : fromPrice?.price === 0 || toPrice?.price === 0
-                ? "No liquidity"
-                : "Swap"}
+          {isSwapping ? (
+            <ButtonSpinner />
+          ) : Number(fromValue) > Number(balance?.balance) ? (
+            `Insufficient ${from?.currency}`
+          ) : !to ? (
+            "Select token"
+          ) : fromPrice?.price === 0 || toPrice?.price === 0 ? (
+            `No liquidity for pair ${from?.currency}/${to?.currency}`
+          ) : (
+            "Swap"
+          )}
         </Button>
         {fromPrice?.price && toPrice?.price && fromValue && toValue && rate && from && to ? (
           <Accordion type="single" collapsible>
@@ -268,12 +349,20 @@ export const SwapClient = () => {
           ""
         )}
       </div>
+      <PasswordDialog
+        isOpen={isPasswordOpen}
+        setIsOpen={setIsPasswordOpen}
+        setMasterPassword={setPassword}
+      />
       <TokenSelector
         isOpen={isTokenSelectorOpen}
         setIsOpen={setIsTokenSelectorOpen}
         selectingFor={isSelectingFor}
         setFrom={setFrom}
         setTo={setTo}
+        setFromValue={setFromValue}
+        setToValue={setToValue}
+        setIsMax={setIsMax}
       />
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
         <DialogContent aria-describedby={undefined}>
@@ -282,6 +371,7 @@ export const SwapClient = () => {
             defaultValue={[slippage]}
             onValueChange={(value) => setSlippage(value[0])}
             max={50}
+            min={1}
             step={1}
           />
         </DialogContent>

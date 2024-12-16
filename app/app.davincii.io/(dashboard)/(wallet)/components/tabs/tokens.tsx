@@ -17,16 +17,16 @@ export const Tokens = () => {
         <Card key={token.currency} className="p-0">
           <div className="flex items-center justify-between px-3 py-2.5">
             <div className="flex items-center space-x-2.5">
-              {coinData[token.key] ? (
+              {token.icon ? (
                 <img
-                  src={coinData[token.key].icon}
-                  alt={coinData[token.key].currency}
+                  src={token.icon}
+                  alt={token.name ? token.name : token.currency}
                   width={32}
                   height={32}
-                  className="rounded-full"
+                  className="shrink-0 rounded-full"
                 />
               ) : (
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
                   {/* <Coins size={14} /> */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -39,9 +39,7 @@ export const Tokens = () => {
                 </div>
               )}
               <div>
-                <p className="text-[13px]">
-                  {coinData[token.key] ? coinData[token.key].name : token.currency}
-                </p>
+                <p className="text-[13px]">{token.name ? token.name : token.currency}</p>
                 <p className="text-xs text-muted-foreground">{token.currency}</p>
               </div>
             </div>

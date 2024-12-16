@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
-import { Cog } from "lucide-react";
+import { Cog, WalletMinimal } from "lucide-react";
 
 const navItems = [
   {
@@ -41,15 +41,8 @@ export const Nav = () => {
           </Button>
         ))}
       </div>
-      <Button
-        size="sm"
-        variant={path === "/settings" ? "default" : "ghost"}
-        className="h-8 w-8"
-        asChild
-      >
-        <NextLink href="/settings">
-          <Cog className="size-4" />
-        </NextLink>
+      <Button size="sm" variant={path === "/settings" ? "default" : "ghost"} className="h-8 w-8">
+        <WalletMinimal className="size-4" />
       </Button>
     </div>
   );

@@ -14,7 +14,7 @@ export const GET = withWallet(async ({ wallet, req }) => {
     if (currency === "XRP") {
       const balance = await xrplClient.getXrpBalance(wallet.address);
       const fee = await xrplClient.request({ command: "fee", ledger_index: "current" });
-      const networkFee = fee?.result.drops.median_fee || "5000";
+      const networkFee = Number(fee?.result.drops.median_fee) * 2 || 5000 * 2; // 2x because we need to pay for the swap and the trustline
       const reserve = await getTotalReserve(wallet.address);
       // and we want to just go ahead and add 2 to the reserve
       // so we can have that for the trustline

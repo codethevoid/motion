@@ -14,9 +14,21 @@ type Props = {
   selectingFor: "from" | "to";
   setFrom: (from: Token | null) => void;
   setTo: (to: Token | null) => void;
+  setFromValue: (fromValue: string) => void;
+  setToValue: (toValue: string) => void;
+  setIsMax: (isMax: boolean) => void;
 };
 
-export const TokenSelector = ({ isOpen, setIsOpen, selectingFor, setFrom, setTo }: Props) => {
+export const TokenSelector = ({
+  isOpen,
+  setIsOpen,
+  selectingFor,
+  setFrom,
+  setTo,
+  setFromValue,
+  setToValue,
+  setIsMax,
+}: Props) => {
   const [nameLike, setNameLike] = useState<string>("");
   const { tokens, isLoading: isLoadingTokens } = useTokenOptions(nameLike);
 
@@ -43,10 +55,16 @@ export const TokenSelector = ({ isOpen, setIsOpen, selectingFor, setFrom, setTo 
                   onClick={() => {
                     if (selectingFor === "from") {
                       setFrom(token);
+                      setFromValue("");
+                      setToValue("");
                       setNameLike("");
+                      setIsMax(false);
                     } else {
                       setTo(token);
+                      setToValue("");
+                      setFromValue("");
                       setNameLike("");
+                      setIsMax(false);
                     }
                     setIsOpen(false);
                   }}

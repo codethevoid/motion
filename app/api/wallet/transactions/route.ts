@@ -20,9 +20,14 @@ export const GET = withWallet(async ({ wallet, req }) => {
 
     const transactions = allTransactions.result.transactions
       .filter((tx) => {
-        return (
-          tx.tx_json?.TransactionType === "Payment" || tx.tx_json?.TransactionType === "OfferCreate"
-        );
+        if (
+          tx.tx_json?.TransactionType === "Payment" ||
+          tx.tx_json?.TransactionType === "OfferCreate"
+        ) {
+          if (typeof tx.meta === "object") {
+            return tx.meta.TransactionResult === "tesSUCCESS";
+          }
+        }
       })
       .map((tx) => processTransaction(tx, wallet.address));
 

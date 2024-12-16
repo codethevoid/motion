@@ -14,10 +14,11 @@ export type Wallet = {
   totalReserve: number; // total reserve in XRP
   totalReserveInUsd: number; // total reserve in USD
   tokens: {
-    key: string; // currency-issuer (for our default metadata)
     currency: string; // ticker/symbol (e.g. BTC)
     balance: number; // number of tokens
     balanceInUsd: number; // balance in USD
+    icon: string | undefined;
+    name: string | undefined;
   }[];
   nfts: {
     id: string;

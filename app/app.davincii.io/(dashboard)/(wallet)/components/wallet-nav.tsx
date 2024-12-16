@@ -7,10 +7,10 @@ const navItems: { label: string; value: "tokens" | "nfts" | "transactions" }[] =
     label: "Tokens",
     value: "tokens",
   },
-  {
-    label: "NFTs",
-    value: "nfts",
-  },
+  // {
+  //   label: "NFTs",
+  //   value: "nfts",
+  // },
   {
     label: "Transactions",
     value: "transactions",

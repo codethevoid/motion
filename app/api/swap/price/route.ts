@@ -27,7 +27,7 @@ export const GET = withWallet(async ({ req }) => {
       taker_pays: {
         currency: "XRP",
       },
-      ledger_index: "current",
+      ledger_index: "validated",
     });
 
     const offer = res?.result.offers[0];
@@ -39,8 +39,8 @@ export const GET = withWallet(async ({ req }) => {
       typeof offer.TakerGets === "object"
         ? Number(offer.TakerGets.value)
         : Number(offer.TakerGets) / 1_000_000;
-    const priceInXrp = xrpAmount / tokenAmount;
-    const priceInUsd = priceInXrp * xrpPrice;
+    const priceInXrp = tokenAmount / xrpAmount;
+    const priceInUsd = (1 / priceInXrp) * xrpPrice;
 
     return NextResponse.json({ price: priceInUsd });
   } catch (e) {

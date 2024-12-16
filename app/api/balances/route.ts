@@ -1,0 +1,86 @@
+import { NextResponse } from "next/server";
+import xrplClient from "@/lib/xrp/xrp-client";
+import { withWallet } from "@/lib/auth/with-wallet";
+import { xrpMeta } from "@/lib/xrp/meta";
+import { dropsToXrp, xrpToDrops } from "xrpl";
+
+export const GET = withWallet(async ({ wallet }) => {
+  try {
+    const balancesRes = await xrplClient.getBalances(wallet.address);
+
+    const balances: {
+      currency: string;
+      value: string;
+      name: string | undefined;
+      icon: string | undefined;
+      issuer: string | undefined;
+    }[] = [];
+
+    for (const balance of balancesRes) {
+      if (balance.currency === "XRP") {
+        // calculate reserve
+        const feeRes = await xrplClient.request({ command: "fee", ledger_index: "current" });
+        const networkFee = feeRes.result?.drops.base_fee;
+        const reserve = await calculateReserves(wallet.address);
+        const balanceInDrops = xrpToDrops(Number(balance.value));
+        const availableBalance = Number(balanceInDrops) - reserve - Number(networkFee);
+        const availableBalanceInXrp = dropsToXrp(availableBalance);
+
+        const { icon, name } = xrpMeta;
+        balances.push({
+          currency: "XRP",
+          value: availableBalanceInXrp.toString(),
+          icon,
+          name,
+          issuer: undefined,
+        });
+        continue;
+      }
+
+      // conver to string if currency is hex
+      if (balance.currency.length === 40) {
+        balance.currency = Buffer.from(balance.currency, "hex")
+          .toString("utf-8")
+          .replace(/\0/g, "");
+      }
+
+      const metadataRes = await fetch(
+        `https://s1.xrplmeta.org/token/${balance.currency}:${balance.issuer}`,
+      );
+
+      let icon;
+      let name;
+      if (metadataRes.ok) {
+        const data = await metadataRes.json();
+        icon = data.meta?.token?.icon;
+        name = data.meta?.token?.name;
+      }
+
+      balances.push({
+        ...balance,
+        icon,
+        name,
+        issuer: balance.issuer || undefined,
+      });
+    }
+
+    return NextResponse.json(balances);
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: "Failed to fetch balances" }, { status: 500 });
+  }
+});
+
+async function calculateReserves(address: string) {
+  const accountInfo = await xrplClient.request({
+    command: "account_info",
+    account: address,
+    ledger_index: "current",
+  });
+  // Base reserve (1 XRP)
+  const baseReserve = 1_000_000; // in drops
+  // Owner reserve (0.2 XRP per owned object)
+  const ownerCount = accountInfo.result.account_data.OwnerCount;
+  const ownerReserve = ownerCount * 200_000; // 0.2 XRP = 200,000 drops per item
+  return baseReserve + ownerReserve;
+}

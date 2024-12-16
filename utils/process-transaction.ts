@@ -4,8 +4,8 @@ export type Transaction = {
   type: "Payment" | "OfferCreate";
   direction: "receive" | "send" | "swap";
   amountDelivered: string | Amount | undefined;
-  takerPays: string | Amount | undefined;
-  takerGets: string | Amount | undefined;
+  takerPays: Amount | undefined;
+  takerGets: Amount | undefined;
   fee: string | undefined;
   hash: string | undefined;
   date: number | undefined;

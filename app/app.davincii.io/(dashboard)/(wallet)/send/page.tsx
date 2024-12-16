@@ -1,5 +1,7 @@
+import { SendClient } from "./client";
+
 const SendPage = () => {
-  return <div>SendPage</div>;
+  return <SendClient />;
 };
 
 export default SendPage;

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withWallet } from "@/lib/auth/with-wallet";
 import xrplClient from "@/lib/xrp/xrp-client";
 import { getXrpValueInUsd } from "@/lib/xrp/get-xrp-value-in-usd";
+import { xrpMeta } from "@/lib/xrp/meta";
 
 export const GET = withWallet(async ({ wallet }) => {
   const { address } = wallet;
@@ -28,21 +29,21 @@ export const GET = withWallet(async ({ wallet }) => {
     const availableBalance = balance - totalReserve / 1_000_000;
     const xrpPrice = await getXrpValueInUsd();
 
-    const tokens = [
-      {
-        key: "XRP",
-        issuer: "", // XRP has no issuer since it's the native currency
-        currency: "XRP",
-        balance: Number(balance),
-        balanceInUsd: balance * xrpPrice,
-      },
-    ];
+    const tokens: {
+      currency: string;
+      issuer: string;
+      icon: string | undefined;
+      name: string | undefined;
+      balance: number;
+      balanceInUsd: number;
+    }[] = [];
 
     const balances = await xrplClient.getBalances(address, {});
 
     for (const token of balances) {
       // skip xrp
       if (token.currency === "XRP" && !token.issuer) {
+        tokens.push({ ...xrpMeta, balance: balance, balanceInUsd: balance * xrpPrice });
         continue;
       }
 
@@ -68,20 +69,41 @@ export const GET = withWallet(async ({ wallet }) => {
         const priceInXrp = xrpAmount / tokenAmount;
         const priceInUsd = priceInXrp * xrpPrice;
         const balanceInUsd = priceInUsd * Number(token.value);
+
+        // convert raw currency to string
+        if (token.currency.length === 40) {
+          token.currency = Buffer.from(token.currency, "hex").toString("utf-8").replace(/\0/g, "");
+        }
+
+        // fetch the token metadata
+        const metadataRes = await fetch(
+          `https://s1.xrplmeta.org/token/${token.currency}:${token.issuer}`,
+        );
+
+        let icon;
+        let name;
+        if (metadataRes.ok) {
+          const data = await metadataRes.json();
+          icon = data.meta?.token?.icon;
+          name = data.meta?.token?.name;
+        }
+
         tokens.push({
-          key: `${token.currency}-${token.issuer}`,
           issuer: token.issuer as string,
           currency: token.currency,
           balance: Number(token.value),
           balanceInUsd,
+          icon,
+          name,
         });
       } else {
         tokens.push({
-          key: `${token.currency}-${token.issuer}`,
           issuer: token.issuer as string,
           currency: token.currency,
           balance: Number(token.value),
           balanceInUsd: 0,
+          icon: undefined,
+          name: undefined,
         });
       }
     }
