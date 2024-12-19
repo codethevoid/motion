@@ -8,16 +8,9 @@ import { AccountInfoResponse } from "xrpl";
 export const GET = withWallet(async ({ wallet }) => {
   const { address } = wallet;
   const xrplClient = await getXrpClient();
-  console.log(xrplClient);
 
-  await getXrpClient().then(async (client) => {
-    const info = await client.request({
-      command: "account_info",
-      account: wallet.address,
-      ledger_index: "validated",
-    });
-    console.log("account info", info);
-  });
+  const balances = await xrplClient.getBalances(wallet.address);
+  console.log(balances);
 
   try {
     let walletInfo = {} as AccountInfoResponse; // just to get rid of warnings
