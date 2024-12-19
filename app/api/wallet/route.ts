@@ -10,6 +10,15 @@ export const GET = withWallet(async ({ wallet }) => {
   const xrplClient = await getXrpClient();
   console.log(xrplClient);
 
+  await getXrpClient().then(async (client) => {
+    const info = await client.request({
+      command: "account_info",
+      account: wallet.address,
+      ledger_index: "validated",
+    });
+    console.log("account info", info);
+  });
+
   try {
     let walletInfo = {} as AccountInfoResponse; // just to get rid of warnings
     try {
