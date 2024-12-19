@@ -28,15 +28,15 @@ export const GET = withWallet(async ({ wallet }) => {
 
     console.log(accountLines.result?.lines);
 
-    const ownerCount = walletInfo.result.account_data.OwnerCount;
-    const baseReserve = serverState.result.state.validated_ledger?.reserve_base;
-    const countReserve = serverState.result.state.validated_ledger?.reserve_inc;
-    const ownerReserve = ownerCount * (countReserve || 0);
-    const totalReserve = ownerReserve + (baseReserve || 0);
+    const ownerCount = Number(walletInfo.result.account_data.OwnerCount) || 0;
+    const baseReserve = Number(serverState.result.state.validated_ledger?.reserve_base) || 0;
+    const countReserve = Number(serverState.result.state.validated_ledger?.reserve_inc) || 0;
+    const ownerReserve = ownerCount * countReserve;
+    const totalReserve = ownerReserve + baseReserve;
 
-    const balance = Number(walletInfo.result.account_data.Balance) / 1_000_000;
-    const availableBalance = balance - totalReserve / 1_000_000;
-    const xrpPrice = await getXrpValueInUsd();
+    const balance = Number(walletInfo.result.account_data.Balance) / 1_000_000 || 0;
+    const availableBalance = Math.max(0, balance - totalReserve / 1_000_000);
+    const xrpPrice = (await getXrpValueInUsd()) || 0;
 
     const tokens: {
       currency: string;
@@ -57,32 +57,44 @@ export const GET = withWallet(async ({ wallet }) => {
       }
 
       // convert raw currency to string
-      if (token.currency.length === 40) {
-        token.currency = Buffer.from(token.currency, "hex").toString("utf-8").replace(/\0/g, "");
+      let currencyStr = token.currency;
+      if (typeof currencyStr === "string" && currencyStr.length === 40) {
+        try {
+          currencyStr = Buffer.from(currencyStr, "hex").toString("utf-8").replace(/\0/g, "");
+        } catch (error) {
+          console.error("Error converting currency:", error);
+          continue;
+        }
       }
 
       // fetch the token metadata
-      const metadataRes = await fetch(
-        `https://s1.xrplmeta.org/token/${token.currency}:${token.issuer}`,
-      );
+      let icon: string | undefined = undefined;
+      let name: string | undefined = undefined;
+      let price: number = 0;
 
-      let icon;
-      let name;
-      let price;
-      if (metadataRes.ok) {
-        const data = await metadataRes.json();
-        icon = data.meta?.token?.icon;
-        name = data.meta?.token?.name;
-        price = data.metrics?.price;
+      try {
+        const metadataRes = await fetch(
+          `https://s1.xrplmeta.org/token/${currencyStr}:${token.issuer}`,
+        );
+
+        if (metadataRes.ok) {
+          const data = await metadataRes.json();
+          icon = typeof data.meta?.token?.icon === "string" ? data.meta.token.icon : null;
+          name = typeof data.meta?.token?.name === "string" ? data.meta.token.name : null;
+          price = !isNaN(Number(data.metrics?.price)) ? Number(data.metrics.price) : 0;
+        }
+      } catch (error) {
+        console.error("Error fetching token metadata:", error);
       }
 
-      const priceInUsd = price * xrpPrice || 0;
+      const tokenBalance = Number(token.value) || 0;
+      const priceInUsd = price * xrpPrice;
 
       tokens.push({
-        issuer: token.issuer as string,
-        currency: token.currency,
-        balance: Number(token.value),
-        balanceInUsd: priceInUsd * Number(token.value),
+        issuer: String(token.issuer || ""),
+        currency: String(currencyStr || ""),
+        balance: tokenBalance,
+        balanceInUsd: priceInUsd * tokenBalance,
         icon,
         name,
       });
@@ -96,24 +108,27 @@ export const GET = withWallet(async ({ wallet }) => {
     });
 
     const nfts = accountNfts.result.account_nfts.map((nft) => {
-      let uri = nft.URI ? decodeURI(nft.URI) : null;
-      if (uri) {
-        // Handle IPFS URIs (including redundant ipfs/ in path)
-        if (uri.startsWith("ipfs://")) {
+      let uri: string | null = null;
+      try {
+        uri = nft.URI ? decodeURI(String(nft.URI)) : null;
+        if (uri && uri.startsWith("ipfs://")) {
           uri = uri
             .replace("ipfs://ipfs/", "https://ipfs.io/ipfs/")
             .replace("ipfs://", "https://ipfs.io/ipfs/");
         }
+      } catch (error) {
+        console.error("Error processing NFT URI:", error);
       }
-      const isDirectImage = uri?.match(/\.(jpeg|jpg|png|gif|webp|svg)$/i) !== null;
+
+      const isDirectImage = uri ? /\.(jpeg|jpg|png|gif|webp|svg)$/i.test(uri) : false;
 
       return {
-        id: nft.NFTokenID,
-        taxon: nft.NFTokenTaxon,
+        id: String(nft.NFTokenID || ""),
+        taxon: Number(nft.NFTokenTaxon) || 0,
         uri,
         isDirectImage,
-        issuer: nft.Issuer,
-        flags: nft.Flags,
+        issuer: String(nft.Issuer || ""),
+        flags: Number(nft.Flags) || 0,
       };
     });
 
