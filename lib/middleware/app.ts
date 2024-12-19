@@ -19,5 +19,5 @@ export const appMiddleware = async (req: NextRequest) => {
     }
   }
 
-  return NextResponse.rewrite(new URL(`/app.davincii.io${path === "/" ? "" : path}`, req.url));
+  return NextResponse.rewrite(new URL(`/wallet.davincii.io${path === "/" ? "" : path}`, req.url));
 };

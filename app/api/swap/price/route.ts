@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { withWallet } from "@/lib/auth/with-wallet";
 import { getXrpValueInUsd } from "@/lib/xrp/get-xrp-value-in-usd";
-import xrplClient from "@/lib/xrp/xrp-client";
 
 export const GET = withWallet(async ({ req }) => {
   try {
@@ -17,30 +16,12 @@ export const GET = withWallet(async ({ req }) => {
       return NextResponse.json({ price });
     }
 
-    // get the price of the currency in USD if it's not XRP (custom token)
-    const res = await xrplClient.request({
-      command: "book_offers",
-      taker_gets: {
-        currency,
-        issuer: issuer as string,
-      },
-      taker_pays: {
-        currency: "XRP",
-      },
-      ledger_index: "validated",
-    });
-
-    const offer = res?.result.offers[0];
-    if (!offer) return NextResponse.json({ price: 0 });
-
+    const res = await fetch(`https://s1.xrplmeta.org/token/${currency}:${issuer}`);
+    if (!res.ok) return NextResponse.json({ price: 0 });
+    const data = await res.json();
+    const price = Number(data.metrics?.price); // price for token/XRP
     const xrpPrice = await getXrpValueInUsd();
-    const xrpAmount = Number(offer.TakerPays) / 1_000_000;
-    const tokenAmount =
-      typeof offer.TakerGets === "object"
-        ? Number(offer.TakerGets.value)
-        : Number(offer.TakerGets) / 1_000_000;
-    const priceInXrp = tokenAmount / xrpAmount;
-    const priceInUsd = (1 / priceInXrp) * xrpPrice;
+    const priceInUsd = price * xrpPrice;
 
     return NextResponse.json({ price: priceInUsd });
   } catch (e) {

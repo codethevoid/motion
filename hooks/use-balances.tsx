@@ -2,6 +2,7 @@ import { fetcher } from "@/utils/fetcher";
 import useSWR from "swr";
 
 export type Balance = {
+  rawCurrency: string;
   currency: string;
   value: string;
   name: string | undefined;
@@ -10,6 +11,6 @@ export type Balance = {
 };
 
 export const useBalances = () => {
-  const { data, isLoading, error } = useSWR<Balance[]>("/api/balances", fetcher);
-  return { data, isLoading, error };
+  const { data, isLoading, error, mutate } = useSWR<Balance[]>("/api/balances", fetcher);
+  return { data, isLoading, error, mutate };
 };

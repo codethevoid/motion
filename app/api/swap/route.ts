@@ -3,8 +3,8 @@ import { withWallet } from "@/lib/auth/with-wallet";
 import { FEE_PERCENTAGE } from "@/lib/xrp/constants";
 import { decryptToken } from "@/lib/token";
 import { getToken } from "@/lib/middleware/utils/get-token";
-import { Transaction, Wallet, OfferCreate } from "xrpl";
-import xrplClient from "@/lib/xrp/xrp-client";
+import { Wallet, xrpToDrops, PaymentFlags, TrustSet, Payment, Client } from "xrpl";
+import { getXrpClient } from "@/lib/xrp/connect";
 
 export const maxDuration = 30;
 
@@ -23,167 +23,218 @@ type SwapRequest = {
   };
   slippage: number;
   password: string;
-  isMax: boolean;
-  balance: number;
+  // isMax: boolean;
+  // balance: number;
 };
 
 export const POST = withWallet(async ({ req }) => {
   try {
-    const { from, to, slippage, password, isMax, balance } = (await req.json()) as SwapRequest;
+    const { from, to, slippage, password } = (await req.json()) as SwapRequest;
+
+    // Validate request
     if (!from || !to || !password) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
-
     if (!from.value || isNaN(Number(from.value)) || Number(from.value) <= 0) {
       return NextResponse.json({ error: "Invalid 'from' value" }, { status: 400 });
     }
-
-    if (!to.value || isNaN(Number(to.value)) || Number(to.value) <= 0) {
-      return NextResponse.json({ error: "Invalid 'to' value" }, { status: 400 });
-    }
-
     if (slippage < 1 || slippage > 50) {
       return NextResponse.json({ error: "Invalid slippage" }, { status: 400 });
     }
 
-    // Get token and auth setup
+    // Get token and decrypt credentials
     const token = await getToken();
-    const { seed } = await decryptToken(token as string, password);
-    if (!seed) {
+    const { privateKey, publicKey } = await decryptToken(token as string, password);
+    if (!privateKey || !publicKey) {
       return NextResponse.json({ error: "Invalid password or token" }, { status: 401 });
     }
 
-    // Setup wallet and fees
-    const wallet = Wallet.fromSeed(seed);
+    // Setup wallet
+    const wallet = new Wallet(publicKey, privateKey);
 
-    // our platform fees
+    const xrplClient = await getXrpClient();
+
+    // Calculate platform fees
     const fee = FEE_PERCENTAGE;
     let ourFeeInDrops = 0;
 
-    // network fees
-    const networkRes = await xrplClient.request({ command: "fee", ledger_index: "current" });
-    const networkFee = Number(networkRes?.result.drops.median_fee) * 2 || 10_000;
-
-    // check if we are swapping from XRP to another token
     if (from.currency === "XRP" && !from.issuer) {
-      // calculate fee based on the amount of XRP we are swapping
-      ourFeeInDrops = Number(from.value) * 1_000_000 * fee;
-      // calculate available balance
+      // Calculate fee for XRP swaps
+      ourFeeInDrops = Math.floor(Number(from.value) * 1_000_000 * fee);
+
       const balance = await xrplClient.getXrpBalance(wallet.address, {
         ledger_index: "validated",
       });
-      const reserves = await calculateReserves(wallet.address);
-      const toSwapInDrops = Number(from.value) * 1_000_000;
-      const totalNeeded = toSwapInDrops + ourFeeInDrops + networkFee;
+      const reserves = await calculateReserves(wallet.address, xrplClient);
+      const toSwapInDrops = Math.floor(Number(from.value) * 1_000_000);
+      const totalNeeded = toSwapInDrops + ourFeeInDrops + 10_000; // Include network fee
+
       const availableBalance = balance * 1_000_000 - reserves;
       if (availableBalance < totalNeeded) {
         return NextResponse.json({ error: "Insufficient XRP balance" }, { status: 400 });
       }
     } else {
-      // calculate fee based on the amount of the token we are swapping
-      // and its price in XRP
-      const bookOffers = await xrplClient.request({
-        command: "book_offers",
-        taker: wallet.address,
-        taker_gets:
-          to.currency === "XRP"
-            ? { currency: "XRP" }
-            : {
-                currency: to.rawCurrency,
-                issuer: to.issuer,
-              },
-        taker_pays:
-          to.currency === "XRP"
-            ? {
-                currency: from.rawCurrency,
-                issuer: from.issuer,
-              }
-            : { currency: "XRP" },
-        ledger_index: "validated",
-      });
+      // For custom token swaps, check liquidity via order book
+      // fetch price from xrplmetadata api
+      const res = await fetch(`https://s1.xrplmeta.org/token/${from.rawCurrency}:${from.issuer}`);
 
-      const offer = bookOffers?.result.offers[0];
-      if (!offer) {
-        return NextResponse.json({ error: "No liquidity for this pair" }, { status: 400 });
+      if (!res.ok) {
+        return NextResponse.json({ error: "Error swapping tokens" }, { status: 400 });
       }
 
-      // Adjust price calculation based on swap direction
-      const xrpAmount =
-        to.currency === "XRP"
-          ? Math.floor(Number(offer.TakerGets) / 1_000_000)
-          : Math.floor(Number(offer.TakerPays) / 1_000_000);
+      const data = await res.json();
+      const price = data.metrics?.price; // price in terms of XRP
+      const xrpEquivalent = price * Number(from.value);
+      ourFeeInDrops = Math.floor(xrpEquivalent * 1_000_000 * fee);
 
-      const tokenAmount =
-        to.currency === "XRP"
-          ? typeof offer.TakerPays === "object"
-            ? Number(offer.TakerPays.value)
-            : Math.floor(Number(offer.TakerPays) / 1_000_000)
-          : typeof offer.TakerGets === "object"
-            ? Number(offer.TakerGets.value)
-            : Math.floor(Number(offer.TakerGets) / 1_000_000);
-
-      const priceInXrp = xrpAmount / tokenAmount;
-      // caluclate xrp needed for the swap
-      ourFeeInDrops = Math.floor(priceInXrp * Number(from.value) * 1_000_000 * fee);
-      // caluclate xrp needed for the fee
-      const balance = await xrplClient.getXrpBalance(wallet.address, {
+      // check if user has enough balance in xrp
+      const xrpBalance = await xrplClient.getXrpBalance(wallet.address, {
         ledger_index: "validated",
       });
-      const reserves = await calculateReserves(wallet.address);
-      const totalNeeded = ourFeeInDrops + networkFee;
-      const availableBalance = balance * 1_000_000 - reserves;
-      if (availableBalance < totalNeeded) {
+      const reserves = await calculateReserves(wallet.address, xrplClient);
+      const totalNeeded = ourFeeInDrops + reserves + 10_000; // include network fee
+      if (xrpBalance * 1_000_000 < totalNeeded) {
         return NextResponse.json({ error: "Insufficient XRP balance" }, { status: 400 });
       }
     }
 
-    // now we need to submit the swap
-    const swapDetails: OfferCreate = {
-      TransactionType: "OfferCreate",
-      Account: wallet.address,
-      Flags: isMax ? 0x00080000 | 0x00040000 : 0x00040000,
-      TakerPays:
-        to.currency === "XRP" && !to.issuer
-          ? Math.floor(Number(to.value) * 1_000_000 * (1 - slippage / 100)).toString()
-          : {
-              currency: to.rawCurrency,
-              issuer: to.issuer,
-              value: (Number(to.value) * (1 - slippage / 100)).toFixed(6),
-            },
-      TakerGets:
-        from.currency === "XRP" && !from.issuer
-          ? Math.floor(Number(from.value) * 1_000_000).toString()
-          : {
-              currency: from.rawCurrency,
-              issuer: from.issuer,
-              value: isMax ? balance.toFixed(6) : Number(from.value).toFixed(6),
-            },
-    };
-
-    const prepared = await xrplClient.autofill(swapDetails);
-    const signed = wallet.sign(prepared);
-    const tx = await xrplClient.submitAndWait(signed.tx_blob);
-
-    if (typeof tx.result?.meta === "object") {
-      const status = tx.result.meta.TransactionResult;
-      console.log("status", status);
-      if (status === "tecKILLED") {
-        return NextResponse.json(
-          {
-            error: "Transaction failed. Please try again or increase slippage.",
+    // check if to is a custom token
+    // and setup trust line if needed
+    if (to.currency !== "XRP") {
+      const accountLines = await xrplClient.request({
+        command: "account_lines",
+        account: wallet.address,
+        ledger_index: "validated",
+      });
+      const trustLine = accountLines.result.lines.find(
+        (line) => line.currency === to.rawCurrency && line.account === to.issuer,
+      );
+      // get balance of the token swaping to
+      const balances = await xrplClient.getBalances(wallet.address);
+      const tokenBalance = balances.find((balance) => balance.currency === to.rawCurrency);
+      const totalBalanceNeeded = Number(tokenBalance?.value) || 0 + Number(to.value);
+      if (!trustLine || Number(trustLine.limit) < totalBalanceNeeded) {
+        const trustSet: TrustSet = {
+          TransactionType: "TrustSet" as const,
+          Account: wallet.address,
+          LimitAmount: {
+            currency: to.rawCurrency,
+            issuer: to.issuer,
+            value: "1000000000",
           },
-          { status: 400 },
-        );
-      }
-      if (status !== "tesSUCCESS") {
-        return NextResponse.json({ error: "Error swapping tokens" }, { status: 500 });
+          // Flags: 0x00020000,
+        };
+        const prepared = await xrplClient.autofill(trustSet);
+        const signed = wallet.sign(prepared);
+        const tx = await xrplClient.submitAndWait(signed.tx_blob);
+        console.log("Trust line set:", tx);
       }
     }
 
-    // now lastsly, we need to send the "ourFeeInDrops" to our fee wallet
-    // if the fee is greater than the network fee, we need to send the fee to our fee wallet
+    // Prepare Payment transaction
+    const slippageMultiplier = 1 - slippage / 100;
+
+    const sendMax =
+      from.currency === "XRP" && !from.issuer
+        ? xrpToDrops(Number(from.value).toFixed(6))
+        : {
+            currency: from.rawCurrency,
+            issuer: from.issuer,
+            value: from.value,
+          };
+
+    const amount =
+      to.currency === "XRP" && !to.issuer
+        ? xrpToDrops(Number(to.value).toFixed(6))
+        : {
+            currency: to.rawCurrency,
+            issuer: to.issuer,
+            value: Number(to.value).toFixed(6),
+          };
+
+    const deliverMin =
+      to.currency === "XRP" && !to.issuer
+        ? xrpToDrops((Number(to.value) * slippageMultiplier).toFixed(6))
+        : {
+            currency: to.rawCurrency,
+            issuer: to.issuer,
+            value: (Number(to.value) * slippageMultiplier).toFixed(6),
+          };
+
+    const payment: Payment = {
+      TransactionType: "Payment" as const,
+      Account: wallet.address,
+      Destination: wallet.address,
+      Amount: amount,
+      DeliverMin: deliverMin,
+      SendMax: sendMax,
+      Flags: PaymentFlags.tfPartialPayment,
+    };
+
+    console.log("Payment:", payment);
+
+    // Autofill, sign, and submit transaction
+    const prepared = await xrplClient.autofill(payment);
+    const signed = wallet.sign(prepared);
+    const tx = await xrplClient.submitAndWait(signed.tx_blob);
+    console.log(tx);
+
+    if (typeof tx.result.meta === "object") {
+      const status = tx.result.meta.TransactionResult;
+      console.log("Transaction result:", status);
+
+      if (status !== "tesSUCCESS") {
+        // if status is not tesSUCCESS, remove trust line (if exists and balance is 0)
+        // we need to check for this because the transaction might fail
+        // and we set the trust line before the transaction is submitted
+        // and we don't want to leave a trust line if the transaction fails
+        after(async () => {
+          setTimeout(async () => {
+            const accountLines = await xrplClient.request({
+              command: "account_lines",
+              account: wallet.address,
+              ledger: "current",
+            });
+
+            const trust = accountLines.result?.lines.find(
+              (line) => line.currency === to.rawCurrency && line.account === to.issuer,
+            );
+            console.log("Trust line:", trust);
+            if (trust && trust.balance === "0") {
+              // Remove trust line by setting limit to 0
+              const trustSet: TrustSet = {
+                Account: wallet.address,
+                TransactionType: "TrustSet",
+                LimitAmount: {
+                  currency: to.rawCurrency,
+                  issuer: to.issuer,
+                  value: "0",
+                },
+                Flags: 0x00020000,
+              };
+              const prepared = await xrplClient.autofill(trustSet);
+              const signed = wallet.sign(prepared);
+              const tx = xrplClient.submit(signed.tx_blob);
+              console.log("Trust line removed:", tx);
+            }
+          }, 2000);
+        });
+
+        // check for tecPATH_DRY or tecPATH_PARTIAL
+        if (status === "tecPATH_DRY" || status === "tecPATH_PARTIAL") {
+          // if status is tecPATH_DRY, means there is no liquidity for the swap
+          return NextResponse.json(
+            { error: "No liquidity available for this swap" },
+            { status: 400 },
+          );
+        }
+        return NextResponse.json({ error: "Transaction failed" }, { status: 400 });
+      }
+    }
+
+    // Send platform fee to fee wallet
     after(async () => {
-      if (ourFeeInDrops > networkFee / 2) {
+      if (ourFeeInDrops > 0) {
         const feeWallet = process.env.FEE_WALLET_ADDRESS!;
         const feeTxDetails = {
           TransactionType: "Payment" as const,
@@ -191,27 +242,62 @@ export const POST = withWallet(async ({ req }) => {
           Amount: ourFeeInDrops.toString(),
           Account: wallet.address,
         };
+
         const feePrepared = await xrplClient.autofill(feeTxDetails);
         const feeSigned = wallet.sign(feePrepared);
 
         try {
-          const feeTx = await xrplClient.submitAndWait(feeSigned.tx_blob);
-          console.log("feeTx", feeTx);
+          const feeTx = xrplClient.submit(feeSigned.tx_blob);
+          console.log("Fee Transaction result:", feeTx);
         } catch (e) {
-          console.error(e);
+          console.error("Error sending fee transaction:", e);
         }
       }
+
+      // remove trust line if sending from a custom token
+      // and balance is 0
+      setTimeout(async () => {
+        const accountLines = await xrplClient.request({
+          command: "account_lines",
+          account: wallet.address,
+          ledger: "current",
+        });
+
+        const trust = accountLines.result?.lines.find(
+          (line) => line.currency === from.rawCurrency && line.account === from.issuer,
+        );
+
+        if (trust && trust.balance === "0") {
+          // Remove trust line by setting limit to 0
+          const trustSet: TrustSet = {
+            Account: wallet.address,
+            TransactionType: "TrustSet",
+            LimitAmount: {
+              currency: from.rawCurrency,
+              issuer: from.issuer,
+              value: "0",
+            },
+            Flags: 0x00020000,
+          };
+          const prepared = await xrplClient.autofill(trustSet);
+          const signed = wallet.sign(prepared);
+          const tx = xrplClient.submit(signed.tx_blob);
+          console.log("Trust line removed:", tx);
+        }
+      }, 2000); // Wait for 2 seconds before removing trust line so the transaction can be confirmed
     });
 
-    return NextResponse.json({ success: true });
+    await xrplClient.disconnect();
+
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ error: "Error swapping tokens" }, { status: 500 });
+    return NextResponse.json({ error: "Error processing swap" }, { status: 500 });
   }
 });
 
 // Helper function to calculate required reserves with new values
-async function calculateReserves(address: string) {
+async function calculateReserves(address: string, xrplClient: Client) {
   const accountInfo = await xrplClient.request({
     command: "account_info",
     account: address,

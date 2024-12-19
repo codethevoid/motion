@@ -1,12 +1,13 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { withWallet } from "@/lib/auth/with-wallet";
-import xrplClient from "@/lib/xrp/xrp-client";
+import { getXrpClient } from "@/lib/xrp/connect";
 import { processTransaction } from "@/utils/process-transaction";
 
-export const GET = withWallet(async ({ wallet, req }) => {
+export const GET = withWallet(async ({ wallet }) => {
   try {
-    const url = req.nextUrl;
-    const marker = url.searchParams.get("marker") || "";
+    // const url = req.nextUrl;
+    // const marker = url.searchParams.get("marker") || "";
+    const xrplClient = await getXrpClient();
 
     const allTransactions = await xrplClient.request({
       command: "account_tx",
@@ -31,6 +32,7 @@ export const GET = withWallet(async ({ wallet, req }) => {
       })
       .map((tx) => processTransaction(tx, wallet.address));
 
+    await xrplClient.disconnect();
     return NextResponse.json(transactions);
   } catch (e) {
     console.error(e);

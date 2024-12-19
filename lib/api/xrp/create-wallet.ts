@@ -1,21 +1,35 @@
-import bip39 from "bip39";
-import { deriveKeypair, deriveAddress } from "xrpl";
-import { encodeSeed, Wallet } from "xrpl";
+import { generateMnemonic } from "bip39";
+import { Wallet } from "xrpl";
+
+// export const createWallet = () => {
+//   const mnemonic = bip39.generateMnemonic(); // 12-word mnemonic
+//   const seedBuffer = bip39.mnemonicToSeedSync(mnemonic);
+//   const truncatedSeed = seedBuffer.subarray(0, 16); // Use the first 16 bytes
+//   const seed = encodeSeed(truncatedSeed, "ed25519");
+//   const keypair = deriveKeypair(seed);
+//   const address = deriveAddress(keypair.publicKey);
+
+//   // Return wallet details
+//   return {
+//     mnemonic,
+//     classicAddress: address,
+//     privateKey: keypair.privateKey,
+//     publicKey: keypair.publicKey,
+//     seed,
+//   };
+// };
 
 export const createWallet = () => {
-  const mnemonic = bip39.generateMnemonic(); // 12-word mnemonic
-  const seedBuffer = bip39.mnemonicToSeedSync(mnemonic);
-  const truncatedSeed = seedBuffer.subarray(0, 16); // Use the first 16 bytes
-  const seed = encodeSeed(truncatedSeed, "ed25519");
-  const keypair = deriveKeypair(seed);
-  const address = deriveAddress(keypair.publicKey);
+  const mnemonic = generateMnemonic();
+  const wallet = Wallet.fromMnemonic(mnemonic);
+  // console.log(wallet);
 
-  // Return wallet details
+  // const walletFromPrivateKey = new Wallet(wallet.publicKey, wallet.privateKey);
+
   return {
     mnemonic,
-    classicAddress: address,
-    privateKey: keypair.privateKey,
-    publicKey: keypair.publicKey,
-    seed,
+    classicAddress: wallet.classicAddress,
+    privateKey: wallet.privateKey,
+    publicKey: wallet.publicKey,
   };
 };

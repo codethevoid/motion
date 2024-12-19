@@ -11,8 +11,9 @@ const encodedSecret = new TextEncoder().encode(secret);
 const deriveKey = (password: string, salt: string) => crypto.scryptSync(password, salt, 32);
 const generateSalt = () => crypto.randomBytes(16).toString("hex");
 
-type TokenPayload = {
-  seed: string;
+export type TokenPayload = {
+  privateKey: string;
+  publicKey: string;
 };
 
 export const issueToken = async (payload: TokenPayload, address: string, password: string) => {
@@ -42,7 +43,7 @@ export const issueToken = async (payload: TokenPayload, address: string, passwor
 // can only do this when the user has provided a password
 export const decryptToken = async (token: string, password: string) => {
   const { payload } = await jwtVerify(token, encodedSecret);
-  const { jwe, salt, isCurrent } = payload as { jwe: string; salt: string; isCurrent: boolean };
+  const { jwe, salt } = payload as { jwe: string; salt: string; isCurrent: boolean };
   if (!jwe || !salt) throw new Error("Invalid token");
 
   const key = deriveKey(password, salt);
@@ -58,7 +59,7 @@ export const setCookie = async (token: string) => {
   cookiesStore.set("wallet", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
     expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
     domain: process.env.NODE_ENV === "production" ? `.${rootDomain}` : undefined,
   });
@@ -72,4 +73,9 @@ export const getWallet = async (token: string) => {
     isCurrent: boolean;
   };
   return { address, salt, isCurrent };
+};
+
+export const destroyToken = async () => {
+  const cookiesStore = await cookies();
+  cookiesStore.delete("wallet");
 };

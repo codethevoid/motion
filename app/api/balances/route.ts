@@ -1,14 +1,17 @@
 import { NextResponse } from "next/server";
-import xrplClient from "@/lib/xrp/xrp-client";
 import { withWallet } from "@/lib/auth/with-wallet";
 import { xrpMeta } from "@/lib/xrp/meta";
 import { dropsToXrp, xrpToDrops } from "xrpl";
+import { getXrpClient } from "@/lib/xrp/connect";
+import { Client } from "xrpl";
 
 export const GET = withWallet(async ({ wallet }) => {
   try {
+    const xrplClient = await getXrpClient();
     const balancesRes = await xrplClient.getBalances(wallet.address);
 
     const balances: {
+      rawCurrency: string;
       currency: string;
       value: string;
       name: string | undefined;
@@ -21,13 +24,14 @@ export const GET = withWallet(async ({ wallet }) => {
         // calculate reserve
         const feeRes = await xrplClient.request({ command: "fee", ledger_index: "current" });
         const networkFee = feeRes.result?.drops.base_fee;
-        const reserve = await calculateReserves(wallet.address);
+        const reserve = await calculateReserves(wallet.address, xrplClient);
         const balanceInDrops = xrpToDrops(Number(balance.value));
         const availableBalance = Number(balanceInDrops) - reserve - Number(networkFee);
         const availableBalanceInXrp = dropsToXrp(availableBalance);
-
         const { icon, name } = xrpMeta;
+
         balances.push({
+          rawCurrency: "XRP",
           currency: "XRP",
           value: availableBalanceInXrp.toString(),
           icon,
@@ -38,6 +42,7 @@ export const GET = withWallet(async ({ wallet }) => {
       }
 
       // conver to string if currency is hex
+      const rawCurrency = balance.currency;
       if (balance.currency.length === 40) {
         balance.currency = Buffer.from(balance.currency, "hex")
           .toString("utf-8")
@@ -57,6 +62,7 @@ export const GET = withWallet(async ({ wallet }) => {
       }
 
       balances.push({
+        rawCurrency,
         ...balance,
         icon,
         name,
@@ -64,6 +70,7 @@ export const GET = withWallet(async ({ wallet }) => {
       });
     }
 
+    await xrplClient.disconnect();
     return NextResponse.json(balances);
   } catch (e) {
     console.error(e);
@@ -71,7 +78,7 @@ export const GET = withWallet(async ({ wallet }) => {
   }
 });
 
-async function calculateReserves(address: string) {
+async function calculateReserves(address: string, xrplClient: Client) {
   const accountInfo = await xrplClient.request({
     command: "account_info",
     account: address,

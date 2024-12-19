@@ -7,11 +7,15 @@ export const middleware = async (req: NextRequest) => {
   const path = req.nextUrl.pathname;
   const host = req.headers.get("host")?.replace("www.", "") ?? null;
 
+  if (path.includes("/wallet.davincii.io/") || path.includes("/main/")) {
+    return NextResponse.rewrite(new URL("/not-found", req.url));
+  }
+
   if (host === appDomain) {
     return appMiddleware(req);
   }
 
-  // if token, redirect to app domain
+  // if token, redirect to wallet
   if (path === "/") {
     const token = await getToken();
     if (token) return NextResponse.redirect(`${protocol}${appDomain}`);

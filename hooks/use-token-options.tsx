@@ -15,5 +15,6 @@ export const useTokenOptions = (tokenName?: string) => {
   const url = `/api/tokens?${searchParams.toString()}`;
 
   const { data, isLoading, error } = useSWR<Token[]>(url, fetcher);
+
   return { tokens: data, isLoading, error };
 };

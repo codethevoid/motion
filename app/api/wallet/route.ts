@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { withWallet } from "@/lib/auth/with-wallet";
-import xrplClient from "@/lib/xrp/xrp-client";
+import { getXrpClient } from "@/lib/xrp/connect";
 import { getXrpValueInUsd } from "@/lib/xrp/get-xrp-value-in-usd";
 import { xrpMeta } from "@/lib/xrp/meta";
 
 export const GET = withWallet(async ({ wallet }) => {
   const { address } = wallet;
+  const xrplClient = await getXrpClient();
 
   try {
     const walletInfo = await xrplClient.request({
@@ -18,6 +19,14 @@ export const GET = withWallet(async ({ wallet }) => {
       command: "server_state",
       ledger_index: "validated",
     });
+
+    const accountLines = await xrplClient.request({
+      command: "account_lines",
+      account: address,
+      ledger_index: "validated",
+    });
+
+    console.log(accountLines.result?.lines);
 
     const ownerCount = walletInfo.result.account_data.OwnerCount;
     const baseReserve = serverState.result.state.validated_ledger?.reserve_base;
@@ -47,65 +56,36 @@ export const GET = withWallet(async ({ wallet }) => {
         continue;
       }
 
-      // get book info and calculate price
-      const offers = await xrplClient.request({
-        command: "book_offers",
-        taker_gets: {
-          currency: token.currency,
-          issuer: token.issuer,
-        },
-        taker_pays: {
-          currency: "XRP",
-        },
-      });
-
-      if (offers.result.offers.length > 0) {
-        const bestOffer = offers.result.offers[0];
-        const xrpAmount = Number(bestOffer.TakerPays) / 1_000_000;
-        const tokenAmount =
-          typeof bestOffer.TakerGets === "object"
-            ? Number(bestOffer.TakerGets.value)
-            : Number(bestOffer.TakerGets) / 1_000_000;
-        const priceInXrp = xrpAmount / tokenAmount;
-        const priceInUsd = priceInXrp * xrpPrice;
-        const balanceInUsd = priceInUsd * Number(token.value);
-
-        // convert raw currency to string
-        if (token.currency.length === 40) {
-          token.currency = Buffer.from(token.currency, "hex").toString("utf-8").replace(/\0/g, "");
-        }
-
-        // fetch the token metadata
-        const metadataRes = await fetch(
-          `https://s1.xrplmeta.org/token/${token.currency}:${token.issuer}`,
-        );
-
-        let icon;
-        let name;
-        if (metadataRes.ok) {
-          const data = await metadataRes.json();
-          icon = data.meta?.token?.icon;
-          name = data.meta?.token?.name;
-        }
-
-        tokens.push({
-          issuer: token.issuer as string,
-          currency: token.currency,
-          balance: Number(token.value),
-          balanceInUsd,
-          icon,
-          name,
-        });
-      } else {
-        tokens.push({
-          issuer: token.issuer as string,
-          currency: token.currency,
-          balance: Number(token.value),
-          balanceInUsd: 0,
-          icon: undefined,
-          name: undefined,
-        });
+      // convert raw currency to string
+      if (token.currency.length === 40) {
+        token.currency = Buffer.from(token.currency, "hex").toString("utf-8").replace(/\0/g, "");
       }
+
+      // fetch the token metadata
+      const metadataRes = await fetch(
+        `https://s1.xrplmeta.org/token/${token.currency}:${token.issuer}`,
+      );
+
+      let icon;
+      let name;
+      let price;
+      if (metadataRes.ok) {
+        const data = await metadataRes.json();
+        icon = data.meta?.token?.icon;
+        name = data.meta?.token?.name;
+        price = data.metrics?.price;
+      }
+
+      const priceInUsd = price * xrpPrice || 0;
+
+      tokens.push({
+        issuer: token.issuer as string,
+        currency: token.currency,
+        balance: Number(token.value),
+        balanceInUsd: priceInUsd * Number(token.value),
+        icon,
+        name,
+      });
     }
 
     const accountNfts = await xrplClient.request({
@@ -137,6 +117,8 @@ export const GET = withWallet(async ({ wallet }) => {
       };
     });
 
+    await xrplClient.disconnect();
+
     return NextResponse.json({
       address,
       isFunded: true,
@@ -153,8 +135,8 @@ export const GET = withWallet(async ({ wallet }) => {
       totalReserve: totalReserve ? totalReserve / 1_000_000 : 0,
       totalReserveInUsd: totalReserve ? (totalReserve / 1_000_000) * xrpPrice : 0,
     });
-  } catch (e: any) {
-    if (e?.message === "Account not found.") {
+  } catch (e) {
+    if (e instanceof Error && e.message === "Account not found.") {
       return NextResponse.json({
         address,
         isFunded: false,

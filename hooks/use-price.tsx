@@ -9,7 +9,7 @@ type Price = {
 export const usePrice = (token: Token | null) => {
   const searchParams = new URLSearchParams();
   if (token) {
-    searchParams.set("currency", token.rawCurrency);
+    searchParams.set("currency", token.currency);
     searchParams.set("issuer", token.issuer);
   }
   const url = `/api/swap/price?${searchParams.toString()}`;
