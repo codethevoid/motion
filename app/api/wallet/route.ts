@@ -5,6 +5,8 @@ import { getXrpValueInUsd } from "@/lib/xrp/get-xrp-value-in-usd";
 import { xrpMeta } from "@/lib/xrp/meta";
 import { AccountInfoResponse } from "xrpl";
 
+export const runtime = "nodejs";
+
 export const GET = withWallet(async ({ wallet }) => {
   const { address } = wallet;
   const xrplClient = await getXrpClient();
