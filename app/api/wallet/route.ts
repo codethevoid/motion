@@ -10,11 +10,13 @@ export const GET = withWallet(async ({ wallet }) => {
   console.log(xrplClient);
 
   try {
+    console.log("before wallet info");
     const walletInfo = await xrplClient.request({
       command: "account_info",
       account: address,
       ledger_index: "validated",
     });
+    console.log("after wallet info", walletInfo);
 
     const serverState = await xrplClient.request({
       command: "server_state",
