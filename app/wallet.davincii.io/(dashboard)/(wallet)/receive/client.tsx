@@ -8,11 +8,11 @@ import { QRCodeSVG } from "qrcode.react";
 import FlickeringGrid from "@/components/ui/flickering-grid";
 import { cn } from "@/lib/utils";
 
-export const ReceiveClient = () => {
+export const ReceiveClient = ({ className }: { className?: string }) => {
   const { wallet, isLoading } = useWallet();
   return (
     <>
-      <div className="mx-auto max-w-md space-y-1.5 pt-20">
+      <div className={cn("mx-auto max-w-md space-y-1.5 pt-20", className)}>
         <Card className="space-y-4">
           <div className="space-y-2">
             <p className="text-sm font-medium">My address</p>
@@ -39,7 +39,7 @@ export const ReceiveClient = () => {
               gridGap={4}
               squareSize={2}
             />
-            <div className="rounded-lg border bg-background p-2">
+            <div className="rounded-lg border bg-background p-2.5">
               <QRCodeSVG
                 className={cn(isLoading && "blur-sm")}
                 value={wallet?.address || "placeholder-address"}

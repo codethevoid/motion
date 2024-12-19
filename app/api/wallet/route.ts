@@ -9,6 +9,14 @@ export const GET = withWallet(async ({ wallet }) => {
 
   try {
     const walletInfo = await xrpClient.getAccountInfo(address);
+    if ("error" in walletInfo.result) {
+      const error = walletInfo.result.error;
+      console.log(error);
+      if (error === "actNotFound") {
+        throw new Error("Account not found.");
+      }
+    }
+
     const serverState = await xrpClient.getServerState();
 
     const ownerCount = Number(walletInfo.result.account_data.OwnerCount) || 0;
@@ -145,8 +153,7 @@ export const GET = withWallet(async ({ wallet }) => {
         nfts: [],
         tokens: [
           {
-            key: "XRP",
-            currency: "XRP",
+            ...xrpMeta,
             balance: 0,
             balanceInUsd: 0,
           },

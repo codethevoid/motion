@@ -33,9 +33,9 @@ const xrplRequest = async (request: XrplRequest) => {
   }
 
   const data = await response.json();
-  if (data.error) {
-    throw new Error(`XRPL error: ${data.error}`);
-  }
+  // if (data.result?.error) {
+  //   throw new Error(`XRPL error: ${data.result.error}`);
+  // }
 
   return data;
 };
