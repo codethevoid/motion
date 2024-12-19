@@ -5,14 +5,25 @@ import { getXrpValueInUsd } from "@/lib/xrp/get-xrp-value-in-usd";
 import { xrpMeta } from "@/lib/xrp/meta";
 import { AccountInfoResponse } from "xrpl";
 
-export const runtime = "nodejs";
-
 export const GET = withWallet(async ({ wallet }) => {
   const { address } = wallet;
   const xrplClient = await getXrpClient();
 
-  const balances = await xrplClient.getBalances(wallet.address);
-  console.log(balances);
+  const accountInfo = await fetch("https://xrplcluster.com", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      method: "account_info",
+      params: [
+        {
+          account: address,
+          ledger_index: "validated",
+        },
+      ],
+    }),
+  });
+
+  console.log(accountInfo);
 
   try {
     let walletInfo = {} as AccountInfoResponse; // just to get rid of warnings
