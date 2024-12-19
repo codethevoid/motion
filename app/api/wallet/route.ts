@@ -7,6 +7,7 @@ import { xrpMeta } from "@/lib/xrp/meta";
 export const GET = withWallet(async ({ wallet }) => {
   const { address } = wallet;
   const xrplClient = await getXrpClient();
+  console.log(xrplClient);
 
   try {
     const walletInfo = await xrplClient.request({
