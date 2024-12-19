@@ -9,7 +9,7 @@ type Props = {
 export const constructMetadata = ({
   title = `Davincii | Your Gateway to the XRP Ledger`,
   description = ` Connect directly to the XRP Ledger. Send, receive, and explore a world of decentralized possibilities with full control of your assets.`,
-  image = "https://d1amdcfc5q74f4.cloudfront.net/davincii/open-graph.png",
+  image = "",
 }: Props): Metadata => {
   return {
     title,
