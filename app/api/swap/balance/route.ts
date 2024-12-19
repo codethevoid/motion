@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withWallet } from "@/lib/auth/with-wallet";
-import { getXrpClient } from "@/lib/xrp/connect";
-import { Client } from "xrpl";
+import { xrpClient } from "@/lib/xrp/http-client";
+
 export const GET = withWallet(async ({ wallet, req }) => {
   try {
     const url = req.nextUrl;
@@ -11,26 +11,22 @@ export const GET = withWallet(async ({ wallet, req }) => {
     if (!currency) return NextResponse.json({ balance: 0 });
     if (!issuer && currency !== "XRP") return NextResponse.json({ balance: 0 });
 
-    const xrplClient = await getXrpClient();
-
     if (currency === "XRP") {
-      const balance = await xrplClient.getXrpBalance(wallet.address);
-      const fee = await xrplClient.request({ command: "fee", ledger_index: "current" });
-      const networkFee = Number(fee?.result.drops.median_fee) * 2 || 5000 * 2; // 2x because we need to pay for the swap and the trustline
-      const reserve = await getTotalReserve(wallet.address, xrplClient);
+      const balance = await xrpClient.getXrpBalance(wallet.address);
+      const networkFee = (await xrpClient.getNetworkFee()) * 2;
+      const reserve = await getTotalReserve(wallet.address);
       // and we want to just go ahead and add 2 to the reserve
       // so we can have that for the trustline
-      const totalReserve = reserve / 1_000_000 + 0.2;
-      const availableXrp = balance - totalReserve - Number(networkFee) / 1_000_000;
+      const totalReserve = reserve + 200_000;
+      const availableXrp = (balance - totalReserve - networkFee) / 1_000_000;
       return NextResponse.json({ balance: availableXrp });
     }
 
     // get the balance of the token
-    const balances = await xrplClient.getBalances(wallet.address);
+    const balances = await xrpClient.getBalances(wallet.address);
     const balance = balances.find((b) => b.currency === currency && b.issuer === issuer);
     if (!balance) return NextResponse.json({ balance: 0 });
 
-    await xrplClient.disconnect();
     return NextResponse.json({ balance: Number(balance.value) });
   } catch (e) {
     console.error(e);
@@ -38,14 +34,10 @@ export const GET = withWallet(async ({ wallet, req }) => {
   }
 });
 
-async function getTotalReserve(address: string, xrplClient: Client) {
-  const walletInfo = await xrplClient.request({
-    command: "account_info",
-    account: address,
-    ledger_index: "validated",
-  });
+async function getTotalReserve(address: string) {
+  const walletInfo = await xrpClient.getAccountInfo(address);
 
-  const serverState = await xrplClient.request({ command: "server_state" });
+  const serverState = await xrpClient.getServerState();
 
   const ownerCount = walletInfo.result.account_data.OwnerCount;
   const baseReserve = serverState.result.state.validated_ledger?.reserve_base;

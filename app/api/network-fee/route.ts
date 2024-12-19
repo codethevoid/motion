@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
-import { getXrpClient } from "@/lib/xrp/connect";
+// import { getXrpClient } from "@/lib/xrp/connect";
+import { xrpClient } from "@/lib/xrp/http-client";
+import { dropsToXrp } from "xrpl";
 
+// This route is used only for swapping feature
+// we multiply the network fee by 2 to give it more room for our fee that we apply
 export const GET = async () => {
-  const xrplClient = await getXrpClient();
-  const res = await xrplClient.request({ command: "fee", ledger_index: "current" });
-  const result = res?.result;
-  if (!result) return NextResponse.json({ fee: 10000 });
-
-  const medianFee = Number(result.drops.median_fee) || 5000;
-  if (!medianFee) return NextResponse.json({ fee: 10000 });
-
-  const fee = (Number(medianFee) / 1_000_000) * 2;
-  await xrplClient.disconnect();
-  return NextResponse.json({ fee });
+  const networkFee = await xrpClient.getNetworkFee();
+  const finalFee = dropsToXrp(networkFee * 2);
+  return NextResponse.json({ fee: finalFee });
 };

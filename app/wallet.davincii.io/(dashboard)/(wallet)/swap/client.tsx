@@ -45,6 +45,7 @@ export const SwapClient = () => {
   const [password, setPassword] = useState<string>("");
   const [isPasswordOpen, setIsPasswordOpen] = useState<boolean>(false);
   const [isMax, setIsMax] = useState<boolean>(false);
+  console.log(networkFee);
 
   useEffect(() => {
     if (fromPrice?.price && fromPrice.price > 0 && toPrice?.price && toPrice.price > 0) {

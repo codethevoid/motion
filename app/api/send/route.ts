@@ -1,11 +1,11 @@
 import { NextResponse, unstable_after as after } from "next/server";
 import { withWallet } from "@/lib/auth/with-wallet";
-import { getXrpClient } from "@/lib/xrp/connect";
 import { getToken } from "@/lib/middleware/utils/get-token";
 import { decryptToken } from "@/lib/token";
 import { Amount, Payment, Wallet, xrpToDrops, isValidClassicAddress, TrustSet } from "xrpl";
 import { z } from "zod";
 import { SelectedToken } from "@/app/wallet.davincii.io/(dashboard)/(wallet)/send/client";
+import { xrpClient } from "@/lib/xrp/http-client";
 
 export const maxDuration = 30;
 
@@ -26,7 +26,6 @@ type SendRequest = {
 export const POST = withWallet(async ({ req }) => {
   try {
     const { destination, value, selectedToken, memo, password } = (await req.json()) as SendRequest;
-    const xrplClient = await getXrpClient();
 
     const isValid = schema.safeParse({ destination, value, memo });
     if (!isValid.success) {
@@ -70,10 +69,20 @@ export const POST = withWallet(async ({ req }) => {
       ...(memoHex ? { Memos: [{ Memo: { MemoData: memoHex } }] } : {}),
     };
 
-    const prepared = await xrplClient.autofill(payment);
+    const networkFee = await xrpClient.getNetworkFee();
+    const sequence = await xrpClient.getSequence(wallet.address);
+    const currentLedger = await xrpClient.getLedgerIndex();
+    const prepared: Payment = {
+      ...payment,
+      Fee: networkFee.toString(),
+      Sequence: sequence,
+      LastLedgerSequence: currentLedger + 20,
+    };
     const signed = wallet.sign(prepared);
-    const tx = await xrplClient.submitAndWait(signed.tx_blob);
-    console.log(tx);
+    // const tx = await xrplClient.submitAndWait(signed.tx_blob);
+
+    const tx = await xrpClient.submitAndWait(signed.tx_blob);
+    console.log("tx", tx);
 
     if (typeof tx.result.meta === "object") {
       if (tx.result.meta.TransactionResult !== "tesSUCCESS") {
@@ -83,11 +92,7 @@ export const POST = withWallet(async ({ req }) => {
 
     after(async () => {
       setTimeout(async () => {
-        const accountLines = await xrplClient.request({
-          command: "account_lines",
-          account: wallet.address,
-          ledger: "current",
-        });
+        const accountLines = await xrpClient.getAccountLines(wallet.address);
 
         console.log(accountLines.result?.lines);
 
@@ -108,15 +113,22 @@ export const POST = withWallet(async ({ req }) => {
             },
             Flags: 0x00020000,
           };
-          const prepared = await xrplClient.autofill(trustSet);
+          const networkFee = await xrpClient.getNetworkFee();
+          const sequence = await xrpClient.getSequence(wallet.address);
+          const currentLedger = await xrpClient.getLedgerIndex();
+          const prepared: TrustSet = {
+            ...trustSet,
+            Fee: networkFee.toString(),
+            Sequence: sequence,
+            LastLedgerSequence: currentLedger + 20,
+          };
           const signed = wallet.sign(prepared);
-          const tx = xrplClient.submit(signed.tx_blob);
+          const tx = await xrpClient.submit(signed.tx_blob);
           console.log("Trust line removed:", tx);
         }
-      }, 2000); // Wait for 2 seconds before removing trust line so the transaction can be confirmed
+      }, 4000); // Wait for 2 seconds before removing trust line so the transaction can be confirmed
     });
 
-    await xrplClient.disconnect();
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (e) {
     console.error(e);

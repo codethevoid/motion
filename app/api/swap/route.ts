@@ -3,10 +3,10 @@ import { withWallet } from "@/lib/auth/with-wallet";
 import { FEE_PERCENTAGE } from "@/lib/xrp/constants";
 import { decryptToken } from "@/lib/token";
 import { getToken } from "@/lib/middleware/utils/get-token";
-import { Wallet, xrpToDrops, PaymentFlags, TrustSet, Payment, Client } from "xrpl";
-import { getXrpClient } from "@/lib/xrp/connect";
+import { Wallet, xrpToDrops, PaymentFlags, TrustSet, Payment } from "xrpl";
+import { xrpClient } from "@/lib/xrp/http-client";
 
-export const maxDuration = 30;
+export const maxDuration = 40;
 
 type SwapRequest = {
   from: {
@@ -52,8 +52,6 @@ export const POST = withWallet(async ({ req }) => {
     // Setup wallet
     const wallet = new Wallet(publicKey, privateKey);
 
-    const xrplClient = await getXrpClient();
-
     // Calculate platform fees
     const fee = FEE_PERCENTAGE;
     let ourFeeInDrops = 0;
@@ -62,14 +60,13 @@ export const POST = withWallet(async ({ req }) => {
       // Calculate fee for XRP swaps
       ourFeeInDrops = Math.floor(Number(from.value) * 1_000_000 * fee);
 
-      const balance = await xrplClient.getXrpBalance(wallet.address, {
-        ledger_index: "validated",
-      });
-      const reserves = await calculateReserves(wallet.address, xrplClient);
+      const balance = await xrpClient.getXrpBalance(wallet.address);
+      const networkFee = (await xrpClient.getNetworkFee()) * 2;
+      const reserves = await calculateReserves(wallet.address);
       const toSwapInDrops = Math.floor(Number(from.value) * 1_000_000);
-      const totalNeeded = toSwapInDrops + ourFeeInDrops + 10_000; // Include network fee
+      const totalNeeded = toSwapInDrops + ourFeeInDrops + networkFee; // Include network fee
 
-      const availableBalance = balance * 1_000_000 - reserves;
+      const availableBalance = balance - reserves - networkFee;
       if (availableBalance < totalNeeded) {
         return NextResponse.json({ error: "Insufficient XRP balance" }, { status: 400 });
       }
@@ -88,10 +85,8 @@ export const POST = withWallet(async ({ req }) => {
       ourFeeInDrops = Math.floor(xrpEquivalent * 1_000_000 * fee);
 
       // check if user has enough balance in xrp
-      const xrpBalance = await xrplClient.getXrpBalance(wallet.address, {
-        ledger_index: "validated",
-      });
-      const reserves = await calculateReserves(wallet.address, xrplClient);
+      const xrpBalance = await xrpClient.getXrpBalance(wallet.address);
+      const reserves = await calculateReserves(wallet.address);
       const totalNeeded = ourFeeInDrops + reserves + 10_000; // include network fee
       if (xrpBalance * 1_000_000 < totalNeeded) {
         return NextResponse.json({ error: "Insufficient XRP balance" }, { status: 400 });
@@ -101,16 +96,12 @@ export const POST = withWallet(async ({ req }) => {
     // check if to is a custom token
     // and setup trust line if needed
     if (to.currency !== "XRP") {
-      const accountLines = await xrplClient.request({
-        command: "account_lines",
-        account: wallet.address,
-        ledger_index: "validated",
-      });
+      const accountLines = await xrpClient.getAccountLines(wallet.address);
       const trustLine = accountLines.result.lines.find(
         (line) => line.currency === to.rawCurrency && line.account === to.issuer,
       );
       // get balance of the token swaping to
-      const balances = await xrplClient.getBalances(wallet.address);
+      const balances = await xrpClient.getBalances(wallet.address);
       const tokenBalance = balances.find((balance) => balance.currency === to.rawCurrency);
       const totalBalanceNeeded = Number(tokenBalance?.value) || 0 + Number(to.value);
       if (!trustLine || Number(trustLine.limit) < totalBalanceNeeded) {
@@ -124,9 +115,17 @@ export const POST = withWallet(async ({ req }) => {
           },
           // Flags: 0x00020000,
         };
-        const prepared = await xrplClient.autofill(trustSet);
+        const networkFee = await xrpClient.getNetworkFee();
+        const sequence = await xrpClient.getSequence(wallet.address);
+        const currentLedger = await xrpClient.getLedgerIndex();
+        const prepared: TrustSet = {
+          ...trustSet,
+          Fee: networkFee.toString(),
+          Sequence: sequence,
+          LastLedgerSequence: currentLedger + 20, // give it some time to confirm
+        };
         const signed = wallet.sign(prepared);
-        const tx = await xrplClient.submitAndWait(signed.tx_blob);
+        const tx = await xrpClient.submitAndWait(signed.tx_blob);
         console.log("Trust line set:", tx);
       }
     }
@@ -174,9 +173,17 @@ export const POST = withWallet(async ({ req }) => {
     console.log("Payment:", payment);
 
     // Autofill, sign, and submit transaction
-    const prepared = await xrplClient.autofill(payment);
+    const networkFee = await xrpClient.getNetworkFee();
+    const sequence = await xrpClient.getSequence(wallet.address);
+    const currentLedger = await xrpClient.getLedgerIndex();
+    const prepared: Payment = {
+      ...payment,
+      Fee: networkFee.toString(),
+      Sequence: sequence,
+      LastLedgerSequence: currentLedger + 20,
+    };
     const signed = wallet.sign(prepared);
-    const tx = await xrplClient.submitAndWait(signed.tx_blob);
+    const tx = await xrpClient.submitAndWait(signed.tx_blob);
     console.log(tx);
 
     if (typeof tx.result.meta === "object") {
@@ -190,11 +197,7 @@ export const POST = withWallet(async ({ req }) => {
         // and we don't want to leave a trust line if the transaction fails
         after(async () => {
           setTimeout(async () => {
-            const accountLines = await xrplClient.request({
-              command: "account_lines",
-              account: wallet.address,
-              ledger: "current",
-            });
+            const accountLines = await xrpClient.getAccountLines(wallet.address);
 
             const trust = accountLines.result?.lines.find(
               (line) => line.currency === to.rawCurrency && line.account === to.issuer,
@@ -212,12 +215,20 @@ export const POST = withWallet(async ({ req }) => {
                 },
                 Flags: 0x00020000,
               };
-              const prepared = await xrplClient.autofill(trustSet);
+              const networkFee = await xrpClient.getNetworkFee();
+              const sequence = await xrpClient.getSequence(wallet.address);
+              const currentLedger = await xrpClient.getLedgerIndex();
+              const prepared: TrustSet = {
+                ...trustSet,
+                Fee: networkFee.toString(),
+                Sequence: sequence,
+                LastLedgerSequence: currentLedger + 20,
+              };
               const signed = wallet.sign(prepared);
-              const tx = xrplClient.submit(signed.tx_blob);
+              const tx = await xrpClient.submit(signed.tx_blob);
               console.log("Trust line removed:", tx);
             }
-          }, 2000);
+          }, 4000);
         });
 
         // check for tecPATH_DRY or tecPATH_PARTIAL
@@ -243,11 +254,19 @@ export const POST = withWallet(async ({ req }) => {
           Account: wallet.address,
         };
 
-        const feePrepared = await xrplClient.autofill(feeTxDetails);
+        const networkFee = await xrpClient.getNetworkFee();
+        const sequence = await xrpClient.getSequence(wallet.address);
+        const currentLedger = await xrpClient.getLedgerIndex();
+        const feePrepared: Payment = {
+          ...feeTxDetails,
+          Fee: networkFee.toString(),
+          Sequence: sequence,
+          LastLedgerSequence: currentLedger + 20,
+        };
         const feeSigned = wallet.sign(feePrepared);
 
         try {
-          const feeTx = xrplClient.submit(feeSigned.tx_blob);
+          const feeTx = await xrpClient.submitAndWait(feeSigned.tx_blob);
           console.log("Fee Transaction result:", feeTx);
         } catch (e) {
           console.error("Error sending fee transaction:", e);
@@ -257,11 +276,8 @@ export const POST = withWallet(async ({ req }) => {
       // remove trust line if sending from a custom token
       // and balance is 0
       setTimeout(async () => {
-        const accountLines = await xrplClient.request({
-          command: "account_lines",
-          account: wallet.address,
-          ledger: "current",
-        });
+        const accountLines = await xrpClient.getAccountLines(wallet.address);
+        console.log("Account lines:", accountLines);
 
         const trust = accountLines.result?.lines.find(
           (line) => line.currency === from.rawCurrency && line.account === from.issuer,
@@ -279,15 +295,21 @@ export const POST = withWallet(async ({ req }) => {
             },
             Flags: 0x00020000,
           };
-          const prepared = await xrplClient.autofill(trustSet);
+          const networkFee = await xrpClient.getNetworkFee();
+          const sequence = await xrpClient.getSequence(wallet.address);
+          const currentLedger = await xrpClient.getLedgerIndex();
+          const prepared: TrustSet = {
+            ...trustSet,
+            Fee: networkFee.toString(),
+            Sequence: sequence,
+            LastLedgerSequence: currentLedger + 20,
+          };
           const signed = wallet.sign(prepared);
-          const tx = xrplClient.submit(signed.tx_blob);
+          const tx = await xrpClient.submit(signed.tx_blob);
           console.log("Trust line removed:", tx);
         }
-      }, 2000); // Wait for 2 seconds before removing trust line so the transaction can be confirmed
+      }, 4000); // Wait for 4 seconds before removing trust line so the transaction can be confirmed
     });
-
-    await xrplClient.disconnect();
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (e) {
@@ -297,12 +319,8 @@ export const POST = withWallet(async ({ req }) => {
 });
 
 // Helper function to calculate required reserves with new values
-async function calculateReserves(address: string, xrplClient: Client) {
-  const accountInfo = await xrplClient.request({
-    command: "account_info",
-    account: address,
-    ledger_index: "current",
-  });
+async function calculateReserves(address: string) {
+  const accountInfo = await xrpClient.getAccountInfo(address);
   // Base reserve (1 XRP)
   const baseReserve = 1_000_000; // in drops
   // Owner reserve (0.2 XRP per owned object)

@@ -1,18 +1,15 @@
 import { NextResponse } from "next/server";
 import { withWallet } from "@/lib/auth/with-wallet";
-import { getXrpClient } from "@/lib/xrp/connect";
 import { processTransaction } from "@/utils/process-transaction";
+import { xrpClient } from "@/lib/xrp/http-client";
 
 export const GET = withWallet(async ({ wallet }) => {
   try {
     // const url = req.nextUrl;
     // const marker = url.searchParams.get("marker") || "";
-    const xrplClient = await getXrpClient();
+    // const xrplClient = await getXrpClient();
 
-    const allTransactions = await xrplClient.request({
-      command: "account_tx",
-      account: wallet.address,
-    });
+    const allTransactions = await xrpClient.getTransactions(wallet.address);
 
     // only going to track transaction types of
     // Payment (send)
@@ -32,7 +29,6 @@ export const GET = withWallet(async ({ wallet }) => {
       })
       .map((tx) => processTransaction(tx, wallet.address));
 
-    await xrplClient.disconnect();
     return NextResponse.json(transactions);
   } catch (e) {
     console.error(e);

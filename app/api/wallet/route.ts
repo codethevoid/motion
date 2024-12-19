@@ -1,57 +1,15 @@
 import { NextResponse } from "next/server";
 import { withWallet } from "@/lib/auth/with-wallet";
-import { getXrpClient } from "@/lib/xrp/connect";
 import { getXrpValueInUsd } from "@/lib/xrp/get-xrp-value-in-usd";
 import { xrpMeta } from "@/lib/xrp/meta";
-import { AccountInfoResponse } from "xrpl";
+import { xrpClient } from "@/lib/xrp/http-client";
 
 export const GET = withWallet(async ({ wallet }) => {
   const { address } = wallet;
-  const xrplClient = await getXrpClient();
-
-  const accountInfo = await fetch("https://xrplcluster.com", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      method: "account_info",
-      params: [
-        {
-          account: address,
-          ledger_index: "validated",
-        },
-      ],
-    }),
-  });
-
-  if (accountInfo.ok) {
-    const data = await accountInfo.json();
-    console.log(data);
-  }
 
   try {
-    let walletInfo = {} as AccountInfoResponse; // just to get rid of warnings
-    try {
-      walletInfo = await xrplClient.request({
-        command: "account_info",
-        account: address,
-        ledger_index: "validated",
-      });
-    } catch (e) {
-      console.error("Error getting account info", e);
-    }
-
-    const serverState = await xrplClient.request({
-      command: "server_state",
-      ledger_index: "validated",
-    });
-
-    const accountLines = await xrplClient.request({
-      command: "account_lines",
-      account: address,
-      ledger_index: "validated",
-    });
-
-    console.log(accountLines.result?.lines);
+    const walletInfo = await xrpClient.getAccountInfo(address);
+    const serverState = await xrpClient.getServerState();
 
     const ownerCount = Number(walletInfo.result.account_data.OwnerCount) || 0;
     const baseReserve = Number(serverState.result.state.validated_ledger?.reserve_base) || 0;
@@ -72,7 +30,8 @@ export const GET = withWallet(async ({ wallet }) => {
       balanceInUsd: number;
     }[] = [];
 
-    const balances = await xrplClient.getBalances(address, {});
+    const balances = await xrpClient.getBalances(address);
+    console.log("balances", balances);
 
     for (const token of balances) {
       // skip xrp
@@ -125,12 +84,7 @@ export const GET = withWallet(async ({ wallet }) => {
       });
     }
 
-    const accountNfts = await xrplClient.request({
-      command: "account_nfts",
-      // account: process.env.NODE_ENV === "development" ? testAddress : address,
-      account: address,
-      ledger_index: "validated",
-    });
+    const accountNfts = await xrpClient.getAccountNfts(address);
 
     const nfts = accountNfts.result.account_nfts.map((nft) => {
       let uri: string | null = null;

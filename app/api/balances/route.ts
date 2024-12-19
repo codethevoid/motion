@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { withWallet } from "@/lib/auth/with-wallet";
 import { xrpMeta } from "@/lib/xrp/meta";
 import { dropsToXrp, xrpToDrops } from "xrpl";
-import { getXrpClient } from "@/lib/xrp/connect";
-import { Client } from "xrpl";
+import { xrpClient } from "@/lib/xrp/http-client";
 
+// Route used to getting available balances for wallet
+// used for sending crypto to other wallets
 export const GET = withWallet(async ({ wallet }) => {
   try {
-    const xrplClient = await getXrpClient();
-    const balancesRes = await xrplClient.getBalances(wallet.address);
+    // const xrplClient = await getXrpClient();
+    const balancesRes = await xrpClient.getBalances(wallet.address);
 
     const balances: {
       rawCurrency: string;
@@ -22,11 +23,10 @@ export const GET = withWallet(async ({ wallet }) => {
     for (const balance of balancesRes) {
       if (balance.currency === "XRP") {
         // calculate reserve
-        const feeRes = await xrplClient.request({ command: "fee", ledger_index: "current" });
-        const networkFee = feeRes.result?.drops.base_fee;
-        const reserve = await calculateReserves(wallet.address, xrplClient);
+        const networkFee = await xrpClient.getNetworkFee();
+        const reserve = await calculateReserves(wallet.address);
         const balanceInDrops = xrpToDrops(Number(balance.value));
-        const availableBalance = Number(balanceInDrops) - reserve - Number(networkFee);
+        const availableBalance = Number(balanceInDrops) - reserve - networkFee;
         const availableBalanceInXrp = dropsToXrp(availableBalance);
         const { icon, name } = xrpMeta;
 
@@ -70,7 +70,6 @@ export const GET = withWallet(async ({ wallet }) => {
       });
     }
 
-    await xrplClient.disconnect();
     return NextResponse.json(balances);
   } catch (e) {
     console.error(e);
@@ -78,12 +77,8 @@ export const GET = withWallet(async ({ wallet }) => {
   }
 });
 
-async function calculateReserves(address: string, xrplClient: Client) {
-  const accountInfo = await xrplClient.request({
-    command: "account_info",
-    account: address,
-    ledger_index: "current",
-  });
+async function calculateReserves(address: string) {
+  const accountInfo = await xrpClient.getAccountInfo(address);
   // Base reserve (1 XRP)
   const baseReserve = 1_000_000; // in drops
   // Owner reserve (0.2 XRP per owned object)

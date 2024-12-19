@@ -10,6 +10,7 @@ export const GET = withWallet(async ({ req }) => {
     const res = await fetch(`https://s1.xrplmeta.org/tokens?name_like=${nameLike}&limit=80`);
     if (!res.ok) throw new Error("Error fetching tokens");
     const data = await res.json();
+    console.log(data);
 
     const tokens: Token[] = data.tokens.map(
       (token: {
