@@ -23,7 +23,10 @@ export const GET = withWallet(async ({ wallet }) => {
     }),
   });
 
-  console.log(accountInfo);
+  if (accountInfo.ok) {
+    const data = await accountInfo.json();
+    console.log(data);
+  }
 
   try {
     let walletInfo = {} as AccountInfoResponse; // just to get rid of warnings
