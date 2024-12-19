@@ -48,6 +48,8 @@ export const GET = withWallet(async ({ wallet }) => {
         continue;
       }
 
+      if (token.value === "0") continue;
+
       // convert raw currency to string
       let currencyStr = token.currency;
       if (typeof currencyStr === "string" && currencyStr.length === 40) {
