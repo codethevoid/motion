@@ -41,7 +41,7 @@
     "swr": "^2.2.5",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "xrpl": "^4.0.0",
+    "xrpl": "2.7.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
