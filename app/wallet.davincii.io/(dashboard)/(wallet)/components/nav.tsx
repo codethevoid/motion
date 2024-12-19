@@ -18,19 +18,19 @@ import { ConfirmDisconnect } from "@/components/dialogs/confirm-disconnect";
 const navItems = [
   {
     label: "Wallet",
-    href: "/",
+    href: ["/", ""],
   },
   {
     label: "Swap",
-    href: "/swap",
+    href: ["/swap"],
   },
   {
     label: "Send",
-    href: "/send",
+    href: ["/send"],
   },
   {
     label: "Receive",
-    href: "/receive",
+    href: ["/receive"],
   },
 ];
 
@@ -48,10 +48,10 @@ export const Nav = () => {
             <Button
               key={item.label}
               size="sm"
-              variant={path === item.href ? "default" : "ghost"}
+              variant={item.href.includes(path) ? "default" : "ghost"}
               asChild
             >
-              <NextLink href={item.href}>{item.label}</NextLink>
+              <NextLink href={item.href[0]}>{item.label}</NextLink>
             </Button>
           ))}
         </div>
