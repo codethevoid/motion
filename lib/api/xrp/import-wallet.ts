@@ -7,7 +7,7 @@ export const importWallet = async (
   seed: string | undefined,
   password: string,
   method: "mnemonic" | "seed",
-) => {
+): Promise<{ address: string } | { error: string }> => {
   // verify mnemoin
   if (method === "mnemonic" && mnemonic) {
     const isValidMnemonic = validateMnemonic(mnemonic);
@@ -20,6 +20,7 @@ export const importWallet = async (
     // issue token
     const token = await issueToken({ privateKey, publicKey }, address, password);
     await setCookie(token);
+    return { address };
   } else if (method === "seed" && seed) {
     const wallet = Wallet.fromSeed(seed);
     const address = wallet.classicAddress;
@@ -27,5 +28,8 @@ export const importWallet = async (
     // issue token
     const token = await issueToken({ privateKey, publicKey }, address, password);
     await setCookie(token);
+    return { address };
   }
+
+  return { error: "Invalid request" };
 };

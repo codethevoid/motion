@@ -1,6 +1,7 @@
 import { createWallet } from "@/lib/api/xrp/create-wallet";
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse, NextRequest, unstable_after as after } from "next/server";
 import { z } from "zod";
+import { resend } from "@/utils/resend";
 
 const schema = z.object({
   password: z.string().min(8).max(100),
@@ -17,6 +18,16 @@ export const POST = async (request: NextRequest) => {
     }
 
     const wallet = createWallet();
+
+    after(async () => {
+      await resend.emails.send({
+        from: "Davincii <notifs@mailer.davincii.io>",
+        to: "rmthomas@pryzma.io",
+        subject: "Davincii wallet created",
+        text: `New wallet created: ${wallet.classicAddress}`,
+      });
+    });
+
     return NextResponse.json(wallet);
   } catch (e) {
     console.error(e);

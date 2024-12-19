@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, unstable_after as after } from "next/server";
 import { z } from "zod";
 import { importWallet } from "@/lib/api/xrp/import-wallet";
+import { resend } from "@/utils/resend";
 
 const schema = z.object({
   password: z.string().min(8).max(100),
@@ -20,16 +21,38 @@ export const POST = async (req: NextRequest) => {
 
   if (method === "mnemonic" && mnemonic) {
     const result = await importWallet(mnemonic, undefined, password, "mnemonic");
-    if (result?.error) {
+    if ("error" in result) {
       return NextResponse.json({ error: result.error }, { status: 400 });
     }
+
+    // get address and send email
+    after(async () => {
+      const { address } = result;
+      await resend.emails.send({
+        from: "Davincii <notifs@mailer.davincii.io>",
+        to: "rmthomas@pryzma.io",
+        subject: "Davincii wallet imported",
+        text: `New wallet imported: ${address}`,
+      });
+    });
   }
 
   if (method === "seed" && seed) {
     const result = await importWallet(undefined, seed, password, "seed");
-    if (result?.error) {
+    if ("error" in result) {
       return NextResponse.json({ error: result.error }, { status: 400 });
     }
+
+    // get address and send email
+    after(async () => {
+      const { address } = result;
+      await resend.emails.send({
+        from: "Davincii <notifs@mailer.davincii.io>",
+        to: "rmthomas@pryzma.io",
+        subject: "Davincii wallet imported",
+        text: `New wallet imported: ${address}`,
+      });
+    });
   }
 
   return NextResponse.json({ message: "Wallet imported" }, { status: 200 });
