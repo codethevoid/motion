@@ -132,8 +132,6 @@ export const GET = withWallet(async ({ wallet }) => {
       };
     });
 
-    await xrplClient.disconnect();
-
     return NextResponse.json({
       address,
       isFunded: true,
