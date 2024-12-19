@@ -176,7 +176,5 @@ export const GET = withWallet(async ({ wallet }) => {
     }
     console.error(e);
     return NextResponse.json({ error: "an error occured" }, { status: 500 });
-  } finally {
-    await xrplClient.disconnect();
   }
 });
