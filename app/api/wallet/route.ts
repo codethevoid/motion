@@ -3,6 +3,7 @@ import { withWallet } from "@/lib/auth/with-wallet";
 import { getXrpClient } from "@/lib/xrp/connect";
 import { getXrpValueInUsd } from "@/lib/xrp/get-xrp-value-in-usd";
 import { xrpMeta } from "@/lib/xrp/meta";
+import { AccountInfoResponse } from "xrpl";
 
 export const GET = withWallet(async ({ wallet }) => {
   const { address } = wallet;
@@ -10,13 +11,16 @@ export const GET = withWallet(async ({ wallet }) => {
   console.log(xrplClient);
 
   try {
-    console.log("before wallet info");
-    const walletInfo = await xrplClient.request({
-      command: "account_info",
-      account: address,
-      ledger_index: "validated",
-    });
-    console.log("after wallet info", walletInfo);
+    let walletInfo = {} as AccountInfoResponse; // just to get rid of warnings
+    try {
+      walletInfo = await xrplClient.request({
+        command: "account_info",
+        account: address,
+        ledger_index: "validated",
+      });
+    } catch (e) {
+      console.error("Error getting account info", e);
+    }
 
     const serverState = await xrplClient.request({
       command: "server_state",
