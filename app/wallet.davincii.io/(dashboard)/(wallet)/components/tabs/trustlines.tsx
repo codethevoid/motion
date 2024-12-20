@@ -19,6 +19,9 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { PasswordDialog } from "../../swap/components/password-dialog";
 import { ButtonSpinner } from "@/components/ui/button-spinner";
+import { EmptyState } from "./empty";
+import { HandCoins } from "lucide-react";
+
 export const Trustlines = () => {
   const { data: trustlines, isLoading, error, mutate } = useTrustlines();
   const [isOpen, setIsOpen] = useState(false);
@@ -31,7 +34,10 @@ export const Trustlines = () => {
   if (error) return <div>Error</div>;
 
   if (isLoading) return <TrustlinesSkeleton />;
-  console.log(trustlines);
+
+  if (trustlines?.length === 0 || !trustlines) {
+    return <EmptyState icon={<HandCoins size={18} />} label="No trustlines found" />;
+  }
 
   const handleUpdateLimit = async () => {
     if (!password) return setIsPasswordOpen(true);
