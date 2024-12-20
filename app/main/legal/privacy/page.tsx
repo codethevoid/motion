@@ -1,17 +1,17 @@
 const PrivacyPage = () => {
   return (
     <div className="mx-auto max-w-screen-md px-4 py-12">
-      <article className="prose prose-sm dark:prose-invert w-full max-w-none">
+      <article className="prose prose-sm w-full max-w-none dark:prose-invert">
         <h1>Privacy Policy</h1>
         <p>
           <strong>Effective Date:</strong> December 17, 2024
         </p>
         <p>
-          Welcome to Davincii. This Privacy Policy explains how we collect, use, and protect your
+          Welcome to TokenOS. This Privacy Policy explains how we collect, use, and protect your
           information when you use our wallet application and related services.
         </p>
         <p>
-          By accessing or using Davincii, you agree to the practices described in this Privacy
+          By accessing or using TokenOS, you agree to the practices described in this Privacy
           Policy. If you do not agree, please do not use our services.
         </p>
 
@@ -28,7 +28,7 @@ const PrivacyPage = () => {
         </ul>
         <h2>Information We Do Not Collect</h2>
         <p>
-          At Davincii, your privacy and security are our top priorities. We do not collect or store:
+          At TokenOS, your privacy and security are our top priorities. We do not collect or store:
         </p>
         <ul>
           <li>Your private keys or seed phrases.</li>
@@ -63,7 +63,7 @@ const PrivacyPage = () => {
         <h2>How We Use Your Information</h2>
         <p>We use the limited information we collect to:</p>
         <ul>
-          <li>Improve the performance, functionality, and user experience of Davincii.</li>
+          <li>Improve the performance, functionality, and user experience of TokenOS.</li>
           <li>Respond to customer inquiries and provide technical support.</li>
           <li>Monitor and analyze usage to identify and fix issues.</li>
         </ul>
@@ -75,7 +75,7 @@ const PrivacyPage = () => {
         </p>
         <p>
           We encourage you to review the privacy policies of any third-party services you interact
-          with while using Davincii.
+          with while using TokenOS.
         </p>
 
         <h2>Security</h2>
@@ -87,7 +87,7 @@ const PrivacyPage = () => {
           <li>You are fully responsible for safeguarding your private keys and seed phrases.</li>
           <li>Losing this information may result in permanent loss of access to your wallet.</li>
           <li>
-            Davincii does not store or have access to your keys or wallet contents, so we cannot
+            TokenOS does not store or have access to your keys or wallet contents, so we cannot
             recover lost data.
           </li>
         </ul>
@@ -111,7 +111,7 @@ const PrivacyPage = () => {
         </p>
         <ul>
           <li>
-            <strong>Email:</strong> support@davincii.io
+            <strong>Email:</strong> support@tokenos.one
           </li>
         </ul>
       </article>

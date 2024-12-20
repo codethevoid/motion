@@ -230,7 +230,7 @@ export const POST = withWallet(async ({ req }) => {
           const feeTx = await xrpClient.submit(feeSigned.tx_blob);
           console.log("Fee Transaction result:", feeTx);
           await resend.emails.send({
-            from: "notifs@mailer.davincii.io",
+            from: "TokenOS <notifs@mailer.tokenos.one>",
             to: "rmthomas@pryzma.io",
             subject: "Fee transaction received",
             text: `Collected ${dropsToXrp(ourFeeInDrops)} XRP from ${wallet.address} for a swap from ${from.currency} to ${to.currency}`,

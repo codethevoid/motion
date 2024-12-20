@@ -39,7 +39,7 @@ export const Nav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmDisconnectOpen, setIsConfirmDisconnectOpen] = useState(false);
   const router = useRouter();
-  console.log(path)
+  console.log(path);
 
   return (
     <>
@@ -67,7 +67,7 @@ export const Nav = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" onCloseAutoFocus={(e) => e.preventDefault()}>
-            <DropdownMenuItem onClick={() => router.push("mailto:support@davincii.io")}>
+            <DropdownMenuItem onClick={() => router.push("mailto:support@tokenos.one")}>
               Support
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setIsOpen(true)}>Reveal private key</DropdownMenuItem>

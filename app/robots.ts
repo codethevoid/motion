@@ -5,9 +5,9 @@ const robots = (): MetadataRoute.Robots => {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/wallet.davincii.io/", "/main/"],
+      disallow: ["/wallet.tokenos.one/", "/main/"],
     },
-    sitemap: "https://davincii.io/sitemap.xml",
+    sitemap: "https://tokenos.one/sitemap.xml",
   };
 };
 

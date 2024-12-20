@@ -60,8 +60,8 @@ export const RevealSeed = ({ isOpen, setIsOpen }: Props) => {
         <DialogHeader>
           <DialogTitle>Reveal Private Key</DialogTitle>
           <DialogDescription>
-            Davincii will never ask for your private key. If someone asks for your private key, it
-            is probably a scam. Verify you are sharing your private key with a trusted party.
+            TokenOS will never ask for your private key. If someone asks for your private key, it is
+            probably a scam. Verify you are sharing your private key with a trusted party.
           </DialogDescription>
         </DialogHeader>
         {privateKey && (

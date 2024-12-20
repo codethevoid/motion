@@ -7,7 +7,7 @@ export const middleware = async (req: NextRequest) => {
   const path = req.nextUrl.pathname;
   const host = req.headers.get("host")?.replace("www.", "") ?? null;
 
-  if (path.includes("/wallet.davincii.io/") || path.includes("/main/")) {
+  if (path.includes("/wallet.tokenos.one/") || path.includes("/main/")) {
     return NextResponse.rewrite(new URL("/not-found", req.url));
   }
 
@@ -21,7 +21,7 @@ export const middleware = async (req: NextRequest) => {
     if (token) return NextResponse.redirect(`${protocol}${appDomain}`);
   }
 
-  // otherwise, rewrite to the main domain (davincii.io)
+  // otherwise, rewrite to the main domain (tokenos.one)
   // which lives in /main
   return NextResponse.rewrite(new URL(`/main${path === "/" ? "" : path}`, req.url));
 };

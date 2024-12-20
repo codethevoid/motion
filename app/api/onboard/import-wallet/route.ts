@@ -29,9 +29,9 @@ export const POST = async (req: NextRequest) => {
     after(async () => {
       const { address } = result;
       await resend.emails.send({
-        from: "Davincii <notifs@mailer.davincii.io>",
+        from: "TokenOS <notifs@mailer.tokenos.one>",
         to: "rmthomas@pryzma.io",
-        subject: "Davincii wallet imported",
+        subject: "TokenOS wallet imported",
         text: `New wallet imported: ${address}`,
       });
     });
@@ -47,9 +47,9 @@ export const POST = async (req: NextRequest) => {
     after(async () => {
       const { address } = result;
       await resend.emails.send({
-        from: "Davincii <notifs@mailer.davincii.io>",
+        from: "TokenOS <notifs@mailer.tokenos.one>",
         to: "rmthomas@pryzma.io",
-        subject: "Davincii wallet imported",
+        subject: "TokenOS wallet imported",
         text: `New wallet imported: ${address}`,
       });
     });

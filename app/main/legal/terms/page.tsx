@@ -1,14 +1,14 @@
 const TermsPage = () => {
   return (
     <div className="mx-auto max-w-screen-md px-4 py-12">
-      <article className="prose prose-sm dark:prose-invert w-full max-w-none">
+      <article className="prose prose-sm w-full max-w-none dark:prose-invert">
         <h1>Terms of Service</h1>
         <p>
           <strong>Effective Date:</strong> December 17, 2024
         </p>
         <p>
-          Welcome to Davincii. These Terms of Service (&quot;ToS&quot;) govern your use of the
-          Davincii wallet application (&quot;Service&quot;) for interacting with the XRP Ledger. By
+          Welcome to TokenOS. These Terms of Service (&quot;ToS&quot;) govern your use of the
+          TokenOS wallet application (&quot;Service&quot;) for interacting with the XRP Ledger. By
           accessing or using the Service, you agree to these Terms. If you do not agree, please do
           not use the Service.
         </p>
@@ -16,7 +16,7 @@ const TermsPage = () => {
         <h2>Definitions</h2>
         <ul>
           <li>
-            &quot;Service&quot; refers to the Davincii wallet application, including its website and
+            &quot;Service&quot; refers to the TokenOS wallet application, including its website and
             related features.
           </li>
           <li>
@@ -28,7 +28,7 @@ const TermsPage = () => {
             or using the Service.
           </li>
           <li>
-            &quot;We&quot;, &quot;us&quot; or &quot;our&quot; refers to Davincii and its affiliates.
+            &quot;We&quot;, &quot;us&quot; or &quot;our&quot; refers to TokenOS and its affiliates.
           </li>
         </ul>
 
@@ -85,7 +85,7 @@ const TermsPage = () => {
           <li>The XRP Ledger network may experience downtime or delays.</li>
           <li>You are responsible for securing your devices, passwords, and access points.</li>
         </ul>
-        <p>Davincii is not responsible for any loss resulting from your use of the Service.</p>
+        <p>TokenOS is not responsible for any loss resulting from your use of the Service.</p>
 
         <h2>Third-Party Services</h2>
         <p>
@@ -102,7 +102,7 @@ const TermsPage = () => {
         </p>
 
         <h2>Limitation of Liability</h2>
-        <p>To the maximum extent permitted by law, Davincii shall not be liable for:</p>
+        <p>To the maximum extent permitted by law, TokenOS shall not be liable for:</p>
         <ul>
           <li>Loss of funds, wallet access, or data.</li>
           <li>
@@ -113,7 +113,7 @@ const TermsPage = () => {
 
         <h2>Indemnification</h2>
         <p>
-          You agree to defend, indemnify, and hold harmless Davincii, its affiliates, and employees
+          You agree to defend, indemnify, and hold harmless TokenOS, its affiliates, and employees
           from any claims, damages, or expenses arising from:
         </p>
         <ul>
@@ -143,7 +143,7 @@ const TermsPage = () => {
         <h2>Contact Us</h2>
         <p>If you have any questions or concerns about these Terms, please contact us:</p>
         <ul>
-          <li>Email: support@davincii.io</li>
+          <li>Email: support@tokenos.one</li>
         </ul>
       </article>
     </div>
