@@ -53,6 +53,14 @@ export const POST = withWallet(async ({ req, wallet }) => {
       );
     }
 
+    // check if the limit is less than the balance
+    if (Number(limit) < Number(balance)) {
+      return NextResponse.json(
+        { error: "Limit must be greater than the balance" },
+        { status: 400 },
+      );
+    }
+
     // issued currencies in the XRP ledger can have no more than 15 significant digits
     const significantDigits = countSignificantDigits(limit);
     if (significantDigits > 15) {
