@@ -41,7 +41,7 @@ export const TokenSelector = ({
           onChange={(e) => setNameLike(e.target.value)}
           className="bg-card"
         />
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="h-[400px] max-md:h-[320px]">
           {isLoadingTokens ? (
             <TokensSkeleton />
           ) : (

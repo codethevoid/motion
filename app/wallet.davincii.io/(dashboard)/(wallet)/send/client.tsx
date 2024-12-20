@@ -217,7 +217,7 @@ export const SendClient = () => {
             }}
             className="bg-card"
           />
-          <ScrollArea className="h-[400px]">
+          <ScrollArea className="h-[400px] max-md:h-[320px]">
             <div>
               {filteredBalances?.map((balance) => (
                 <div

@@ -14,7 +14,7 @@ type UpdateTrustlineRequest = {
 
 export const POST = withWallet(async ({ req, wallet }) => {
   try {
-    const { trustline, limit, password }: UpdateTrustlineRequest = await req.json();
+    let { trustline, limit, password }: UpdateTrustlineRequest = await req.json();
 
     if (!trustline || !password) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
@@ -34,6 +34,8 @@ export const POST = withWallet(async ({ req, wallet }) => {
       return NextResponse.json({ error: "Invalid password or token" }, { status: 401 });
     }
 
+    limit = limit?.trim() === "" ? "0" : limit;
+
     const response = await xrpClient.getAccountLines(wallet.address);
     const accountLines = response.result?.lines || [];
     const existingTrustline = accountLines.find(
@@ -46,7 +48,7 @@ export const POST = withWallet(async ({ req, wallet }) => {
 
     // check balance
     const balance = existingTrustline.balance;
-    if (Number(balance) > 0) {
+    if (Number(balance) > 0 && limit === "0") {
       return NextResponse.json(
         { error: "You must sell off this currency in order to remove the trustline." },
         { status: 400 },
@@ -72,7 +74,7 @@ export const POST = withWallet(async ({ req, wallet }) => {
       Account: wallet.address,
       LimitAmount: {
         currency: trustline.currency,
-        value: limit === "" ? "0" : limit,
+        value: limit,
         issuer: trustline.account,
       },
       Flags: 0x00020000,

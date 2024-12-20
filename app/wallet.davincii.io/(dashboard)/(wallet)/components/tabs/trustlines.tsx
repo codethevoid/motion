@@ -30,6 +30,7 @@ export const Trustlines = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
   const [password, setPassword] = useState<string>("");
+  console.log(trustlines);
 
   if (error) return <div>Error</div>;
 

@@ -112,7 +112,7 @@ export const POST = withWallet(async ({ req }) => {
           LimitAmount: {
             currency: to.rawCurrency,
             issuer: to.issuer,
-            value: "1000000000",
+            value: "100000000000",
           },
           // Flags: 0x00020000,
         };
