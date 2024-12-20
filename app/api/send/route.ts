@@ -1,8 +1,8 @@
-import { NextResponse, unstable_after as after } from "next/server";
+import { NextResponse } from "next/server";
 import { withWallet } from "@/lib/auth/with-wallet";
 import { getToken } from "@/lib/middleware/utils/get-token";
 import { decryptToken } from "@/lib/token";
-import { Amount, Payment, Wallet, xrpToDrops, isValidClassicAddress, TrustSet } from "xrpl";
+import { Amount, Payment, Wallet, xrpToDrops, isValidClassicAddress } from "xrpl";
 import { z } from "zod";
 import { SelectedToken } from "@/app/wallet.davincii.io/(dashboard)/(wallet)/send/client";
 import { xrpClient } from "@/lib/xrp/http-client";
@@ -89,45 +89,6 @@ export const POST = withWallet(async ({ req }) => {
         return NextResponse.json({ error: "Transaction failed" }, { status: 400 });
       }
     }
-
-    after(async () => {
-      setTimeout(async () => {
-        const accountLines = await xrpClient.getAccountLines(wallet.address);
-
-        console.log(accountLines.result?.lines);
-
-        const trust = accountLines.result?.lines.find(
-          (line) =>
-            line.currency === selectedToken.rawCurrency && line.account === selectedToken.issuer,
-        );
-
-        if (trust && trust.balance === "0") {
-          // Remove trust line by setting limit to 0
-          const trustSet: TrustSet = {
-            Account: wallet.address,
-            TransactionType: "TrustSet",
-            LimitAmount: {
-              currency: selectedToken.rawCurrency,
-              issuer: selectedToken.issuer || "",
-              value: "0",
-            },
-            Flags: 0x00020000,
-          };
-          const networkFee = await xrpClient.getNetworkFee();
-          const sequence = await xrpClient.getSequence(wallet.address);
-          const currentLedger = await xrpClient.getLedgerIndex();
-          const prepared: TrustSet = {
-            ...trustSet,
-            Fee: networkFee.toString(),
-            Sequence: sequence,
-            LastLedgerSequence: currentLedger + 20,
-          };
-          const signed = wallet.sign(prepared);
-          const tx = await xrpClient.submit(signed.tx_blob);
-          console.log("Trust line removed:", tx);
-        }
-      }, 4000); // Wait for 2 seconds before removing trust line so the transaction can be confirmed
-    });
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (e) {

@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 
-const navItems: { label: string; value: "tokens" | "nfts" | "transactions" }[] = [
+const navItems: { label: string; value: "tokens" | "nfts" | "transactions" | "trustlines" }[] = [
   {
     label: "Tokens",
     value: "tokens",
@@ -12,14 +12,18 @@ const navItems: { label: string; value: "tokens" | "nfts" | "transactions" }[] =
   //   value: "nfts",
   // },
   {
+    label: "Trustlines",
+    value: "trustlines",
+  },
+  {
     label: "Transactions",
     value: "transactions",
   },
 ];
 
 type Props = {
-  tab: "tokens" | "nfts" | "transactions";
-  setTab: (tab: "tokens" | "nfts" | "transactions") => void;
+  tab: "tokens" | "nfts" | "transactions" | "trustlines";
+  setTab: (tab: "tokens" | "nfts" | "transactions" | "trustlines") => void;
 };
 
 export const WalletNav = ({ tab, setTab }: Props) => {

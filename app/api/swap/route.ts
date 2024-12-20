@@ -3,8 +3,9 @@ import { withWallet } from "@/lib/auth/with-wallet";
 import { FEE_PERCENTAGE } from "@/lib/xrp/constants";
 import { decryptToken } from "@/lib/token";
 import { getToken } from "@/lib/middleware/utils/get-token";
-import { Wallet, xrpToDrops, PaymentFlags, TrustSet, Payment } from "xrpl";
+import { Wallet, xrpToDrops, PaymentFlags, TrustSet, Payment, dropsToXrp } from "xrpl";
 import { xrpClient } from "@/lib/xrp/http-client";
+import { resend } from "@/utils/resend";
 
 export const maxDuration = 40;
 
@@ -191,47 +192,7 @@ export const POST = withWallet(async ({ req }) => {
       console.log("Transaction result:", status);
 
       if (status !== "tesSUCCESS") {
-        // if status is not tesSUCCESS, remove trust line (if exists and balance is 0)
-        // we need to check for this because the transaction might fail
-        // and we set the trust line before the transaction is submitted
-        // and we don't want to leave a trust line if the transaction fails
-        after(async () => {
-          setTimeout(async () => {
-            const accountLines = await xrpClient.getAccountLines(wallet.address);
-
-            const trust = accountLines.result?.lines.find(
-              (line) => line.currency === to.rawCurrency && line.account === to.issuer,
-            );
-            console.log("Trust line:", trust);
-            if (trust && trust.balance === "0") {
-              // Remove trust line by setting limit to 0
-              const trustSet: TrustSet = {
-                Account: wallet.address,
-                TransactionType: "TrustSet",
-                LimitAmount: {
-                  currency: to.rawCurrency,
-                  issuer: to.issuer,
-                  value: "0",
-                },
-                Flags: 0x00020000,
-              };
-              const networkFee = await xrpClient.getNetworkFee();
-              const sequence = await xrpClient.getSequence(wallet.address);
-              const currentLedger = await xrpClient.getLedgerIndex();
-              const prepared: TrustSet = {
-                ...trustSet,
-                Fee: networkFee.toString(),
-                Sequence: sequence,
-                LastLedgerSequence: currentLedger + 20,
-              };
-              const signed = wallet.sign(prepared);
-              const tx = await xrpClient.submit(signed.tx_blob);
-              console.log("Trust line removed:", tx);
-            }
-          }, 4000);
-        });
-
-        // check for tecPATH_DRY or tecPATH_PARTIAL
+        // check for tecPATH_DRY or tecPATH_PARTIAL so we can return a more user friendly error
         if (status === "tecPATH_DRY" || status === "tecPATH_PARTIAL") {
           // if status is tecPATH_DRY, means there is no liquidity for the swap
           return NextResponse.json(
@@ -266,49 +227,18 @@ export const POST = withWallet(async ({ req }) => {
         const feeSigned = wallet.sign(feePrepared);
 
         try {
-          const feeTx = await xrpClient.submitAndWait(feeSigned.tx_blob);
+          const feeTx = await xrpClient.submit(feeSigned.tx_blob);
           console.log("Fee Transaction result:", feeTx);
+          await resend.emails.send({
+            from: "notifs@mailer.davincii.io",
+            to: "rmthomas@pryzma.io",
+            subject: "Fee transaction received",
+            text: `Collected ${dropsToXrp(ourFeeInDrops)} XRP from ${wallet.address} for a swap from ${from.currency} to ${to.currency}`,
+          });
         } catch (e) {
           console.error("Error sending fee transaction:", e);
         }
       }
-
-      // remove trust line if sending from a custom token
-      // and balance is 0
-      setTimeout(async () => {
-        const accountLines = await xrpClient.getAccountLines(wallet.address);
-        console.log("Account lines:", accountLines);
-
-        const trust = accountLines.result?.lines.find(
-          (line) => line.currency === from.rawCurrency && line.account === from.issuer,
-        );
-
-        if (trust && trust.balance === "0") {
-          // Remove trust line by setting limit to 0
-          const trustSet: TrustSet = {
-            Account: wallet.address,
-            TransactionType: "TrustSet",
-            LimitAmount: {
-              currency: from.rawCurrency,
-              issuer: from.issuer,
-              value: "0",
-            },
-            Flags: 0x00020000,
-          };
-          const networkFee = await xrpClient.getNetworkFee();
-          const sequence = await xrpClient.getSequence(wallet.address);
-          const currentLedger = await xrpClient.getLedgerIndex();
-          const prepared: TrustSet = {
-            ...trustSet,
-            Fee: networkFee.toString(),
-            Sequence: sequence,
-            LastLedgerSequence: currentLedger + 20,
-          };
-          const signed = wallet.sign(prepared);
-          const tx = await xrpClient.submit(signed.tx_blob);
-          console.log("Trust line removed:", tx);
-        }
-      }, 4000); // Wait for 4 seconds before removing trust line so the transaction can be confirmed
     });
 
     return NextResponse.json({ success: true }, { status: 200 });

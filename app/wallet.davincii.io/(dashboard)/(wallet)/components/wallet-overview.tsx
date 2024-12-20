@@ -9,10 +9,11 @@ import { WalletNav } from "./wallet-nav";
 import { Tokens } from "./tabs/tokens";
 import { Nfts } from "./tabs/nfts";
 import { Transactions } from "./tabs/transactions";
+import { Trustlines } from "./tabs/trustlines";
 
 export const WalletOverview = () => {
   const { wallet, isLoading } = useWallet();
-  const [tab, setTab] = useState<"tokens" | "nfts" | "transactions">("tokens");
+  const [tab, setTab] = useState<"tokens" | "nfts" | "transactions" | "trustlines">("tokens");
 
   return (
     <>
@@ -76,6 +77,7 @@ export const WalletOverview = () => {
       {tab === "tokens" && <Tokens />}
       {tab === "nfts" && <Nfts />}
       {tab === "transactions" && <Transactions />}
+      {tab === "trustlines" && <Trustlines />}
     </>
   );
 };

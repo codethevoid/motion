@@ -41,6 +41,8 @@ export const GET = withWallet(async ({ wallet }) => {
         continue;
       }
 
+      if (balance.value === "0") continue;
+
       // conver to string if currency is hex
       const rawCurrency = balance.currency;
       if (balance.currency.length === 40) {
