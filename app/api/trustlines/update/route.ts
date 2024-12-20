@@ -14,7 +14,9 @@ type UpdateTrustlineRequest = {
 
 export const POST = withWallet(async ({ req, wallet }) => {
   try {
-    let { trustline, limit, password }: UpdateTrustlineRequest = await req.json();
+    const body: UpdateTrustlineRequest = await req.json();
+    const { password, trustline } = body;
+    let { limit } = body;
 
     if (!trustline || !password) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
