@@ -1,29 +1,12 @@
-import { NextResponse, NextRequest } from "next/server";
-import { appDomain, protocol } from "./utils";
-import { appMiddleware } from "./lib/middleware/app";
+import { NextResponse } from "next/server";
 import { getToken } from "./lib/middleware/utils/get-token";
+import { updateCookie } from "./lib/middleware/utils/update-cookie";
 
-export const middleware = async (req: NextRequest) => {
-  const path = req.nextUrl.pathname;
-  const host = req.headers.get("host")?.replace("www.", "") ?? null;
-
-  if (path.includes("/wallet.tokenos.one/") || path.includes("/main/")) {
-    return NextResponse.rewrite(new URL("/not-found", req.url));
-  }
-
-  if (host === appDomain) {
-    return appMiddleware(req);
-  }
-
-  // if token, redirect to wallet
-  if (path === "/") {
-    const token = await getToken();
-    if (token) return NextResponse.redirect(`${protocol}${appDomain}`);
-  }
-
-  // otherwise, rewrite to the main domain (tokenos.one)
-  // which lives in /main
-  return NextResponse.rewrite(new URL(`/main${path === "/" ? "" : path}`, req.url));
+export const middleware = async () => {
+  // check if there is a wallet cookie and update it so it expires in 30 days
+  const token = await getToken();
+  if (token) await updateCookie(token);
+  return NextResponse.next();
 };
 
 export const config = {

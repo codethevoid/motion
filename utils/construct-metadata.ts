@@ -7,7 +7,7 @@ type Props = {
 };
 
 export const constructMetadata = ({
-  title = `TokenOS | Your Gateway to the XRP Ledger`,
+  title = `TokenOS • Your Gateway to the XRP Ledger`,
   description = ` Connect directly to the XRP Ledger. Send, receive, and explore a world of decentralized possibilities with full control of your assets.`,
   image = "",
 }: Props): Metadata => {

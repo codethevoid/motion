@@ -5,7 +5,6 @@ const robots = (): MetadataRoute.Robots => {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/wallet.tokenos.one/", "/main/"],
     },
     sitemap: "https://tokenos.one/sitemap.xml",
   };
