@@ -7,14 +7,15 @@ export type Token = {
   issuer: string;
   icon: string | undefined;
   name: string | undefined;
+  description: string | undefined;
 };
 
-export const useTokenOptions = (tokenName?: string) => {
+export const useTokenOptions = (tokenName?: string, limit?: number) => {
   const searchParams = new URLSearchParams();
   if (tokenName) searchParams.set("name_like", tokenName);
-  const url = `/api/tokens?${searchParams.toString()}`;
+  if (limit) searchParams.set("limit", limit.toString());
+  const url = `/api/tokens/options?${searchParams.toString()}`;
 
   const { data, isLoading, error } = useSWR<Token[]>(url, fetcher);
-
   return { tokens: data, isLoading, error };
 };

@@ -16,6 +16,7 @@ export const GET = async (req: NextRequest) => {
   const res = await fetch(`https://s1.xrplmeta.org/token/${identifier}?include_changes=true`);
   if (!res.ok) throw new Error("Error fetching token metrics");
   const data = await res.json();
+
   const xrpValueInUsd = await getXrpValueInUsd();
   return NextResponse.json({ ...data, xrpValueInUsd });
 };

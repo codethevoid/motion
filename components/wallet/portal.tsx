@@ -136,7 +136,7 @@ export const WalletPortal = () => {
           </RainbowButton>
         )}
       </DrawerTrigger>
-      <DrawerContent className="h-[750px]">
+      <DrawerContent className={`${hasWallet ? "h-[750px]" : ""}`}>
         <VisuallyHidden>
           <DialogTitle>Wallet</DialogTitle>
         </VisuallyHidden>

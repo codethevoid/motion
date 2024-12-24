@@ -9,24 +9,23 @@ import { Search } from "lucide-react";
 import { useTokenMetrics } from "@/hooks/use-token-metrics";
 import { Skeleton } from "../ui/skeleton";
 import { Coin } from "../ui/icons/coin";
+import { LineChart } from "../charts/line";
+import { cn } from "@/lib/utils";
+import { ExternalLink } from "lucide-react";
+import { formatBigNum } from "@/utils/format-big-num";
+import { formatCurrency } from "@/utils/format-currency";
+import { ParticlesBg } from "../layout/particles";
 
 export const Hero = () => {
   const { isOpen, setIsOpen } = useWalletActions();
   const { data: tokenData, isLoading } = useTokenMetrics(
-    "4A454C4C59000000000000000000000000000000",
-    "rKHsxmaqf2SfcyU9LRi3VyjpAtyg6ZrQMp",
+    "4A454C4C59000000000000000000000000000000", // currency
+    "rKHsxmaqf2SfcyU9LRi3VyjpAtyg6ZrQMp", // issuer
   );
 
-  const getTokenCurrency = (currency: string) => {
-    if (currency.length === 40) {
-      // convert from hex to string
-      return Buffer.from(currency, "hex").toString("utf-8");
-    }
-    return currency;
-  };
-
   return (
-    <div className="w-full space-y-8">
+    <div className="relative w-full space-y-8">
+      <ParticlesBg />
       <div className="w-full space-y-6">
         <GradientBadge
           text="Self-custody wallet"
@@ -43,7 +42,7 @@ export const Hero = () => {
           </p>
         </div>
       </div>
-      <Card className="mx-auto w-full max-w-md space-y-2 p-2.5">
+      <Card className="mx-auto w-full max-w-md space-y-2 p-2.5 backdrop-blur-sm">
         <Button
           className="w-full cursor-text justify-start px-3 text-muted-foreground hover:bg-background hover:text-muted-foreground"
           variant="outline"
@@ -72,10 +71,10 @@ export const Hero = () => {
                   <p className="text-[13px]">
                     {tokenData?.meta.token.name
                       ? tokenData?.meta.token.name
-                      : getTokenCurrency(tokenData?.currency as string)}
+                      : formatCurrency(tokenData?.currency as string)}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    ${getTokenCurrency(tokenData?.currency as string)}
+                  <p className="font-mono text-xs text-muted-foreground">
+                    {formatCurrency(tokenData?.currency as string)}
                   </p>
                 </>
               ) : (
@@ -88,34 +87,124 @@ export const Hero = () => {
           </div>
           <div>
             {tokenData ? (
-              <>
-                <p className="text-right text-[13px]">
-                  {Number(tokenData?.metrics.price).toLocaleString("en-us", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 6,
-                  })}{" "}
-                  XRP
-                </p>
-                <p className="text-right text-xs text-muted-foreground">
-                  {(Number(tokenData.metrics.price) * tokenData.xrpValueInUsd).toLocaleString(
-                    "en-us",
-                    {
-                      style: "currency",
-                      currency: "usd",
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 6,
-                    },
-                  )}{" "}
-                  USD
-                </p>
-              </>
+              <div className="space-y-0.5">
+                <p className="text-right font-mono text-xs">JELLY/XRP</p>
+                <div>
+                  <a
+                    href={`https://xrpscan.com/account/${tokenData.issuer}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-right text-xs text-muted-foreground hover:text-foreground hover:underline"
+                  >
+                    <span className="flex items-center space-x-1">
+                      <span>
+                        {tokenData.issuer.slice(0, 6)}...{tokenData.issuer.slice(-4)}
+                      </span>
+                      <ExternalLink className="size-3" />
+                    </span>
+                  </a>
+                </div>
+              </div>
             ) : (
               <div className="flex flex-col items-end space-y-0.5">
                 <Skeleton className="h-4 w-20 rounded-sm" />
-                <Skeleton className="h-4 w-20 rounded-sm" />
+                <Skeleton className="h-4 w-24 rounded-sm" />
               </div>
             )}
           </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-0.5 rounded-md border bg-background px-3 py-2">
+            <p className="text-center text-xs text-muted-foreground">Price in USD</p>
+            {tokenData ? (
+              <p className="text-center text-[13px]">
+                {(Number(tokenData.metrics.price) * tokenData.xrpValueInUsd).toLocaleString(
+                  "en-us",
+                  {
+                    style: "currency",
+                    currency: "usd",
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 6,
+                  },
+                )}{" "}
+                USD
+              </p>
+            ) : (
+              <div className="flex h-[19.5px] items-center">
+                <Skeleton className="mx-auto h-4 w-24 rounded-sm" />
+              </div>
+            )}
+          </div>
+          <div className="space-y-0.5 rounded-md border bg-background px-3 py-2">
+            <p className="text-center text-xs text-muted-foreground">Price in XRP</p>
+            {tokenData ? (
+              <p className="text-center text-[13px]">
+                {Number(tokenData.metrics.price).toLocaleString("en-us", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 6,
+                })}{" "}
+                XRP
+              </p>
+            ) : (
+              <div className="flex h-[19.5px] items-center">
+                <Skeleton className="mx-auto h-4 w-24 rounded-sm" />
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="space-y-0.5 rounded-md border bg-background px-3 py-2">
+            <p className="text-center text-xs text-muted-foreground">Market cap</p>
+            {tokenData ? (
+              <p className="text-center text-[13px]">
+                {formatBigNum(Number(tokenData.metrics.marketcap) * tokenData.xrpValueInUsd)}
+              </p>
+            ) : (
+              <div className="flex h-[19.5px] items-center">
+                <Skeleton className="mx-auto h-4 w-20 rounded-sm" />
+              </div>
+            )}
+          </div>
+          <div className="space-y-0.5 rounded-md border bg-background px-3 py-2">
+            <p className="text-center text-xs text-muted-foreground">Holders</p>
+            {tokenData ? (
+              <p className="text-center text-[13px]">
+                {formatBigNum(Number(tokenData.metrics.holders))}
+              </p>
+            ) : (
+              <div className="flex h-[19.5px] items-center">
+                <Skeleton className="mx-auto h-4 w-20 rounded-sm" />
+              </div>
+            )}
+          </div>
+          <div className="space-y-0.5 rounded-md border bg-background px-3 py-2">
+            <p className="text-center text-xs text-muted-foreground">24h change</p>
+            {tokenData ? (
+              <p
+                className={cn(
+                  "text-center text-[13px]",
+                  tokenData.metrics.changes["24h"].price.percent > 0
+                    ? "text-green-500"
+                    : "text-red-500",
+                )}
+              >
+                {tokenData.metrics.changes["24h"].price.percent.toFixed(2)}%
+              </p>
+            ) : (
+              <div className="flex h-[19.5px] items-center">
+                <Skeleton className="mx-auto h-4 w-20 rounded-sm" />
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="h-[260px] w-full rounded-md border bg-background p-3 max-md:h-[220px]">
+          {/* <CandleChart candlesticks={tokenData?.candlesticks || []} /> */}
+          <LineChart
+            currency="4A454C4C59000000000000000000000000000000"
+            issuer="rKHsxmaqf2SfcyU9LRi3VyjpAtyg6ZrQMp"
+            range="1w"
+          />
         </div>
       </Card>
     </div>
