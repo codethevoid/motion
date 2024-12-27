@@ -145,7 +145,7 @@ export const Send = () => {
               {/* <div className="flex items-center justify-between"> */}
               {/* <p className="text-[13px]">Amount</p> */}
               {selectedToken && (
-                <p className="text-xs">
+                <p className="text-right text-xs">
                   {Number(selectedToken?.value).toLocaleString("en-us", {
                     maximumFractionDigits: 2,
                     minimumFractionDigits: 2,

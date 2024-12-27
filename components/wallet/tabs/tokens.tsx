@@ -6,10 +6,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "react-responsive";
+import { useRouter } from "next/navigation";
+import { useWalletActions } from "../context";
 
 export const Tokens = () => {
   const { wallet, isLoading: isLoading } = useWallet();
   const isDesktop = useMediaQuery({ minWidth: 768 });
+  const { setIsOpen } = useWalletActions();
+  const router = useRouter();
 
   if (isLoading) return <TokensSkeleton />;
 
@@ -17,7 +21,16 @@ export const Tokens = () => {
     <ScrollArea className={cn("h-[245px]", isDesktop ? "h-[245px]" : "h-[435px]")}>
       <div className="space-y-1.5">
         {wallet?.tokens.map((token) => (
-          <Card key={token.currency} className="p-0">
+          <Card
+            key={token.currency}
+            className={cn("p-0", token.issuer && "cursor-pointer")}
+            onClick={() => {
+              if (token.issuer) {
+                router.push(`/tokens/${token.rawCurrency}:${token.issuer}`);
+                setIsOpen(false);
+              }
+            }}
+          >
             <div className="flex items-center justify-between px-3 py-2.5">
               <div className="flex items-center space-x-2.5">
                 {token.icon ? (

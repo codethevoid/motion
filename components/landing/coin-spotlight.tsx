@@ -29,9 +29,9 @@ export const CoinSpotlight = () => {
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="text-center text-3xl font-bold max-sm:text-2xl max-sm:tracking-tight">
+        <h2 className="text-center text-3xl font-bold max-sm:text-xl max-sm:tracking-tight">
           Your tokens, your way
-        </h1>
+        </h2>
         <p className="mx-auto max-w-lg text-center text-sm text-muted-foreground max-sm:max-w-xs max-sm:text-[13px]">
           Gain access to thousands of tokens and start trading with ease directly from our
           decentralized exchange using our self-custody wallet.
@@ -68,7 +68,7 @@ const CoinCard = (token: MetaToken) => {
       <Card className="h-full w-64 cursor-pointer p-4 transition-colors dark:hover:bg-secondary/60">
         <div className="flex items-center gap-2">
           <img
-            className="size-8 rounded-full"
+            className="size-8 rounded-md"
             alt={token.name || formatCurrency(token.currency)}
             src={token.icon}
           />

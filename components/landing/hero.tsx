@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { ExternalLink } from "lucide-react";
 import { formatBigNum } from "@/utils/format-big-num";
 import { formatCurrency } from "@/utils/format-currency";
-import { ParticlesBg } from "../layout/particles";
+import AnimatedGridPattern from "../ui/animated-grid-pattern";
 
 export const Hero = () => {
   const { isOpen, setIsOpen } = useWalletActions();
@@ -24,8 +24,18 @@ export const Hero = () => {
   );
 
   return (
-    <div className="relative w-full space-y-8">
-      <ParticlesBg />
+    <div className="relative mx-auto w-full max-w-screen-lg space-y-8 overflow-hidden rounded-2xl border border-border/80 bg-secondary/5 px-4 py-10 max-sm:rounded-none max-sm:border-0 max-sm:border-b max-sm:pb-16">
+      {/* <ParticlesBg /> */}
+      <AnimatedGridPattern
+        numSquares={30}
+        maxOpacity={0.1}
+        duration={3}
+        repeatDelay={1}
+        className={cn(
+          "z-[-1] [mask-image:radial-gradient(600px_circle_at_center,black,transparent)]",
+          "inset-x-0 inset-y-[-30%] h-[200%]",
+        )}
+      />
       <div className="w-full space-y-6">
         <GradientBadge
           text="Self-custody wallet"
@@ -153,7 +163,7 @@ export const Hero = () => {
             )}
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        {/* <div className="grid grid-cols-3 gap-2">
           <div className="space-y-0.5 rounded-md border bg-background px-3 py-2">
             <p className="text-center text-xs text-muted-foreground">Market cap</p>
             {tokenData ? (
@@ -197,7 +207,7 @@ export const Hero = () => {
               </div>
             )}
           </div>
-        </div>
+        </div> */}
         <div className="h-[260px] w-full rounded-md border bg-background p-3 max-md:h-[220px]">
           {/* <CandleChart candlesticks={tokenData?.candlesticks || []} /> */}
           <LineChart

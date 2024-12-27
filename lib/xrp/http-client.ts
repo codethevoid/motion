@@ -11,6 +11,7 @@ import {
   AccountTxResponse,
   FeeResponse,
   LedgerCurrentResponse,
+  AccountTxTransaction,
 } from "xrpl";
 
 // const XRPL_HTTP_URL = "https://xrplcluster.com";
@@ -69,7 +70,7 @@ export const xrpClient = {
     });
   },
 
-  getTransactions: async (address: string): Promise<AccountTxResponse> => {
+  getTransactions: async (address: string, limit?: number): Promise<AccountTxResponse> => {
     return xrplRequest({
       method: "account_tx",
       params: [
@@ -80,7 +81,7 @@ export const xrpClient = {
           ledger_index_min: -1,
           ledger_index_max: -1,
           api_version: 2,
-          limit: 100,
+          limit: limit || 100,
         },
       ],
     });

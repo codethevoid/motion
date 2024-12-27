@@ -12,6 +12,7 @@ export type Transaction = {
   amountToDeliver: Amount;
   amountToReceive: Amount;
   slippage: number;
+  fee: string; // just to show the fee in the UI, we will recalculate it when confirming the transaction
 };
 
 type WalletState = {
@@ -21,6 +22,8 @@ type WalletState = {
   setTransaction: (transaction: Transaction | null) => void;
   isLoading: boolean;
   setIsLoading: (isLoading: boolean) => void;
+  password: string;
+  setPassword: (password: string) => void;
 };
 
 export const WalletContext = createContext<WalletState | undefined>(undefined);
@@ -29,10 +32,20 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [password, setPassword] = useState("");
 
   return (
     <WalletContext.Provider
-      value={{ isOpen, setIsOpen, transaction, setTransaction, isLoading, setIsLoading }}
+      value={{
+        isOpen,
+        setIsOpen,
+        transaction,
+        setTransaction,
+        isLoading,
+        setIsLoading,
+        password,
+        setPassword,
+      }}
     >
       {children}
     </WalletContext.Provider>

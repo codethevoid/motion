@@ -29,18 +29,25 @@ import {
 import { useMediaQuery } from "react-responsive";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { ConfirmTx } from "./confirm-tx";
 
 export const WalletPortal = () => {
   const { hasWallet, isLoading } = useSession();
   const [walletMethod, setWalletMethod] = useState<"new" | "import" | null>(null);
   const [navTab, setNavTab] = useState<"wallet" | "send" | "receive">("wallet");
-  const { isOpen, setIsOpen, transaction } = useWalletActions();
+  const { isOpen, setIsOpen, transaction, setTransaction } = useWalletActions();
   const isDesktop = useMediaQuery({ minWidth: 768 });
 
   useEffect(() => {
     setTimeout(() => {
       setWalletMethod(null);
     }, 300);
+
+    if (!isOpen) {
+      setTimeout(() => {
+        setTransaction(null);
+      }, 300);
+    }
   }, [isOpen]);
 
   if (isDesktop) {
@@ -71,7 +78,7 @@ export const WalletPortal = () => {
                     {navTab === "receive" && <Receive />}
                   </>
                 ) : (
-                  "Confirm transaction"
+                  <ConfirmTx />
                 )}
               </div>
             </WalletAuth>
@@ -152,7 +159,7 @@ export const WalletPortal = () => {
                     {navTab === "receive" && <Receive />}
                   </>
                 ) : (
-                  "Confirm transaction"
+                  <ConfirmTx />
                 )}
               </div>
             </WalletAuth>

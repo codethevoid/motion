@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-// import { getXrpClient } from "@/lib/xrp/connect";
 import { xrpClient } from "@/lib/xrp/http-client";
 import { dropsToXrp } from "xrpl";
 

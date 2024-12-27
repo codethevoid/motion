@@ -15,10 +15,12 @@ export type Wallet = {
   totalReserveInUsd: number; // total reserve in USD
   tokens: {
     currency: string; // ticker/symbol (e.g. BTC)
+    rawCurrency: string;
     balance: number; // number of tokens
     balanceInUsd: number; // balance in USD
     icon: string | undefined;
     name: string | undefined;
+    issuer: string | undefined;
   }[];
   nfts: {
     id: string;
