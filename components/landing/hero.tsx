@@ -19,8 +19,8 @@ import { RainbowButton } from "../ui/rainbow-button";
 export const Hero = () => {
   const { isOpen, setIsOpen } = useWalletActions();
   const { data: tokenData, isLoading } = useTokenMetrics(
-    "CAT", // currency
-    "rUQkWFQaYGaa4xiffztHUfH6SHMVArpPGj", // issuer
+    "50484E4958000000000000000000000000000000", // currency
+    "rDFXbW2ZZCG5WgPtqwNiA2xZokLMm9ivmN", // issuer
   );
 
   return (
@@ -116,7 +116,9 @@ export const Hero = () => {
           <div>
             {tokenData ? (
               <div className="space-y-0.5">
-                <p className="text-right font-mono text-xs">CAT/XRP</p>
+                <p className="text-right font-mono text-xs">
+                  {formatCurrency(tokenData.currency)}/XRP
+                </p>
                 <div>
                   <p
                     // href={`https://xrpscan.com/account/${tokenData.issuer}`}
@@ -228,7 +230,11 @@ export const Hero = () => {
         </div> */}
         <div className="h-[260px] w-full rounded-md border bg-background p-3 max-md:h-[220px]">
           {/* <CandleChart candlesticks={tokenData?.candlesticks || []} /> */}
-          <LineChart currency="CAT" issuer="rUQkWFQaYGaa4xiffztHUfH6SHMVArpPGj" range="1d" />
+          <LineChart
+            currency="50484E4958000000000000000000000000000000"
+            issuer="rDFXbW2ZZCG5WgPtqwNiA2xZokLMm9ivmN"
+            range="1d"
+          />
         </div>
       </Card>
     </div>
