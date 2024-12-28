@@ -119,7 +119,7 @@ export const WalletPortal = () => {
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
+    <Drawer open={isOpen} onOpenChange={setIsOpen} repositionInputs={false}>
       <DrawerTrigger asChild>
         {hasWallet ? (
           <Button size="sm" className="h-8 px-4 text-[13px]">
