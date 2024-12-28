@@ -36,6 +36,7 @@ export const GET = withWallet(async ({ wallet }) => {
       name: string | undefined;
       balance: number;
       balanceInUsd: number;
+      rawCurrency: string;
     }[] = [];
 
     const balances = await xrpClient.getBalances(address);
@@ -87,6 +88,7 @@ export const GET = withWallet(async ({ wallet }) => {
       tokens.push({
         issuer: String(token.issuer || ""),
         currency: String(currencyStr || ""),
+        rawCurrency: String(token.currency || ""),
         balance: tokenBalance,
         balanceInUsd: priceInUsd * tokenBalance,
         icon,

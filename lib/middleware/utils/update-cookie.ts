@@ -1,5 +1,4 @@
 import { cookies } from "next/headers";
-import { rootDomain } from "@/utils";
 
 export const updateCookie = async (token: string) => {
   const cookiesStore = await cookies();
@@ -8,6 +7,5 @@ export const updateCookie = async (token: string) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
-    domain: process.env.NODE_ENV === "production" ? `.${rootDomain}` : undefined,
   });
 };

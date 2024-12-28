@@ -1,8 +1,7 @@
-import { NextResponse } from "next/server";
-import { withWallet } from "@/lib/auth/with-wallet";
+import { NextResponse, NextRequest } from "next/server";
 import { getXrpValueInUsd } from "@/lib/xrp/get-xrp-value-in-usd";
 
-export const GET = withWallet(async ({ req }) => {
+export const GET = async (req: NextRequest) => {
   try {
     const url = req.nextUrl;
     const currency = url.searchParams.get("currency") || "";
@@ -28,4 +27,4 @@ export const GET = withWallet(async ({ req }) => {
     console.error(e);
     return NextResponse.json({ price: 0 });
   }
-});
+};

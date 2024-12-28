@@ -6,10 +6,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import { protocol, rootDomain } from "@/utils";
 import { useState } from "react";
 import { ButtonSpinner } from "../ui/button-spinner";
+import { useSession } from "@/hooks/use-session";
+
 export const ConfirmDisconnect = ({
   isOpen,
   setIsOpen,
@@ -17,13 +17,13 @@ export const ConfirmDisconnect = ({
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }) => {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const { mutate } = useSession();
 
   const onDisconnect = async () => {
     setIsLoading(true);
     const res = await fetch("/api/token/destroy");
-    if (res.ok) return router.push(`${protocol}${rootDomain}`);
+    if (res.ok) await mutate();
     setIsLoading(false);
   };
 

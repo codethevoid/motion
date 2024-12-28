@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { withWallet } from "@/lib/auth/with-wallet";
-import { rootDomain } from "@/utils/domains";
 
 export const GET = withWallet(async () => {
   const response = NextResponse.json({ message: "Token destroyed" });
@@ -9,7 +8,6 @@ export const GET = withWallet(async () => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    domain: process.env.NODE_ENV === "production" ? `.${rootDomain}` : undefined,
   });
   return response;
 });

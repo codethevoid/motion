@@ -3,6 +3,8 @@ import { Providers } from "./providers";
 import "./globals.css";
 import { constructMetadata } from "@/utils/construct-metadata";
 import { Analytics } from "@vercel/analytics/react";
+import { Nav } from "@/components/layout/nav";
+import { Footer } from "@/components/layout/footer";
 
 export const metadata = constructMetadata({});
 
@@ -25,7 +27,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Nav />
+          {children}
+          <Footer />
+        </Providers>
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
     </html>

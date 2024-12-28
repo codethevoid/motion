@@ -4,7 +4,7 @@ import { getToken } from "@/lib/middleware/utils/get-token";
 import { decryptToken } from "@/lib/token";
 import { Amount, Payment, Wallet, xrpToDrops, isValidClassicAddress } from "xrpl";
 import { z } from "zod";
-import { SelectedToken } from "@/app/wallet.tokenos.one/(dashboard)/(wallet)/send/client";
+import { SelectedToken } from "@/components/wallet/send";
 import { xrpClient } from "@/lib/xrp/http-client";
 
 export const maxDuration = 30;

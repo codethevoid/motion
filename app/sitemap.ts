@@ -9,6 +9,12 @@ const sitemap = (): MetadataRoute.Sitemap => {
       priority: 1,
     },
     {
+      url: "https://tokenos.one/tokens",
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
       url: "https://tokenos.one/legal/privacy",
       lastModified: new Date(),
       changeFrequency: "yearly",
