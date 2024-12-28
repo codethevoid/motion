@@ -141,7 +141,7 @@ export const Transactions = () => {
   };
 
   return (
-    <ScrollArea className={cn("h-[245px]", isDesktop ? "h-[245px]" : "h-[435px]")}>
+    <ScrollArea className={cn("h-[245px]", isDesktop ? "h-[245px]" : "h-[300px]")}>
       <div className="space-y-1.5">
         {transactions.map((tx: Transaction) => (
           <div key={tx.hash}>

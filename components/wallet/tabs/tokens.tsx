@@ -18,7 +18,7 @@ export const Tokens = () => {
   if (isLoading) return <TokensSkeleton />;
 
   return (
-    <ScrollArea className={cn("h-[245px]", isDesktop ? "h-[245px]" : "h-[435px]")}>
+    <ScrollArea className={cn("h-[245px]", isDesktop ? "h-[245px]" : "h-[300px]")}>
       <div className="space-y-1.5">
         {wallet?.tokens.map((token) => (
           <Card

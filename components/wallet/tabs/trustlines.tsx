@@ -75,7 +75,7 @@ export const Trustlines = () => {
 
   return (
     <>
-      <ScrollArea className={cn("h-[245px]", isDesktop ? "h-[245px]" : "h-[435px]")}>
+      <ScrollArea className={cn("h-[245px]", isDesktop ? "h-[245px]" : "h-[300px]")}>
         <div className="space-y-1.5">
           {trustlines?.map((trust) => (
             <Card
