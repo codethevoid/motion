@@ -150,15 +150,27 @@ export const TokensClient = () => {
                                 style: "currency",
                                 currency: "usd",
                                 minimumFractionDigits: 2,
-                                maximumFractionDigits: 6,
+                                maximumFractionDigits:
+                                  Number(token.metrics.price) * xrpPrice > 1
+                                    ? 2
+                                    : Number(token.metrics.price) * xrpPrice > 0.000001
+                                      ? 6
+                                      : 8,
                               })
                             : ""}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {Number(token.metrics.price).toLocaleString("en-us", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 6,
-                          })}{" "}
+                          {xrpPrice
+                            ? Number(token.metrics.price).toLocaleString("en-us", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits:
+                                  Number(token.metrics.price) * xrpPrice > 1
+                                    ? 2
+                                    : Number(token.metrics.price) * xrpPrice > 0.000001
+                                      ? 6
+                                      : 8,
+                              })
+                            : ""}{" "}
                           XRP
                         </p>
                       </div>

@@ -16,7 +16,17 @@ import { ExternalLink } from "lucide-react";
 
 export const About = ({ currency, issuer }: { currency: string; issuer: string }) => {
   const { data: tokenData, isLoading } = useTokenMetrics(currency, issuer);
-  console.log(tokenData);
+
+  if (!isLoading) {
+    // if there is no weblinks, description, or icon, return null
+    if (
+      !tokenData?.meta.token.weblinks?.length &&
+      !tokenData?.meta.token.description &&
+      !tokenData?.meta.token.icon
+    ) {
+      return null;
+    }
+  }
 
   return (
     <Card className="space-y-4 p-4">
@@ -48,7 +58,7 @@ export const About = ({ currency, issuer }: { currency: string; issuer: string }
                 {formatCurrency(tokenData?.currency ?? "")}
               </p>
               <p className="text-center text-[13px] text-muted-foreground">
-                {tokenData?.meta.token.name || tokenData?.currency}
+                {tokenData?.meta.token.name || formatCurrency(tokenData?.currency ?? "")}
               </p>
             </>
           )}

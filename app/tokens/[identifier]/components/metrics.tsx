@@ -88,7 +88,12 @@ export const Metrics = ({ currency, issuer }: { currency: string; issuer: string
                 style: "currency",
                 currency: "usd",
                 minimumFractionDigits: 2,
-                maximumFractionDigits: 6,
+                maximumFractionDigits:
+                  Number(tokenData.metrics.price) * tokenData.xrpValueInUsd > 1
+                    ? 2
+                    : Number(tokenData.metrics.price) * tokenData.xrpValueInUsd > 0.000001
+                      ? 6
+                      : 8,
               })}{" "}
               USD
             </p>
@@ -104,7 +109,12 @@ export const Metrics = ({ currency, issuer }: { currency: string; issuer: string
             <p className="text-center text-[13px]">
               {Number(tokenData.metrics.price).toLocaleString("en-us", {
                 minimumFractionDigits: 2,
-                maximumFractionDigits: 6,
+                maximumFractionDigits:
+                  Number(tokenData.metrics.price) * tokenData.xrpValueInUsd > 1
+                    ? 2
+                    : Number(tokenData.metrics.price) * tokenData.xrpValueInUsd > 0.000001
+                      ? 6
+                      : 8,
               })}{" "}
               XRP
             </p>
