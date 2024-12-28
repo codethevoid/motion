@@ -19,18 +19,17 @@ import { RainbowButton } from "../ui/rainbow-button";
 export const Hero = () => {
   const { isOpen, setIsOpen } = useWalletActions();
   const { data: tokenData, isLoading } = useTokenMetrics(
-    "524C555344000000000000000000000000000000", // currency
-    "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De", // issuer
+    "CAT", // currency
+    "rUQkWFQaYGaa4xiffztHUfH6SHMVArpPGj", // issuer
   );
 
   return (
-    <div className="relative mx-auto w-full max-w-screen-lg space-y-8 overflow-hidden rounded-2xl border border-border/80 bg-secondary/5 px-4 py-10 max-sm:rounded-none max-sm:border-0 max-sm:border-b max-sm:pb-16">
+    <div className="relative mx-auto w-full max-w-screen-lg space-y-8 overflow-hidden rounded-2xl border border-border/80 bg-secondary/5 px-4 py-10 max-sm:rounded-none max-sm:border-0 max-sm:border-b max-sm:pb-16 max-sm:pt-4">
       {/* <ParticlesBg /> */}
       <AnimatedGridPattern
         numSquares={30}
         maxOpacity={0.1}
         duration={3}
-        repeatDelay={1}
         className={cn(
           "z-[-1] [mask-image:radial-gradient(600px_circle_at_center,black,transparent)]",
           "inset-x-0 inset-y-[-30%] h-[200%]",
@@ -76,7 +75,10 @@ export const Hero = () => {
             <span>Search for a token...</span>
           </NextLink>
         </Button>
-        <div className="flex items-center justify-between rounded-md border bg-background px-3 py-2">
+        <NextLink
+          href="/tokens/CAT:rUQkWFQaYGaa4xiffztHUfH6SHMVArpPGj"
+          className="flex items-center justify-between rounded-md border bg-background px-3 py-2"
+        >
           <div className="flex items-center space-x-2.5">
             {isLoading ? (
               <Skeleton className="size-9 rounded-full" />
@@ -114,13 +116,13 @@ export const Hero = () => {
           <div>
             {tokenData ? (
               <div className="space-y-0.5">
-                <p className="text-right font-mono text-xs">RLUSD/XRP</p>
+                <p className="text-right font-mono text-xs">CAT/XRP</p>
                 <div>
-                  <a
-                    href={`https://xrpscan.com/account/${tokenData.issuer}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-right text-xs text-muted-foreground hover:text-foreground hover:underline"
+                  <p
+                    // href={`https://xrpscan.com/account/${tokenData.issuer}`}
+                    // target="_blank"
+                    // rel="noopener noreferrer"
+                    className="text-right text-xs text-muted-foreground"
                   >
                     <span className="flex items-center space-x-1">
                       <span>
@@ -128,7 +130,7 @@ export const Hero = () => {
                       </span>
                       <ExternalLink className="size-3" />
                     </span>
-                  </a>
+                  </p>
                 </div>
               </div>
             ) : (
@@ -138,7 +140,7 @@ export const Hero = () => {
               </div>
             )}
           </div>
-        </div>
+        </NextLink>
 
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-0.5 rounded-md border bg-background px-3 py-2">
@@ -226,11 +228,7 @@ export const Hero = () => {
         </div> */}
         <div className="h-[260px] w-full rounded-md border bg-background p-3 max-md:h-[220px]">
           {/* <CandleChart candlesticks={tokenData?.candlesticks || []} /> */}
-          <LineChart
-            currency="524C555344000000000000000000000000000000"
-            issuer="rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De"
-            range="1w"
-          />
+          <LineChart currency="CAT" issuer="rUQkWFQaYGaa4xiffztHUfH6SHMVArpPGj" range="1d" />
         </div>
       </Card>
     </div>
