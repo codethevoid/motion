@@ -19,7 +19,7 @@ export const About = ({ currency, issuer }: { currency: string; issuer: string }
   console.log(tokenData);
 
   return (
-    <Card className="space-y-4 bg-gradient-to-b from-violet-500/10 to-background p-4">
+    <Card className="space-y-4 p-4">
       <div className="space-y-2">
         <div className="flex justify-center">
           {isLoading ? (

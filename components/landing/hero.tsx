@@ -3,7 +3,6 @@
 import { GradientBadge } from "@/components/ui/gradient-badge";
 import { useWalletActions } from "../wallet/context";
 import { Card } from "../ui/card";
-import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Search } from "lucide-react";
 import { useTokenMetrics } from "@/hooks/use-token-metrics";
@@ -12,15 +11,16 @@ import { Coin } from "../ui/icons/coin";
 import { LineChart } from "../charts/line";
 import { cn } from "@/lib/utils";
 import { ExternalLink } from "lucide-react";
-import { formatBigNum } from "@/utils/format-big-num";
 import { formatCurrency } from "@/utils/format-currency";
 import AnimatedGridPattern from "../ui/animated-grid-pattern";
+import NextLink from "next/link";
+import { RainbowButton } from "../ui/rainbow-button";
 
 export const Hero = () => {
   const { isOpen, setIsOpen } = useWalletActions();
   const { data: tokenData, isLoading } = useTokenMetrics(
-    "4A454C4C59000000000000000000000000000000", // currency
-    "rKHsxmaqf2SfcyU9LRi3VyjpAtyg6ZrQMp", // issuer
+    "524C555344000000000000000000000000000000", // currency
+    "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De", // issuer
   );
 
   return (
@@ -42,36 +42,52 @@ export const Hero = () => {
           onClick={() => setIsOpen(!isOpen)}
           className="cursor-pointer"
         />
-        <div className="space-y-2">
-          <h1 className="text-center text-4xl font-bold max-sm:text-2xl max-sm:tracking-tight">
-            Your gateway to the XRP Ledger
-          </h1>
-          <p className="mx-auto max-w-lg text-center text-muted-foreground max-sm:max-w-xs max-sm:text-sm">
-            Connect directly to the XRP Ledger. Send, receive, and explore a world of decentralized
-            possibilities with full control of your assets.
-          </p>
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h1 className="text-center text-4xl font-bold max-sm:text-2xl max-sm:tracking-tight">
+              Your gateway to the XRP Ledger
+            </h1>
+            <p className="mx-auto max-w-lg text-center text-muted-foreground max-sm:max-w-xs max-sm:text-sm">
+              Connect directly to the XRP Ledger. Send, receive, and explore a world of
+              decentralized possibilities with full control of your assets.
+            </p>
+          </div>
+          <div className="flex justify-center gap-4 max-sm:flex-col">
+            <NextLink href="/tokens" className="w-full max-w-[220px] max-sm:max-w-none">
+              <RainbowButton className="h-10 w-full px-8">Start trading</RainbowButton>
+            </NextLink>
+            <RainbowButton
+              className="h-10 w-full max-w-[220px] px-8 text-foreground dark:bg-[linear-gradient(#121213,#121213),linear-gradient(#121213_50%,rgba(18,18,19,0.6)_80%,rgba(18,18,19,0)),linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)))] max-sm:max-w-none"
+              onClick={() => setIsOpen(true)}
+            >
+              Create wallet
+            </RainbowButton>
+          </div>
         </div>
       </div>
       <Card className="mx-auto w-full max-w-md space-y-2 p-2.5 backdrop-blur-sm">
         <Button
-          className="w-full cursor-text justify-start px-3 text-muted-foreground hover:bg-background hover:text-muted-foreground"
+          className="w-full justify-start px-3 text-muted-foreground hover:bg-background/40"
           variant="outline"
+          asChild
         >
-          <Search className="size-4" />
-          <span>Search for a token...</span>
+          <NextLink href="/tokens">
+            <Search className="size-4" />
+            <span>Search for a token...</span>
+          </NextLink>
         </Button>
         <div className="flex items-center justify-between rounded-md border bg-background px-3 py-2">
           <div className="flex items-center space-x-2.5">
             {isLoading ? (
-              <Skeleton className="size-10 rounded-full" />
+              <Skeleton className="size-9 rounded-full" />
             ) : tokenData?.meta.token.icon ? (
               <img
                 src={tokenData?.meta.token.icon}
                 alt={tokenData?.meta.token.name}
-                className="size-10 rounded-full"
+                className="size-9 rounded-full"
               />
             ) : (
-              <div className="flex size-10 items-center justify-center rounded-full border bg-secondary/80 dark:bg-secondary/40">
+              <div className="flex size-9 items-center justify-center rounded-full border bg-secondary/80 dark:bg-secondary/40">
                 <Coin />
               </div>
             )}
@@ -98,7 +114,7 @@ export const Hero = () => {
           <div>
             {tokenData ? (
               <div className="space-y-0.5">
-                <p className="text-right font-mono text-xs">JELLY/XRP</p>
+                <p className="text-right font-mono text-xs">RLUSD/XRP</p>
                 <div>
                   <a
                     href={`https://xrpscan.com/account/${tokenData.issuer}`}
@@ -211,8 +227,8 @@ export const Hero = () => {
         <div className="h-[260px] w-full rounded-md border bg-background p-3 max-md:h-[220px]">
           {/* <CandleChart candlesticks={tokenData?.candlesticks || []} /> */}
           <LineChart
-            currency="4A454C4C59000000000000000000000000000000"
-            issuer="rKHsxmaqf2SfcyU9LRi3VyjpAtyg6ZrQMp"
+            currency="524C555344000000000000000000000000000000"
+            issuer="rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De"
             range="1w"
           />
         </div>

@@ -8,7 +8,7 @@ export const usePrice = (currency: string, issuer: string) => {
 
   const url = `/api/swap/price?${searchParams.toString()}`;
   const { data, isLoading, mutate } = useSWR<{ price: number }>(url, fetcher, {
-    refreshInterval: 10000,
+    refreshInterval: 1000 * 10, // 10 seconds
   });
   return { price: data, isLoading, mutate };
 };

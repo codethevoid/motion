@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { xrpClient } from "@/lib/xrp/http-client";
-import { AccountTxTransaction, dropsToXrp } from "xrpl";
+import { AccountTxTransaction, TransactionMetadata } from "xrpl"
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -11,25 +11,44 @@ export const GET = async (req: NextRequest) => {
       return NextResponse.json({ error: "Missing currency or issuer" }, { status: 400 });
     }
 
-    const res = await xrpClient.getTransactions(issuer);
+    const res = await xrpClient.getTransactions(issuer, 200);
 
+    console.log(res);
     const transactions = res.result.transactions.filter((tx: AccountTxTransaction) => {
       const txType = tx.tx_json?.TransactionType;
 
+      if (typeof tx.meta === "object") {
+        if (tx.meta.TransactionResult !== "tesSUCCESS") return false;
+      }
+
       if (txType === "OfferCreate") {
-        // const takerGets = tx.tx_json?.TakerGets;
-        // const takerPays = tx.tx_json?.TakerPays;
-        // if (typeof takerGets === "string") return true;
-        // if (typeof takerPays === "string") return true;
-        return true;
+        const offerExecuted = (tx.meta as TransactionMetadata)?.AffectedNodes?.some((node) => {
+          const modified =
+            "ModifiedNode" in node
+              ? node.ModifiedNode
+              : "CreatedNode" in node
+                ? node.CreatedNode
+                : "DeletedNode" in node
+                  ? node.DeletedNode
+                  : null;
+
+          return modified?.LedgerEntryType === "RippleState";
+        });
+
+        if (!offerExecuted) return false;
+
+        // make sure one way is XRP
+        if (typeof tx.tx_json?.TakerGets === "string") return true;
+        if (typeof tx.tx_json?.TakerPays === "string") return true;
       }
 
       if (txType === "Payment") {
-        // const amount = tx.tx_json?.Amount;
-        // const deliveredAmount = typeof tx.meta === "object" ? tx.meta.delivered_amount : undefined;
-        // if (typeof deliveredAmount === "string") return true;
-        // if (typeof amount === "string") return true;
-        return true;
+        if (typeof tx.tx_json?.SendMax === "string") return true;
+        if (typeof tx.meta === "object") {
+          if (typeof tx.meta.delivered_amount === "string") {
+            return true;
+          }
+        }
       }
 
       return false;

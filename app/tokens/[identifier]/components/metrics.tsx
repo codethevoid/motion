@@ -125,7 +125,9 @@ export const Metrics = ({ currency, issuer }: { currency: string; issuer: string
                 "text-center text-[13px]",
                 tokenData.metrics.changes["24h"].price.percent > 0
                   ? "text-green-500"
-                  : "text-red-500",
+                  : tokenData.metrics.changes["24h"].price.percent === 0
+                    ? "text-foreground"
+                    : "text-red-500",
               )}
             >
               {tokenData.metrics.changes["24h"].price.percent.toFixed(2)}%
@@ -144,7 +146,9 @@ export const Metrics = ({ currency, issuer }: { currency: string; issuer: string
                 "text-center text-[13px]",
                 tokenData.metrics.changes["7d"].price.percent > 0
                   ? "text-green-500"
-                  : "text-red-500",
+                  : tokenData.metrics.changes["7d"].price.percent === 0
+                    ? "text-foreground"
+                    : "text-red-500",
               )}
             >
               {tokenData.metrics.changes["7d"].price.percent.toFixed(2)}%
@@ -156,10 +160,10 @@ export const Metrics = ({ currency, issuer }: { currency: string; issuer: string
           )}
         </div>
         <div className="space-y-0.5 rounded-md border bg-background px-3 py-2">
-          <p className="text-center text-xs text-muted-foreground">24h vol</p>
+          <p className="text-center text-xs text-muted-foreground">24h XRP vol</p>
           {tokenData ? (
             <p className="text-center text-[13px]">
-              ${formatBigNum(Number(tokenData.metrics.volume_24h) * tokenData.xrpValueInUsd)}
+              {formatBigNum(Number(tokenData.metrics.volume_24h))}
             </p>
           ) : (
             <div className="flex h-[19.5px] items-center">
@@ -186,7 +190,7 @@ export const Metrics = ({ currency, issuer }: { currency: string; issuer: string
           <p className="text-center text-xs text-muted-foreground">Holders</p>
           {tokenData ? (
             <p className="text-center text-[13px]">
-              {formatBigNum(Number(tokenData.metrics.holders))}
+              {formatBigNum(Number(tokenData.metrics.holders), true)}
             </p>
           ) : (
             <div className="flex h-[19.5px] items-center">

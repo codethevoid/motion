@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { ButtonSpinner } from "../ui/button-spinner";
 
 export const Password = () => {
-  const { password, setPassword } = useWalletActions();
+  const { setPassword } = useWalletActions();
   const [currentPassword, setCurrentPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 

@@ -12,7 +12,7 @@ export const GradientBadge = ({
       ✨ <hr className="mx-2 h-4 w-px shrink-0 bg-border" />{" "}
       <span
         className={cn(
-          `animate-gradient inline bg-gradient-to-r from-[#ffaa40] via-[#9c40ff] to-[#ffaa40] bg-[length:var(--bg-size)_100%] bg-clip-text text-[13px] text-transparent`,
+          `inline animate-gradient bg-gradient-to-r from-primary to-primary bg-[length:var(--bg-size)_100%] bg-clip-text text-[13px] text-transparent`,
         )}
       >
         {text}
@@ -21,3 +21,5 @@ export const GradientBadge = ({
     </AnimatedGradientText>
   );
 };
+
+// from-[#ffaa40] via-[#9c40ff] to-[#ffaa40]

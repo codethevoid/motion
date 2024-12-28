@@ -12,12 +12,11 @@ import { Password } from "./password";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ButtonSpinner } from "../ui/button-spinner";
-import { useBalance } from "@/hooks/use-balance";
 import { mutate } from "swr";
 
 export const ConfirmTx = () => {
   const { wallet, isLoading } = useWallet();
-  const { transaction, setTransaction, password, setIsOpen } = useWalletActions();
+  const { transaction, password, setIsOpen } = useWalletActions();
   const { data: networkFee } = useNetworkFee();
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -58,14 +57,14 @@ export const ConfirmTx = () => {
         const searchParams = new URLSearchParams();
         searchParams.set("currency", transaction?.amountToDeliver.currency);
         searchParams.set("issuer", transaction?.amountToDeliver.issuer);
-        mutate(`/api/swap/balance?${searchParams.toString()}`);
-        mutate(`/api/swap/balance?currency=XRP`);
+        await mutate(`/api/swap/balance?${searchParams.toString()}`);
+        await mutate(`/api/swap/balance?currency=XRP`);
       } else if (typeof transaction?.amountToReceive === "object") {
         const searchParams = new URLSearchParams();
         searchParams.set("currency", transaction?.amountToReceive.currency);
         searchParams.set("issuer", transaction?.amountToReceive.issuer);
-        mutate(`/api/swap/balance?${searchParams.toString()}`);
-        mutate(`/api/swap/balance?currency=XRP`);
+        await mutate(`/api/swap/balance?${searchParams.toString()}`);
+        await mutate(`/api/swap/balance?currency=XRP`);
       }
       setIsConfirming(false);
       setIsOpen(false);

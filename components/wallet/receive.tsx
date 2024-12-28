@@ -8,7 +8,7 @@ import { QRCodeSVG } from "qrcode.react";
 import FlickeringGrid from "@/components/ui/flickering-grid";
 import { cn } from "@/lib/utils";
 
-export const Receive = ({ className }: { className?: string }) => {
+export const Receive = () => {
   const { wallet, isLoading } = useWallet();
   return (
     <>

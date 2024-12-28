@@ -1,7 +1,7 @@
 import { fetcher } from "@/utils/fetcher";
 import useSWR from "swr";
 
-export type TokenMetrics = {
+type Token = {
   currency: string;
   issuer: string;
   meta: {
@@ -59,19 +59,13 @@ export type TokenMetrics = {
       };
     };
   };
-  xrpValueInUsd: number;
 };
 
-export const useTokenMetrics = (currency: string, issuer: string) => {
+export const useTokens = (name?: string, page?: number) => {
   const searchParams = new URLSearchParams();
-  searchParams.set("currency", currency || "");
-  searchParams.set("issuer", issuer || "");
-
-  const { data, error, isLoading, mutate } = useSWR<TokenMetrics>(
-    `/api/token-metrics?${searchParams.toString()}`,
-    fetcher,
-    { refreshInterval: 1000 * 30 }, // 30 seconds
-  );
-  console.log(data);
-  return { data, error, isLoading, mutate };
+  if (page) searchParams.set("page", page.toString());
+  if (name) searchParams.set("name", name);
+  const url = `/api/tokens?${searchParams.toString()}`;
+  const { data, isLoading, error } = useSWR<{ tokens: Token[]; total: number }>(url, fetcher);
+  return { data, isLoading, error };
 };

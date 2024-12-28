@@ -1,18 +1,14 @@
 "use client";
 
 import NextLink from "next/link";
-import { useSession } from "@/hooks/use-session";
 import { Button } from "@/components/ui/button";
 import { useScrollPosition } from "@/hooks/utils/use-scroll-position";
 import { cn } from "@/lib/utils";
 import { WalletPortal } from "../wallet/portal";
-import { useState } from "react";
 import { TokenosIcon } from "../ui/icons/tokenos-icon";
 
 export const Nav = () => {
-  const { hasWallet, isLoading } = useSession();
   const scrollPos = useScrollPosition();
-  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
@@ -28,7 +24,7 @@ export const Nav = () => {
               <TokenosIcon />
               <span>TokenOS</span>
             </NextLink>
-            <div className="flex items-center">
+            {/* <div className="flex items-center">
               <Button
                 variant="ghost"
                 className="h-8 px-3 text-[13px] font-medium text-foreground/70"
@@ -39,9 +35,16 @@ export const Nav = () => {
               <Button variant="ghost" className="h-8 px-3 text-[13px] text-foreground/70" asChild>
                 <NextLink href="/tokens">Docs</NextLink>
               </Button>
-            </div>
+            </div> */}
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              className="h-8 px-3 text-[13px] font-medium text-foreground/70"
+              asChild
+            >
+              <NextLink href="/tokens">Tokens</NextLink>
+            </Button>
             <WalletPortal />
           </div>
         </div>

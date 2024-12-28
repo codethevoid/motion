@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import { format } from "date-fns";
 import { Timespan } from "@/app/api/aggregates/route";
 import { useXrpPrice } from "@/hooks/use-xrp-price";
-import { Skeleton } from "../ui/skeleton";
 import { Loader } from "lucide-react";
 
 type LineChartProps = {
@@ -30,10 +29,12 @@ export const LineChart = ({ currency, issuer, range }: LineChartProps) => {
       lineWidth: 2,
       priceLineVisible: false,
     });
-    const dataArray = Object.values(data).map((point) => ({
-      time: (point as any).time,
-      value: parseFloat((point as any).value),
-    }));
+    const dataArray = Object.values(data)
+      .filter((point) => parseFloat((point as { value: string }).value) > 0)
+      .map((point) => ({
+        time: (point as { time: string }).time,
+        value: parseFloat((point as { value: string }).value),
+      }));
     areaSeries.setData(dataArray);
     chart.applyOptions({
       autoSize: true,
@@ -77,12 +78,16 @@ export const LineChart = ({ currency, issuer, range }: LineChartProps) => {
     chart.subscribeCrosshairMove((param) => {
       if (param.time && tooltipRef.current && param.point && containerRef.current) {
         const price = param.seriesData.get(areaSeries) as { value: number; time: number };
-        const formattedPrice = (price.value * (xrpPrice || 0)).toLocaleString("en-us", {
-          style: "currency",
-          currency: "USD",
+        // const formattedPrice = (price.value * (xrpPrice || 0)).toLocaleString("en-us", {
+        //   style: "currency",
+        //   currency: "USD",
+        //   minimumFractionDigits: 2,
+        //   maximumFractionDigits: 6,
+        // });
+        const formattedPrice = `${price.value.toLocaleString("en-us", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 6,
-        });
+        })} XRP`;
 
         const tooltipWidth = tooltipRef.current.offsetWidth;
         const containerWidth = containerRef.current.offsetWidth;

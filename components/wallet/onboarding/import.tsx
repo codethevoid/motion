@@ -11,7 +11,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ButtonSpinner } from "@/components/ui/button-spinner";
-import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { useSession } from "@/hooks/use-session";
 
@@ -24,7 +23,6 @@ export const ImportWalletForm = () => {
   const [mnemonic, setMnemonic] = useState("");
   const [seed, setSeed] = useState("");
   const [method, setMethod] = useState<"mnemonic" | "seed" | null>(null);
-  const router = useRouter();
   const { mutate } = useSession();
 
   const onImportWallet = async () => {

@@ -1,5 +1,11 @@
+import { TokensClient } from "./client";
+
 const TokensPage = () => {
-  return <div>Tokens</div>;
+  return (
+    <div className="py-16">
+      <TokensClient />
+    </div>
+  );
 };
 
 export default TokensPage;

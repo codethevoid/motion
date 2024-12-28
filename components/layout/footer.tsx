@@ -19,8 +19,8 @@ const resources = [
   // { name: "Pricing", route: "/pricing" },
   // { name: "Blog", route: "/blog" },
   // { name: "Uptime", route: "/uptime" },
-  { name: "Support", route: "/support" },
-  { name: "Docs", route: "/docs" },
+  { name: "Support", route: "mailto:support@tokenos.one" },
+  // { name: "Docs", route: "/docs" },
 ];
 
 const companyLinks = [
@@ -31,11 +31,6 @@ const companyLinks = [
   // { name: "Legal", route: "/legal" },
   { name: "Privacy", route: "/legal/privacy" },
   { name: "Terms", route: "/legal/terms" },
-];
-
-const labLinks = [
-  { name: "Unveil", route: "/lab/unveil" },
-  { name: "Radar", route: "/lab/radar" },
 ];
 
 export const Footer = () => {

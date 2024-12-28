@@ -1,16 +1,12 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { useWallet } from "@/hooks/use-wallet";
-import { useRouter } from "next/navigation";
-import { usePathname } from "next/navigation";
 import { Receive } from "@/components/wallet/receive";
 import { InfoIcon } from "lucide-react";
 
 export const WalletAuth = ({ children }: { children: ReactNode }) => {
   const { wallet, error, isLoading } = useWallet();
-  const router = useRouter();
-  const pathname = usePathname();
 
   // useEffect(() => {
   //   if (!isLoading && !wallet?.isFunded && pathname !== "/receive") {

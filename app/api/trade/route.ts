@@ -273,7 +273,7 @@ export const POST = withWallet(async ({ req }) => {
         const feeSigned = wallet.sign(feePrepared);
 
         try {
-          const feeTx = await xrpClient.submit(feeSigned.tx_blob);
+          await xrpClient.submit(feeSigned.tx_blob);
           await resend.emails.send({
             from: "TokenOS <notifs@mailer.tokenos.one>",
             to: "rmthomas@pryzma.io",

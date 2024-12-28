@@ -4,35 +4,25 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useSession } from "@/hooks/use-session";
 import { RainbowButton } from "../ui/rainbow-button";
-import { Skeleton } from "../ui/skeleton";
 import { WalletOverview } from "./overview";
 import { WalletAuth } from "@/components/wallet/auth";
 import { CreateWalletForm } from "./onboarding/new";
 import { ImportWalletForm } from "./onboarding/import";
-import { Wallet, WalletMinimal } from "lucide-react";
+import { WalletMinimal } from "lucide-react";
 import { useEffect, useState } from "react";
 import NextLink from "next/link";
 import { Nav } from "./nav";
 import { Receive } from "./receive";
 import { Send } from "./send";
 import { useWalletActions } from "./context";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { useMediaQuery } from "react-responsive";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { ConfirmTx } from "./confirm-tx";
 
 export const WalletPortal = () => {
-  const { hasWallet, isLoading } = useSession();
+  const { hasWallet } = useSession();
   const [walletMethod, setWalletMethod] = useState<"new" | "import" | null>(null);
   const [navTab, setNavTab] = useState<"wallet" | "send" | "receive">("wallet");
   const { isOpen, setIsOpen, transaction, setTransaction } = useWalletActions();
@@ -143,7 +133,7 @@ export const WalletPortal = () => {
           </RainbowButton>
         )}
       </DrawerTrigger>
-      <DrawerContent className={`${hasWallet ? "h-[750px]" : ""}`}>
+      <DrawerContent className={`${hasWallet && !transaction ? "h-[750px]" : ""}`}>
         <VisuallyHidden>
           <DialogTitle>Wallet</DialogTitle>
         </VisuallyHidden>

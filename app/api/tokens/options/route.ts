@@ -1,4 +1,3 @@
-import { withWallet } from "@/lib/auth/with-wallet";
 import { NextRequest, NextResponse } from "next/server";
 import { xrpMeta } from "@/lib/xrp/meta";
 import type { Token } from "@/hooks/use-token-options";

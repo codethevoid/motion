@@ -27,15 +27,15 @@ import { toast } from "sonner";
 import { PasswordDialog } from "./dialogs/password-dialog";
 
 export const Swap = () => {
-  const [from, setFrom] = useState<Token | null>(xrpMeta);
+  const [from, setFrom] = useState<Token | null>({ ...xrpMeta, description: "XRP" });
   const [to, setTo] = useState<Token | null>(null);
   const [fromValue, setFromValue] = useState<string>("");
   const [toValue, setToValue] = useState<string>("");
   const [isTokenSelectorOpen, setIsTokenSelectorOpen] = useState<boolean>(false);
   const [isSelectingFor, setIsSelectingFor] = useState<"from" | "to">("from");
-  const { balance, isLoading: isLoadingBalance } = useBalance(from);
-  const { price: fromPrice } = usePrice(from);
-  const { price: toPrice } = usePrice(to);
+  const { balance, isLoading: isLoadingBalance } = useBalance("", "");
+  const { price: fromPrice } = usePrice("", "");
+  const { price: toPrice } = usePrice("", "");
   const [activeInput, setActiveInput] = useState<"from" | "to">("from");
   const [rate, setRate] = useState<number>(0);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
@@ -105,7 +105,7 @@ export const Swap = () => {
       setIsSwapping(false);
       toast.success("Successfully submitted swap");
       // reset the form
-      setFrom(xrpMeta);
+      setFrom({ ...xrpMeta, description: "XRP" });
       setTo(null);
       setFromValue("");
       setToValue("");

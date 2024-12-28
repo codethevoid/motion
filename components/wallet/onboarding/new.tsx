@@ -11,7 +11,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ButtonSpinner } from "@/components/ui/button-spinner";
-import { useRouter } from "next/navigation";
 import { useSession } from "@/hooks/use-session";
 
 export const CreateWalletForm = () => {
@@ -27,7 +26,6 @@ export const CreateWalletForm = () => {
   const [mnemonic, setMnemonic] = useState("");
   const [mnemonicTest, setMnemonicTest] = useState<string[]>([]);
   const [confirmMnemonic, setConfirmMnemonic] = useState<string[]>([]);
-  const router = useRouter();
   const { mutate } = useSession();
 
   const handleCreateWallet = async () => {

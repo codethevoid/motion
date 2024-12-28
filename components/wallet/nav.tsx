@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { usePathname } from "next/navigation";
 import { Cog } from "lucide-react";
 import {
   DropdownMenu,
@@ -39,7 +38,6 @@ export const Nav = ({
   navTab: "wallet" | "send" | "receive";
   setNavTab: (tab: "wallet" | "send" | "receive") => void;
 }) => {
-  const path = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmDisconnectOpen, setIsConfirmDisconnectOpen] = useState(false);
   const router = useRouter();

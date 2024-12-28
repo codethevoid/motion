@@ -1,4 +1,4 @@
-import { AreaChart, Globe, Leaf, Link, Link2, QrCode, Triangle, Zap } from "lucide-react";
+import { Leaf, Triangle, Zap } from "lucide-react";
 import { ReactNode } from "react";
 
 export type Highlight = {

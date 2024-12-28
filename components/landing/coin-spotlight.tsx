@@ -17,7 +17,7 @@ export type MetaToken = {
 };
 
 export const CoinSpotlight = () => {
-  const { tokens, isLoading } = useMetaTokens();
+  const { tokens } = useMetaTokens();
   console.log(tokens);
 
   const [firstRow, secondRow] = useMemo(() => {

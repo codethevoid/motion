@@ -1,7 +1,8 @@
 import { TokenClient } from "./client";
 
-const TokenPage = async ({ params }: { params: { identifier: string } }) => {
-  const identifier = (await params).identifier;
+const TokenPage = async ({ params }: { params: Promise<Record<string, string>> }) => {
+  const awaitedParams = await params;
+  const identifier = awaitedParams.identifier;
   return <TokenClient identifier={identifier} />;
 };
 

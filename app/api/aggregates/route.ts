@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import { subDays, subMonths, subHours, subYears, format } from "date-fns";
+import { subDays, subMonths, subHours, subYears } from "date-fns";
 
 // map of how many seconds each data point is apart based on the time span
 const intervalsMap = {
