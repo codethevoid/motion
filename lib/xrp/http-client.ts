@@ -13,7 +13,6 @@ import {
   LedgerCurrentResponse,
 } from "xrpl";
 
-// const XRPL_HTTP_URL = "https://xrplcluster.com";
 const XRPL_HTTP_URL = "https://s1.ripple.com:51234";
 
 type XrplRequest = {
