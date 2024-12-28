@@ -133,7 +133,7 @@ export const WalletPortal = () => {
           </RainbowButton>
         )}
       </DrawerTrigger>
-      <DrawerContent className={`${hasWallet && !transaction ? "h-[750px]" : ""}`}>
+      <DrawerContent className={`${hasWallet && !transaction ? "h-[85%]" : ""}`}>
         <VisuallyHidden>
           <DialogTitle>Wallet</DialogTitle>
         </VisuallyHidden>
