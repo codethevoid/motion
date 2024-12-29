@@ -51,12 +51,14 @@ export const Hero = () => {
               decentralized possibilities with full control of your assets.
             </p>
           </div>
-          <div className="flex justify-center gap-4 max-sm:flex-col">
+          <div className="flex justify-center gap-4 max-sm:flex-col max-sm:gap-3">
             <NextLink href="/tokens" className="w-full max-w-[220px] max-sm:max-w-none">
-              <RainbowButton className="h-10 w-full px-8">Start trading</RainbowButton>
+              <RainbowButton className="h-10 w-full px-8 transition-[scale_300ms] ease-in-out hover:scale-[1.02]">
+                Start trading
+              </RainbowButton>
             </NextLink>
             <RainbowButton
-              className="h-10 w-full max-w-[220px] px-8 text-foreground dark:bg-[linear-gradient(#121213,#121213),linear-gradient(#121213_50%,rgba(18,18,19,0.6)_80%,rgba(18,18,19,0)),linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)))] max-sm:max-w-none"
+              className="h-10 w-full max-w-[220px] px-8 text-foreground transition-[scale_300ms] ease-in-out hover:scale-[1.02] dark:bg-[linear-gradient(#121213,#121213),linear-gradient(#121213_50%,rgba(18,18,19,0.6)_80%,rgba(18,18,19,0)),linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)))] max-sm:max-w-none"
               onClick={() => setIsOpen(true)}
             >
               Create wallet
