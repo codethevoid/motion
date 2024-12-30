@@ -69,9 +69,11 @@ export const POST = withWallet(async ({ req }) => {
       ...(memoHex ? { Memos: [{ Memo: { MemoData: memoHex } }] } : {}),
     };
 
-    const networkFee = await xrpClient.getNetworkFee();
-    const sequence = await xrpClient.getSequence(wallet.address);
-    const currentLedger = await xrpClient.getLedgerIndex();
+    const [networkFee, sequence, currentLedger] = await Promise.all([
+      xrpClient.getNetworkFee(),
+      xrpClient.getSequence(wallet.address),
+      xrpClient.getLedgerIndex(),
+    ]);
     const prepared: Payment = {
       ...payment,
       Fee: networkFee.toString(),

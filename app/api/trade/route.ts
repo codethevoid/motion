@@ -7,6 +7,7 @@ import { Wallet, PaymentFlags, Payment, dropsToXrp } from "xrpl";
 import { xrpClient } from "@/lib/xrp/http-client";
 import { resend } from "@/utils/resend";
 import { Amount } from "xrpl";
+import { getXrpValueInUsd } from "@/lib/xrp/get-xrp-value-in-usd";
 
 export const maxDuration = 40;
 
@@ -132,8 +133,10 @@ export const POST = withWallet(async ({ req }) => {
       ourFeeInDrops = Math.floor(xrpEquivalent * 1_000_000 * fee);
 
       // Check XRP balance for fees (convert balance to drops)
-      const xrpBalance = await xrpClient.getXrpBalance(wallet.address);
-      const reserves = await calculateReserves(wallet.address);
+      const [xrpBalance, reserves] = await Promise.all([
+        xrpClient.getXrpBalance(wallet.address),
+        calculateReserves(wallet.address),
+      ]);
       const totalNeeded = ourFeeInDrops + reserves + 10_000;
       if (xrpBalance * 1_000_000 < totalNeeded) {
         return NextResponse.json({ error: "Insufficient XRP balance for fees" }, { status: 400 });
@@ -166,9 +169,11 @@ export const POST = withWallet(async ({ req }) => {
           },
         };
 
-        const networkFee = await xrpClient.getNetworkFee();
-        const sequence = await xrpClient.getSequence(wallet.address);
-        const currentLedger = await xrpClient.getLedgerIndex();
+        const [networkFee, sequence, currentLedger] = await Promise.all([
+          xrpClient.getNetworkFee(),
+          xrpClient.getSequence(wallet.address),
+          xrpClient.getLedgerIndex(),
+        ]);
         const prepared = {
           ...trustSet,
           Fee: networkFee.toString(),
@@ -223,9 +228,11 @@ export const POST = withWallet(async ({ req }) => {
     };
 
     // Submit transaction
-    const networkFee = await xrpClient.getNetworkFee();
-    const sequence = await xrpClient.getSequence(wallet.address);
-    const currentLedger = await xrpClient.getLedgerIndex();
+    const [networkFee, sequence, currentLedger] = await Promise.all([
+      xrpClient.getNetworkFee(),
+      xrpClient.getSequence(wallet.address),
+      xrpClient.getLedgerIndex(),
+    ]);
     const prepared: Payment = {
       ...payment,
       Fee: networkFee.toString(),
@@ -259,9 +266,11 @@ export const POST = withWallet(async ({ req }) => {
         Account: wallet.address,
       };
 
-      const networkFee = await xrpClient.getNetworkFee();
-      const sequence = await xrpClient.getSequence(wallet.address);
-      const currentLedger = await xrpClient.getLedgerIndex();
+      const [networkFee, sequence, currentLedger] = await Promise.all([
+        xrpClient.getNetworkFee(),
+        xrpClient.getSequence(wallet.address),
+        xrpClient.getLedgerIndex(),
+      ]);
       const feePrepared: Payment = {
         ...feeTxDetails,
         Fee: networkFee.toString(),
@@ -283,11 +292,12 @@ export const POST = withWallet(async ({ req }) => {
     // Send email notification of trade completion
     after(async () => {
       try {
+        const priceOfXrp = await getXrpValueInUsd();
         await resend.emails.send({
           from: "TokenOS <notifs@mailer.tokenos.one>",
           to: "rmthomas@pryzma.io",
           subject: "Fee transaction received",
-          text: `Collected ${dropsToXrp(ourFeeInDrops)} XRP from ${wallet.address} for a trade`,
+          text: `Collected ${dropsToXrp(ourFeeInDrops).toLocaleString("en-us", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} XRP (${(dropsToXrp(ourFeeInDrops) * priceOfXrp).toLocaleString("en-us", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 })}) from ${wallet.address}. See transaction: https://xrpsan.com/tx/${tx.result.hash}`,
         });
       } catch (e) {
         console.error("Error sending email notification of trade completion", e);
