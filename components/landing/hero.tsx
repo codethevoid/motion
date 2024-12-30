@@ -78,7 +78,7 @@ export const Hero = () => {
           </NextLink>
         </Button>
         <NextLink
-          href="/tokens/CAT:rUQkWFQaYGaa4xiffztHUfH6SHMVArpPGj"
+          href="/tokens/50484E4958000000000000000000000000000000:rDFXbW2ZZCG5WgPtqwNiA2xZokLMm9ivmN"
           className="flex items-center justify-between rounded-md border bg-background px-3 py-2"
         >
           <div className="flex items-center space-x-2.5">
