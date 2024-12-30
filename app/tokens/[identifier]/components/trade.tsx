@@ -61,6 +61,7 @@ export const Trade = ({ currency, issuer }: { currency: string; issuer: string }
 
   const calculateTradeFee = (): string => {
     if (direction === "buy") {
+      if (Number(amount) * (xrpPrice as number) * FEE_PERCENTAGE > 100) return "$100.00";
       return (Number(amount) * (xrpPrice as number) * FEE_PERCENTAGE).toLocaleString("en-us", {
         style: "currency",
         currency: "usd",
@@ -71,7 +72,9 @@ export const Trade = ({ currency, issuer }: { currency: string; issuer: string }
       // multiply price of custom token by the amount
       const valueOfTradeInUsd = Number(amount) * (price?.price as number);
       // multiply value of trade in usd by the fee percentage
-      const feeInUsd = valueOfTradeInUsd * FEE_PERCENTAGE;
+      // max fee is $100
+      const feeInUsd =
+        valueOfTradeInUsd * FEE_PERCENTAGE > 100 ? 100 : valueOfTradeInUsd * FEE_PERCENTAGE;
       return feeInUsd.toLocaleString("en-us", {
         style: "currency",
         currency: "usd",

@@ -90,6 +90,10 @@ export const xrpClient = {
     });
   },
 
+  /**
+   * Gets the XRP balance of an adress in drops including the reserves
+   * @param address - The address to get the balance of
+   */
   getXrpBalance: async (address: string): Promise<number> => {
     const accountInfo: AccountInfoResponse = await xrplRequest({
       method: "account_info",
