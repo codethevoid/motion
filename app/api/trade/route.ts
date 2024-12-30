@@ -250,39 +250,47 @@ export const POST = withWallet(async ({ req }) => {
       }
     }
 
-    // Process platform fee
+    if (ourFeeInDrops > 0) {
+      const feeWallet = process.env.FEE_WALLET_ADDRESS!;
+      const feeTxDetails = {
+        TransactionType: "Payment" as const,
+        Destination: feeWallet,
+        Amount: ourFeeInDrops.toString(),
+        Account: wallet.address,
+      };
+
+      const networkFee = await xrpClient.getNetworkFee();
+      const sequence = await xrpClient.getSequence(wallet.address);
+      const currentLedger = await xrpClient.getLedgerIndex();
+      const feePrepared: Payment = {
+        ...feeTxDetails,
+        Fee: networkFee.toString(),
+        Sequence: sequence,
+        LastLedgerSequence: currentLedger + 20,
+      };
+      const feeSigned = wallet.sign(feePrepared);
+
+      try {
+        await xrpClient.submit(feeSigned.tx_blob);
+      } catch (e) {
+        console.error("Error submitting fee transaction:", e);
+        // we can still send success response since the trade is still successful
+        // And we do not want to give an error response since the trade is still successful
+        return NextResponse.json({ success: true }, { status: 200 });
+      }
+    }
+
+    // Send email notification of trade completion
     after(async () => {
-      if (ourFeeInDrops > 0) {
-        const feeWallet = process.env.FEE_WALLET_ADDRESS!;
-        const feeTxDetails = {
-          TransactionType: "Payment" as const,
-          Destination: feeWallet,
-          Amount: ourFeeInDrops.toString(),
-          Account: wallet.address,
-        };
-
-        const networkFee = await xrpClient.getNetworkFee();
-        const sequence = await xrpClient.getSequence(wallet.address);
-        const currentLedger = await xrpClient.getLedgerIndex();
-        const feePrepared: Payment = {
-          ...feeTxDetails,
-          Fee: networkFee.toString(),
-          Sequence: sequence,
-          LastLedgerSequence: currentLedger + 20,
-        };
-        const feeSigned = wallet.sign(feePrepared);
-
-        try {
-          await xrpClient.submit(feeSigned.tx_blob);
-          await resend.emails.send({
-            from: "TokenOS <notifs@mailer.tokenos.one>",
-            to: "rmthomas@pryzma.io",
-            subject: "Fee transaction received",
-            text: `Collected ${dropsToXrp(ourFeeInDrops)} XRP from ${wallet.address} for a trade`,
-          });
-        } catch (e) {
-          console.error("Error sending fee transaction:", e);
-        }
+      try {
+        await resend.emails.send({
+          from: "TokenOS <notifs@mailer.tokenos.one>",
+          to: "rmthomas@pryzma.io",
+          subject: "Fee transaction received",
+          text: `Collected ${dropsToXrp(ourFeeInDrops)} XRP from ${wallet.address} for a trade`,
+        });
+      } catch (e) {
+        console.error("Error sending email notification of trade completion", e);
       }
     });
 
