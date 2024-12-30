@@ -14,6 +14,7 @@ import { formatBigNum } from "@/utils/format-big-num";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
+import { useMediaQuery } from "react-responsive";
 
 export const TokensClient = () => {
   const [name, setName] = useState("");
@@ -25,6 +26,7 @@ export const TokensClient = () => {
   console.log(total);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [previousData, setPreviousData] = useState(data);
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   useEffect(() => {
     if (!data) return;
@@ -116,8 +118,9 @@ export const TokensClient = () => {
                 >
                   <div
                     className={cn(
-                      "flex items-center px-3 py-2 transition-colors hover:bg-secondary/20",
+                      "flex items-center px-3 py-2 transition-colors",
                       i !== 0 && "border-t border-border/80",
+                      !isMobile && "hover:bg-secondary/20",
                     )}
                   >
                     <div className="flex min-w-[160px] flex-1 items-center space-x-2.5">

@@ -14,8 +14,8 @@ export const maxDuration = 40;
 type TradeRequest = {
   transaction: {
     type: "sell" | "buy";
-    amountToDeliver: Amount;
-    amountToReceive: Amount;
+    amountToDeliver: Amount; // amount the user will send/sell/deliver
+    amountToReceive: Amount; // amount the user will receive
     slippage: number;
   };
   password: string;

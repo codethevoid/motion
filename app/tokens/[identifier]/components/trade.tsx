@@ -26,6 +26,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { xrpToDrops } from "xrpl";
+import { RainbowButton } from "@/components/ui/rainbow-button";
 
 export const Trade = ({ currency, issuer }: { currency: string; issuer: string }) => {
   const { balance, isLoading: isLoadingBalance } = useBalance(currency, issuer);
@@ -236,9 +237,9 @@ export const Trade = ({ currency, issuer }: { currency: string; issuer: string }
         {isLoadingSession ? (
           <Skeleton className="h-9 w-full" />
         ) : !hasWallet ? (
-          <Button onClick={() => setIsOpen(true)} className="w-full">
+          <RainbowButton onClick={() => setIsOpen(true)} className="w-full">
             Connect Wallet
-          </Button>
+          </RainbowButton>
         ) : (
           <Button
             onClick={promptTransaction}

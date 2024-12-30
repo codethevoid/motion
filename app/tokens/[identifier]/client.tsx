@@ -12,18 +12,17 @@ import { About } from "./components/about";
 import { Transactions } from "./components/transactions";
 import { useTokenMetrics } from "@/hooks/use-token-metrics";
 import { notFound } from "next/navigation";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Holders } from "./components/holders";
 
 export const TokenClient = ({ identifier }: { identifier: string }) => {
   const decoded = decodeURIComponent(identifier);
   const [currency, issuer] = decoded.split(":");
   const [range, setRange] = useState<Timespan>("1w");
+  const [tab, setTab] = useState<"transactions" | "holders">("transactions");
   const { error } = useTokenMetrics(encodeURIComponent(currency), encodeURIComponent(issuer));
 
-  if (error) {
-    // means the token and issuer are not valid
-    // show a 404 page
-    return notFound();
-  }
+  if (error) return notFound();
 
   return (
     <div className="p-4 pb-16">
@@ -87,10 +86,33 @@ export const TokenClient = ({ identifier }: { identifier: string }) => {
               />
             </div>
           </Card>
-          <Transactions
-            currency={encodeURIComponent(currency)}
-            issuer={encodeURIComponent(issuer)}
-          />
+          <div className="space-y-2">
+            <Tabs
+              value={tab}
+              onValueChange={(value: string) => setTab(value as "transactions" | "holders")}
+            >
+              <TabsList className="w-full">
+                <TabsTrigger value="transactions" className="h-7 w-full text-[13px]">
+                  Transactions
+                </TabsTrigger>
+                <TabsTrigger value="holders" className="h-7 w-full text-[13px]">
+                  Top holders
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            {tab === "transactions" && (
+              <Transactions
+                currency={encodeURIComponent(currency)}
+                issuer={encodeURIComponent(issuer)}
+              />
+            )}
+            {tab === "holders" && (
+              <Holders
+                currency={encodeURIComponent(currency)}
+                issuer={encodeURIComponent(issuer)}
+              />
+            )}
+          </div>
           <Trade currency={encodeURIComponent(currency)} issuer={encodeURIComponent(issuer)} />
           <About currency={encodeURIComponent(currency)} issuer={encodeURIComponent(issuer)} />
         </div>
@@ -152,10 +174,33 @@ export const TokenClient = ({ identifier }: { identifier: string }) => {
               />
             </div>
           </Card>
-          <Transactions
-            currency={encodeURIComponent(currency)}
-            issuer={encodeURIComponent(issuer)}
-          />
+          <div className="space-y-2">
+            <Tabs
+              value={tab}
+              onValueChange={(value: string) => setTab(value as "transactions" | "holders")}
+            >
+              <TabsList className="w-full">
+                <TabsTrigger value="transactions" className="h-7 w-full text-[13px]">
+                  Transactions
+                </TabsTrigger>
+                <TabsTrigger value="holders" className="h-7 w-full text-[13px]">
+                  Top holders
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            {tab === "transactions" && (
+              <Transactions
+                currency={encodeURIComponent(currency)}
+                issuer={encodeURIComponent(issuer)}
+              />
+            )}
+            {tab === "holders" && (
+              <Holders
+                currency={encodeURIComponent(currency)}
+                issuer={encodeURIComponent(issuer)}
+              />
+            )}
+          </div>
         </div>
         <div className="flex w-1/3 min-w-[336px] flex-col gap-4 max-[900px]:hidden">
           <Metrics currency={encodeURIComponent(currency)} issuer={encodeURIComponent(issuer)} />

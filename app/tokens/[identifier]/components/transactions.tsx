@@ -33,7 +33,7 @@ export const Transactions = ({ currency, issuer }: { currency: string; issuer: s
   }, [data]);
 
   const determineDirection = (tx: AccountTxTransaction): "buy" | "sell" => {
-    console.log(tx.tx_json?.TransactionType);
+    // console.log(tx.tx_json?.TransactionType);
     if (tx.tx_json?.TransactionType === "Payment") {
       // check if Amount is object or string
       if (typeof tx.meta === "object") {
@@ -179,7 +179,7 @@ export const Transactions = ({ currency, issuer }: { currency: string; issuer: s
 
   return (
     <Card className="p-4">
-      <div className="flex rounded-md border bg-secondary/40 px-3 py-1.5">
+      <div className="flex rounded-md border bg-secondary/40 px-2.5 py-1.5">
         <div className="flex-1">
           <p className="text-[11px] font-medium uppercase text-muted-foreground">Time</p>
         </div>
@@ -215,10 +215,7 @@ export const Transactions = ({ currency, issuer }: { currency: string; issuer: s
             {allTransactions.map((tx, index) => (
               <div
                 key={tx.hash}
-                className={cn(
-                  "flex gap-1 rounded-sm px-2 py-1",
-                  index % 2 !== 0 && "bg-secondary/40",
-                )}
+                className={cn("flex rounded-sm px-2.5 py-1", index % 2 !== 0 && "bg-secondary/40")}
               >
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground max-lg:hidden">

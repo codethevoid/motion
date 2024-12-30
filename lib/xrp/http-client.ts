@@ -47,10 +47,10 @@ export const xrpClient = {
     });
   },
 
-  getAccountLines: async (address: string): Promise<AccountLinesResponse> => {
+  getAccountLines: async (address: string, marker?: string): Promise<AccountLinesResponse> => {
     return xrplRequest({
       method: "account_lines",
-      params: [{ account: address, ledger_index: "validated" }],
+      params: [{ account: address, ledger_index: "validated", ...(marker ? { marker } : {}) }],
     });
   },
 

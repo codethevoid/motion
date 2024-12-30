@@ -200,7 +200,7 @@ export const Metrics = ({ currency, issuer }: { currency: string; issuer: string
           <p className="text-center text-xs text-muted-foreground">Holders</p>
           {tokenData ? (
             <p className="text-center text-[13px]">
-              {formatBigNum(Number(tokenData.metrics.holders), true)}
+              {formatBigNum(Number(tokenData.metrics.holders))}
             </p>
           ) : (
             <div className="flex h-[19.5px] items-center">

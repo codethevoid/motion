@@ -27,7 +27,6 @@ export const generateStaticParams = async () => {
       };
     });
 
-  console.log(tokens);
   return tokens;
 };
 
