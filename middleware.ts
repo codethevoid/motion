@@ -6,7 +6,7 @@ export const middleware = async () => {
   // check if there is a wallet cookie and update it so it expires in 30 days
   const token = await getToken();
   if (token) await updateCookie(token);
-  return NextResponse.next();
+  return NextResponse.next({ headers: { "x-powered-by": "TokenOS" } });
 };
 
 export const config = {

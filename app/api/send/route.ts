@@ -19,13 +19,15 @@ type SendRequest = {
   destination: string;
   value: string;
   memo: string;
+  destinationTag: string;
   selectedToken: SelectedToken;
   password: string;
 };
 
 export const POST = withWallet(async ({ req }) => {
   try {
-    const { destination, value, selectedToken, memo, password } = (await req.json()) as SendRequest;
+    const { destination, value, selectedToken, memo, password, destinationTag } =
+      (await req.json()) as SendRequest;
 
     const isValid = schema.safeParse({ destination, value, memo });
     if (!isValid.success) {
@@ -66,7 +68,8 @@ export const POST = withWallet(async ({ req }) => {
       Account: wallet.address,
       Destination: destination,
       Amount: amount,
-      ...(memoHex ? { Memos: [{ Memo: { MemoData: memoHex } }] } : {}),
+      ...(destinationTag && { DestinationTag: parseInt(destinationTag) }),
+      ...(memoHex && { Memos: [{ Memo: { MemoData: memoHex } }] }),
     };
 
     const [networkFee, sequence, currentLedger] = await Promise.all([

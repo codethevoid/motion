@@ -29,6 +29,7 @@ export type SelectedToken = {
 const schema = z.object({
   destination: z.string().min(1, "Destination address is required"),
   value: z.string().min(1, "Amount is required"),
+  destinationTag: z.string().optional(),
   memo: z.string().optional(),
 });
 
@@ -88,6 +89,7 @@ export const Send = () => {
       setValue("value", "");
       setValue("destination", "");
       setValue("memo", "");
+      setValue("destinationTag", "");
       mutate();
     } catch (e) {
       setIsSending(false);
@@ -177,6 +179,13 @@ export const Send = () => {
                 </Button>
               </div>
               {errors.value && <p className="text-xs text-red-500">{errors.value.message}</p>}
+            </div>
+            <div className="space-y-1.5">
+              <Input
+                placeholder="Destination tag (optional)"
+                className="bg-card"
+                {...register("destinationTag")}
+              />
             </div>
             <div className="space-y-1.5">
               {/* <p className="text-[13px]">Memo (optional)</p> */}
