@@ -252,7 +252,7 @@ export const POST = withWallet(async ({ req }) => {
 
     const amount =
       typeof amountToReceive === "string"
-        ? Math.floor(Number(amountToReceive)).toString()
+        ? Math.floor(Number(amountToReceive) * BUFFER_MULTIPLIER).toString()
         : {
             currency: amountToReceive.currency,
             issuer: amountToReceive.issuer,
