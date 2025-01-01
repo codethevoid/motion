@@ -39,10 +39,10 @@ export const Tokens = () => {
                     alt={token.name ? token.name : token.currency}
                     width={32}
                     height={32}
-                    className="shrink-0 rounded-full"
+                    className="size-8 shrink-0 rounded-full"
                   />
                 ) : (
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary">
                     {/* <Coins size={14} /> */}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"

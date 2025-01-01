@@ -19,8 +19,8 @@ import { RainbowButton } from "../ui/rainbow-button";
 export const Hero = () => {
   const { isOpen, setIsOpen } = useWalletActions();
   const { data: tokenData, isLoading } = useTokenMetrics(
-    "50484E4958000000000000000000000000000000", // currency
-    "rDFXbW2ZZCG5WgPtqwNiA2xZokLMm9ivmN", // issuer
+    "4B454B4955530000000000000000000000000000", // currency
+    "rLWCx7obzMRbFfreNR6eScPz6GWj4xbr4v", // issuer
   );
 
   return (
@@ -78,7 +78,7 @@ export const Hero = () => {
           </NextLink>
         </Button>
         <NextLink
-          href="/tokens/50484E4958000000000000000000000000000000:rDFXbW2ZZCG5WgPtqwNiA2xZokLMm9ivmN"
+          href="/tokens/4B454B4955530000000000000000000000000000:rLWCx7obzMRbFfreNR6eScPz6GWj4xbr4v"
           className="flex items-center justify-between rounded-md border bg-background px-3 py-2"
         >
           <div className="flex items-center space-x-2.5">
@@ -233,8 +233,8 @@ export const Hero = () => {
         <div className="h-[260px] w-full rounded-md border bg-background p-3 max-md:h-[220px]">
           {/* <CandleChart candlesticks={tokenData?.candlesticks || []} /> */}
           <LineChart
-            currency="50484E4958000000000000000000000000000000"
-            issuer="rDFXbW2ZZCG5WgPtqwNiA2xZokLMm9ivmN"
+            currency="4B454B4955530000000000000000000000000000"
+            issuer="rLWCx7obzMRbFfreNR6eScPz6GWj4xbr4v"
             range="1d"
           />
         </div>
