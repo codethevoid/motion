@@ -154,7 +154,7 @@ export const POST = withWallet(async ({ req }) => {
       if (!priceOfXrp) {
         return NextResponse.json({ error: "Error getting price of XRP" }, { status: 400 });
       }
-      const totalFeeInUsd = priceOfXrp * xrpEquivalent;
+      const totalFeeInUsd = priceOfXrp * (xrpEquivalent * fee);
       if (totalFeeInUsd > 100) {
         // calculate how much to charge in drops to make it $100
         const xrpToCharge = 100 / priceOfXrp;
@@ -179,8 +179,23 @@ export const POST = withWallet(async ({ req }) => {
 
       // total needed is only the fees we need to collect
       // since they are sending the custom token
+      const slippageMultiplier = 1 - slippage / 100;
+      let xrpToReceive = 0;
+      if (typeof amountToReceive === "string") {
+        xrpToReceive = Math.floor(Number(amountToReceive) * slippageMultiplier);
+      }
       const totalNeeded = ourFeeInDrops + networkFee * 2;
-      const availableBalance = balance - reserves;
+      const availableBalance = balance + xrpToReceive - reserves;
+
+      console.log({
+        currentBalanceXRP: dropsToXrp(balance),
+        xrpToReceiveAfterSlippage: dropsToXrp(xrpToReceive),
+        platformFeeXRP: dropsToXrp(ourFeeInDrops),
+        platformFeeUSD: dropsToXrp(ourFeeInDrops) * priceOfXrp,
+        finalBalanceXRP: dropsToXrp(availableBalance),
+        requiredXRP: dropsToXrp(totalNeeded),
+        slippagePercentage: slippage,
+      });
 
       if (availableBalance < totalNeeded) {
         return NextResponse.json({ error: "Insufficient XRP balance" }, { status: 400 });
@@ -233,6 +248,7 @@ export const POST = withWallet(async ({ req }) => {
 
     // Prepare Payment transaction
     const slippageMultiplier = 1 - slippage / 100;
+    const BUFFER_MULTIPLIER = 1.5; // Add 50% to amount so we don't cap what we can receive in case of better price
 
     const amount =
       typeof amountToReceive === "string"
@@ -240,7 +256,7 @@ export const POST = withWallet(async ({ req }) => {
         : {
             currency: amountToReceive.currency,
             issuer: amountToReceive.issuer,
-            value: Number(amountToReceive.value).toFixed(6),
+            value: (Number(amountToReceive.value) * BUFFER_MULTIPLIER).toFixed(6),
           };
 
     const deliverMin =
