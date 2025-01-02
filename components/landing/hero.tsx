@@ -84,9 +84,11 @@ export const Hero = () => {
           <div className="flex items-center space-x-2.5">
             {isLoading ? (
               <Skeleton className="size-9 rounded-full" />
-            ) : tokenData?.meta.token.icon ? (
+            ) : true ? (
               <img
-                src={tokenData?.meta.token.icon}
+                src={
+                  "https://dd.dexscreener.com/ds-data/tokens/xrpl/4b454b4955530000000000000000000000000000.rlwcx7obzmrbffrenr6escpz6gwj4xbr4v.png?size=lg&key=65239e"
+                }
                 alt={tokenData?.meta.token.name}
                 className="size-9 rounded-full"
               />

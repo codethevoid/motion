@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 
 export const Metrics = ({ currency, issuer }: { currency: string; issuer: string }) => {
   const { data: tokenData, isLoading } = useTokenMetrics(currency, issuer);
+  // https://dd.dexscreener.com/ds-data/tokens/xrpl/4b454b4955530000000000000000000000000000.rlwcx7obzmrbffrenr6escpz6gwj4xbr4v.png?size=lg&key=65239e
 
   return (
     <Card className="space-y-1.5 p-4">
@@ -21,6 +22,14 @@ export const Metrics = ({ currency, issuer }: { currency: string; issuer: string
           ) : tokenData?.meta.token.icon ? (
             <img
               src={tokenData?.meta.token.icon}
+              alt={tokenData?.meta.token.name}
+              className="size-9 rounded-md"
+            />
+          ) : issuer.toLowerCase() === "rlwcx7obzmrbffrenr6escpz6gwj4xbr4v" ? (
+            <img
+              src={
+                "https://dd.dexscreener.com/ds-data/tokens/xrpl/4b454b4955530000000000000000000000000000.rlwcx7obzmrbffrenr6escpz6gwj4xbr4v.png?size=lg&key=65239e"
+              }
               alt={tokenData?.meta.token.name}
               className="size-9 rounded-md"
             />
