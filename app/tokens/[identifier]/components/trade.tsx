@@ -59,25 +59,63 @@ export const Trade = ({ currency, issuer }: { currency: string; issuer: string }
     setAmount("");
   }, [direction]);
 
-  const calculateTradeFee = (): string => {
+  // const calculateTradeFee = (): string => {
+  //   if (direction === "buy") {
+  //     if (Number(amount) * (xrpPrice as number) * FEE_PERCENTAGE > 100) return "$100.00";
+  //     return (Number(amount) * (xrpPrice as number) * FEE_PERCENTAGE).toLocaleString("en-us", {
+  //       style: "currency",
+  //       currency: "usd",
+  //       minimumFractionDigits: 2,
+  //       maximumFractionDigits: 2,
+  //     });
+  //   } else {
+  //     // multiply price of custom token by the amount
+  //     const valueOfTradeInUsd = Number(amount) * (price?.price as number);
+  //     // multiply value of trade in usd by the fee percentage
+  //     // max fee is $100
+  //     const feeInUsd =
+  //       valueOfTradeInUsd * FEE_PERCENTAGE > 100 ? 100 : valueOfTradeInUsd * FEE_PERCENTAGE;
+  //     return feeInUsd.toLocaleString("en-us", {
+  //       style: "currency",
+  //       currency: "usd",
+  //       minimumFractionDigits: 2,
+  //       maximumFractionDigits: 2,
+  //     });
+  //   }
+  // };
+
+  const calculateTradeFeeInXrp = () => {
     if (direction === "buy") {
-      if (Number(amount) * (xrpPrice as number) * FEE_PERCENTAGE > 100) return "$100.00";
-      return (Number(amount) * (xrpPrice as number) * FEE_PERCENTAGE).toLocaleString("en-us", {
-        style: "currency",
-        currency: "usd",
+      if (Number(amount) * (xrpPrice as number) * FEE_PERCENTAGE > 100) {
+        // calculate how many XRP is 100 USD
+        const xrpValueInUsd = 100 / (xrpPrice as number);
+        return xrpValueInUsd.toLocaleString("en-us", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      }
+
+      // since we are sending XRP, just multiply the amount by the fee percentage
+      return (Number(amount) * FEE_PERCENTAGE).toLocaleString("en-us", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
     } else {
-      // multiply price of custom token by the amount
-      const valueOfTradeInUsd = Number(amount) * (price?.price as number);
-      // multiply value of trade in usd by the fee percentage
-      // max fee is $100
-      const feeInUsd =
-        valueOfTradeInUsd * FEE_PERCENTAGE > 100 ? 100 : valueOfTradeInUsd * FEE_PERCENTAGE;
-      return feeInUsd.toLocaleString("en-us", {
-        style: "currency",
-        currency: "usd",
+      // get total value of trade in USD
+      const totalValueInUsd = Number(amount) * (price?.price as number);
+      // calculate how many XRP the fee is
+      if (totalValueInUsd * FEE_PERCENTAGE > 100) {
+        // calculate how many XRP is 100 USD
+        const xrpValueInUsd = 100 / (xrpPrice as number);
+        return xrpValueInUsd.toLocaleString("en-us", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      }
+
+      // calculate how many XRP the fee is
+      const feeInXrp = (totalValueInUsd * FEE_PERCENTAGE) / (xrpPrice as number);
+      return feeInXrp.toLocaleString("en-us", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
@@ -99,7 +137,7 @@ export const Trade = ({ currency, issuer }: { currency: string; issuer: string }
           value: (Number(amount) * rate).toString(),
         },
         slippage,
-        fee: calculateTradeFee(),
+        fee: `${calculateTradeFeeInXrp()} XRP`,
       });
     } else {
       if (Number(amount) > (balance?.balance as number)) {
@@ -115,7 +153,7 @@ export const Trade = ({ currency, issuer }: { currency: string; issuer: string }
         },
         amountToReceive: (Number(amount) * rate * 1_000_000).toString(),
         slippage,
-        fee: calculateTradeFee(),
+        fee: `${calculateTradeFeeInXrp()} XRP`,
       });
     }
 
@@ -233,7 +271,7 @@ export const Trade = ({ currency, issuer }: { currency: string; issuer: string }
                 value={`${(Number(amount) * rate * ((100 - slippage) / 100)).toLocaleString("en-us", { maximumFractionDigits: 4 })} ${direction === "buy" ? formatCurrency(currency) : "XRP"}`}
               />
               <LineItem label="Network cost" value={`${networkFee?.fee} XRP`} />
-              <LineItem label="Trade fee (1%)" value={calculateTradeFee()} />
+              <LineItem label="Trade fee (1%)" value={`${calculateTradeFeeInXrp()} XRP`} />
             </AccordionContent>
           </AccordionItem>
         </Accordion>

@@ -106,7 +106,7 @@ export const xrpClient = {
   // Returns the network fee in drops
   getNetworkFee: async (): Promise<number> => {
     const response: FeeResponse = await xrplRequest({ method: "fee", params: [{}] });
-    return Number(response.result?.drops?.base_fee || 10); // fallback to 10 drops if no fee is returned
+    return Number(response.result?.drops?.base_fee || 12); // fallback to 12 drops if no fee is returned
   },
 
   getSequence: async (address: string): Promise<number> => {
