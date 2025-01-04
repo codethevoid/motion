@@ -27,7 +27,7 @@ export const GET = withWallet(async ({ wallet }) => {
       totalReferralsInXrp,
     });
   } catch (e) {
-    console.error("Error fetching referral data", e);
+    console.error("Error fetching referral data:", e);
     return NextResponse.json({ error: "Error fetching referral data" }, { status: 500 });
   }
 });
