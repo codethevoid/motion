@@ -1,13 +1,11 @@
 "use client";
 
 import { MagicCard } from "../ui/magic-card";
-import { ArrowUpRight, BadgeHelp, BookOpen, HandCoins, WalletMinimal } from "lucide-react";
+import { ArrowUpRight, BadgeHelp, BookOpen } from "lucide-react";
 import { Button } from "../ui/button";
-import { useWalletActions } from "../wallet/context";
 import NextLink from "next/link";
 
 export const Resources = () => {
-  const { setIsOpen } = useWalletActions();
   return (
     <div className="px-4">
       <div className="mx-auto max-w-screen-lg space-y-8">
