@@ -70,13 +70,13 @@ export const Tools = () => {
                     </>
                   </NextLink>
                 </Button>
-                <Button
-                  className="w-full justify-between"
-                  variant="secondary"
-                  onClick={() => setIsOpen(true)}
-                >
-                  <span>Create wallet</span>
-                  <ArrowUpRight className="size-4" />
+                <Button className="w-full justify-between" variant="secondary" asChild>
+                  <NextLink href="https://docs.tokenos.one">
+                    <>
+                      <span>Read docs</span>
+                      <ArrowUpRight className="size-4" />
+                    </>
+                  </NextLink>
                 </Button>
               </div>
             </div>

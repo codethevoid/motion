@@ -25,14 +25,6 @@ export const Metrics = ({ currency, issuer }: { currency: string; issuer: string
               alt={tokenData?.meta.token.name}
               className="size-9 rounded-md"
             />
-          ) : issuer.toLowerCase() === "rlwcx7obzmrbffrenr6escpz6gwj4xbr4v" ? (
-            <img
-              src={
-                "https://dd.dexscreener.com/ds-data/tokens/xrpl/4b454b4955530000000000000000000000000000.rlwcx7obzmrbffrenr6escpz6gwj4xbr4v.png?size=lg&key=65239e"
-              }
-              alt={tokenData?.meta.token.name}
-              className="size-9 rounded-md"
-            />
           ) : (
             <div className="flex size-9 items-center justify-center rounded-full border bg-secondary/80 dark:bg-secondary/40">
               <Coin />

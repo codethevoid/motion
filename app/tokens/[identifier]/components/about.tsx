@@ -40,14 +40,6 @@ export const About = ({ currency, issuer }: { currency: string; issuer: string }
               alt={tokenData?.meta.token.name}
               className="size-12 rounded-md"
             />
-          ) : issuer.toLowerCase() === "rlwcx7obzmrbffrenr6escpz6gwj4xbr4v" ? (
-            <img
-              src={
-                "https://dd.dexscreener.com/ds-data/tokens/xrpl/4b454b4955530000000000000000000000000000.rlwcx7obzmrbffrenr6escpz6gwj4xbr4v.png?size=lg&key=65239e"
-              }
-              alt={tokenData?.meta.token.name}
-              className="size-12 rounded-md"
-            />
           ) : (
             <div className="flex size-12 items-center justify-center rounded-md border bg-zinc-950">
               <Coin />

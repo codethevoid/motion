@@ -19,8 +19,8 @@ import { RainbowButton } from "../ui/rainbow-button";
 export const Hero = () => {
   const { isOpen, setIsOpen } = useWalletActions();
   const { data: tokenData, isLoading } = useTokenMetrics(
-    "4B454B4955530000000000000000000000000000", // currency
-    "rLWCx7obzMRbFfreNR6eScPz6GWj4xbr4v", // issuer
+    "BOX", // currency
+    "rhLJ2ma5pScsxVhL5EQr71w3FgASVLwP84", // issuer
   );
 
   return (
@@ -78,17 +78,15 @@ export const Hero = () => {
           </NextLink>
         </Button>
         <NextLink
-          href="/tokens/4B454B4955530000000000000000000000000000:rLWCx7obzMRbFfreNR6eScPz6GWj4xbr4v"
+          href="/tokens/BOX:rhLJ2ma5pScsxVhL5EQr71w3FgASVLwP84"
           className="flex items-center justify-between rounded-md border bg-background px-3 py-2"
         >
           <div className="flex items-center space-x-2.5">
             {isLoading ? (
               <Skeleton className="size-9 rounded-full" />
-            ) : true ? (
+            ) : tokenData?.meta.token.icon ? (
               <img
-                src={
-                  "https://dd.dexscreener.com/ds-data/tokens/xrpl/4b454b4955530000000000000000000000000000.rlwcx7obzmrbffrenr6escpz6gwj4xbr4v.png?size=lg&key=65239e"
-                }
+                src={tokenData?.meta.token.icon}
                 alt={tokenData?.meta.token.name}
                 className="size-9 rounded-full"
               />
@@ -234,11 +232,7 @@ export const Hero = () => {
         </div> */}
         <div className="h-[260px] w-full rounded-md border bg-background p-3 max-md:h-[220px]">
           {/* <CandleChart candlesticks={tokenData?.candlesticks || []} /> */}
-          <LineChart
-            currency="4B454B4955530000000000000000000000000000"
-            issuer="rLWCx7obzMRbFfreNR6eScPz6GWj4xbr4v"
-            range="1d"
-          />
+          <LineChart currency="BOX" issuer="rhLJ2ma5pScsxVhL5EQr71w3FgASVLwP84" range="1d" />
         </div>
       </Card>
     </div>

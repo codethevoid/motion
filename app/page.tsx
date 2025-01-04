@@ -1,6 +1,7 @@
 import { Hero } from "@/components/landing/hero";
 import { CoinSpotlight } from "@/components/landing/coin-spotlight";
 import { Tools } from "@/components/landing/tools";
+import { Resources } from "@/components/landing/resources";
 
 const Home = () => {
   return (
@@ -10,6 +11,7 @@ const Home = () => {
       </div>
       <CoinSpotlight />
       <Tools />
+      <Resources />
     </div>
   );
 };

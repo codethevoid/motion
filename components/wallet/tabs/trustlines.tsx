@@ -97,14 +97,6 @@ export const Trustlines = () => {
                       height={32}
                       className="shrink-0 rounded-full"
                     />
-                  ) : trust.account?.toLowerCase() === "rlwcx7obzmrbffrenr6escpz6gwj4xbr4v" ? (
-                    <img
-                      src={
-                        "https://dd.dexscreener.com/ds-data/tokens/xrpl/4b454b4955530000000000000000000000000000.rlwcx7obzmrbffrenr6escpz6gwj4xbr4v.png?size=lg&key=65239e"
-                      }
-                      alt={trust.name ? trust.name : trust.currency}
-                      className="size-8 shrink-0 rounded-full"
-                    />
                   ) : (
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
                       {/* <Coins size={14} /> */}

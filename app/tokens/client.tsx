@@ -130,14 +130,6 @@ export const TokensClient = () => {
                           alt={token.meta.token.name}
                           className="size-8 rounded-full"
                         />
-                      ) : token.issuer.toLowerCase() === "rlwcx7obzmrbffrenr6escpz6gwj4xbr4v" ? (
-                        <img
-                          src={
-                            "https://dd.dexscreener.com/ds-data/tokens/xrpl/4b454b4955530000000000000000000000000000.rlwcx7obzmrbffrenr6escpz6gwj4xbr4v.png?size=lg&key=65239e"
-                          }
-                          alt={token.meta.token.name}
-                          className="size-8 rounded-full"
-                        />
                       ) : (
                         <div className="flex size-8 items-center justify-center rounded-full bg-secondary/40">
                           <Coin />
