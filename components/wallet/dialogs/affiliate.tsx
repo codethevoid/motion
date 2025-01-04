@@ -107,7 +107,7 @@ export const AffiliateDialog = ({ isOpen, setIsOpen, title, image }: Props) => {
 
   if (isMobile) {
     return (
-      <Drawer open={isOpen} onOpenChange={setIsOpen}>
+      <Drawer open={isOpen} onOpenChange={setIsOpen} repositionInputs={false}>
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle className="text-left">Customize referral link</DrawerTitle>
