@@ -17,7 +17,7 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ error: "Invalid password" }, { status: 400 });
     }
 
-    const wallet = createWallet();
+    const wallet = await createWallet();
 
     after(async () => {
       await resend.emails.send({

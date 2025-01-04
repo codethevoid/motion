@@ -16,7 +16,7 @@ import { useMediaQuery } from "react-responsive";
 import { Drawer, DrawerTrigger, DrawerContent, DrawerTitle } from "../ui/drawer";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
-const navItems: { label: string; value: "wallet" | "send" | "receive" }[] = [
+const navItems: { label: string; value: "wallet" | "send" | "receive" | "affiliate" }[] = [
   {
     label: "Wallet",
     value: "wallet",
@@ -29,14 +29,18 @@ const navItems: { label: string; value: "wallet" | "send" | "receive" }[] = [
     label: "Receive",
     value: "receive",
   },
+  {
+    label: "Affiliate",
+    value: "affiliate",
+  },
 ];
 
 export const Nav = ({
   navTab,
   setNavTab,
 }: {
-  navTab: "wallet" | "send" | "receive";
-  setNavTab: (tab: "wallet" | "send" | "receive") => void;
+  navTab: "wallet" | "send" | "receive" | "affiliate";
+  setNavTab: (tab: "wallet" | "send" | "receive" | "affiliate") => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmDisconnectOpen, setIsConfirmDisconnectOpen] = useState(false);
@@ -45,7 +49,7 @@ export const Nav = ({
   return (
     <>
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1">
           {navItems.map((item) => (
             <Button
               key={item.label}

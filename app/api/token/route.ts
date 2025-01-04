@@ -4,6 +4,7 @@ import { issueToken, setCookie } from "@/lib/token";
 export const POST = async (req: NextRequest) => {
   try {
     const { address, password, privateKey, publicKey } = await req.json();
+    console.log(address, password, privateKey, publicKey);
     const payload = { privateKey, publicKey };
     const token = await issueToken(payload, address, password);
     await setCookie(token);

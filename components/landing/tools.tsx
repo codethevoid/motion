@@ -71,7 +71,7 @@ export const Tools = () => {
                   </NextLink>
                 </Button>
                 <Button className="w-full justify-between" variant="secondary" asChild>
-                  <NextLink href="https://docs.tokenos.one">
+                  <NextLink href="https://docs.tokenos.one" target="_blank">
                     <>
                       <span>Read docs</span>
                       <ArrowUpRight className="size-4" />

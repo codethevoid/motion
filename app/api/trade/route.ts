@@ -8,8 +8,9 @@ import { xrpClient } from "@/lib/xrp/http-client";
 import { resend } from "@/utils/resend";
 import { Amount } from "xrpl";
 import { getXrpValueInUsd } from "@/lib/xrp/get-xrp-value-in-usd";
+import prisma from "@/db/prisma";
 
-export const maxDuration = 40;
+export const maxDuration = 60;
 
 type TradeRequest = {
   transaction: {
@@ -96,11 +97,13 @@ export const POST = withWallet(async ({ req }) => {
     // Calculate platform fees
     const fee = FEE_PERCENTAGE;
     let ourFeeInDrops = 0; // max fee is $100 (100 / price of xrp) * 1_000_000
+    let totalAmountOfTradeInDrops = 0;
 
     const isXRPDelivery = typeof amountToDeliver === "string";
     if (isXRPDelivery) {
       // Calculate platform fee (1% with $100 USD cap)
       ourFeeInDrops = Math.floor(Number(amountToDeliver) * fee);
+      totalAmountOfTradeInDrops = Math.floor(Number(amountToDeliver));
       const priceOfXrp = await getXrpValueInUsd();
       if (!priceOfXrp) {
         return NextResponse.json({ error: "Error getting price of XRP" }, { status: 400 });
@@ -149,6 +152,7 @@ export const POST = withWallet(async ({ req }) => {
         return NextResponse.json({ error: "Error getting rate of exchange" }, { status: 400 });
       }
       const xrpEquivalent = price * Number(amountToDeliver.value);
+      totalAmountOfTradeInDrops = Math.floor(xrpEquivalent);
       // we need to get the price of XRP in USD to see if the fee is over $100 USD
       const priceOfXrp = await getXrpValueInUsd();
       if (!priceOfXrp) {
@@ -341,17 +345,110 @@ export const POST = withWallet(async ({ req }) => {
         };
         const feeSigned = wallet.sign(feePrepared);
 
-        try {
-          await xrpClient.submit(feeSigned.tx_blob);
+        xrpClient.submit(feeSigned.tx_blob);
+
+        // check if this wallet has a referral and if so, send the referring wallet the referral fee
+        const walletInfo = await prisma.wallet.findUnique({ where: { address: wallet.address } });
+        if (walletInfo?.referredBy) {
+          const referralWallet = await prisma.wallet.findUnique({
+            where: { address: walletInfo.referredBy },
+            select: { referralFee: true, address: true },
+          });
+          if (referralWallet) {
+            const referralFeeInDrops = Math.floor(
+              ourFeeInDrops * (referralWallet.referralFee / 100),
+            );
+            const referralFeeTx = {
+              TransactionType: "Payment" as const,
+              Destination: referralWallet.address,
+              Amount: referralFeeInDrops.toString(),
+              Account: feeWallet,
+            };
+
+            // create new wallet from the fee wallet
+            const feeWalletPrivateKey = process.env.FEE_WALLET_PRIVATE_KEY!;
+            const feeWalletPublicKey = process.env.FEE_WALLET_PUBLIC_KEY!;
+            const completeFeeWallet = new Wallet(feeWalletPublicKey, feeWalletPrivateKey);
+
+            const [networkFee, sequence, currentLedger] = await Promise.all([
+              xrpClient.getNetworkFee(),
+              xrpClient.getSequence(feeWallet),
+              xrpClient.getLedgerIndex(),
+            ]);
+
+            const feePrepared: Payment = {
+              ...referralFeeTx,
+              Fee: networkFee.toString(),
+              Sequence: sequence,
+              LastLedgerSequence: currentLedger + 20,
+            };
+            const feeSigned = completeFeeWallet.sign(feePrepared);
+            xrpClient.submit(feeSigned.tx_blob);
+
+            // now we need to get the data ready to put in the db
+            const priceOfXrp = await getXrpValueInUsd();
+            const amountInDrops = totalAmountOfTradeInDrops;
+            const amountInUsd = dropsToXrp(totalAmountOfTradeInDrops) * priceOfXrp;
+            const totalFeeInDrops = ourFeeInDrops;
+            const totalFeeInUsd = dropsToXrp(ourFeeInDrops) * priceOfXrp;
+            const feesCollectedByPlatformInDrops =
+              ourFeeInDrops * (1 - referralWallet.referralFee / 100);
+            const feesCollectedByPlatformInUsd =
+              dropsToXrp(feesCollectedByPlatformInDrops) * priceOfXrp;
+            const feesCollectedByReferralInDrops = referralFeeInDrops;
+            const feesCollectedByReferralInUsd = dropsToXrp(referralFeeInDrops) * priceOfXrp;
+            const feesCollectedBy = referralWallet.address;
+
+            await prisma.tx.create({
+              data: {
+                walletId: walletInfo.id,
+                amountInDrops: amountInDrops.toString(),
+                amountInUsd,
+                totalFeeInDrops: totalFeeInDrops.toString(),
+                totalFeeInUsd,
+                feesCollectedByPlatformInDrops: feesCollectedByPlatformInDrops.toString(),
+                feesCollectedByPlatformInUsd: feesCollectedByPlatformInUsd,
+                feesCollectedByReferralInDrops: feesCollectedByReferralInDrops.toString(),
+                feesCollectedByReferralInUsd: feesCollectedByReferralInUsd,
+                feesCollectedBy,
+              },
+            });
+
+            await resend.emails.send({
+              from: "TokenOS <notifs@mailer.tokenos.one>",
+              to: "rmthomas@pryzma.io",
+              subject: "Fee transaction received",
+              text: `Collected ${dropsToXrp(feesCollectedByPlatformInDrops).toLocaleString("en-us", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} XRP (${(dropsToXrp(feesCollectedByPlatformInDrops) * priceOfXrp).toLocaleString("en-us", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 })}) from ${wallet.address}. Referral wallet ${referralWallet.address} collected ${dropsToXrp(feesCollectedByReferralInDrops).toLocaleString("en-us", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} XRP (${(dropsToXrp(feesCollectedByReferralInDrops) * priceOfXrp).toLocaleString("en-us", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 })}). See transaction: https://xrpsan.com/tx/${tx.result.hash}`,
+            });
+          }
+        } else {
           const priceOfXrp = await getXrpValueInUsd();
+          const amountInDrops = totalAmountOfTradeInDrops;
+          const amountInUsd = dropsToXrp(totalAmountOfTradeInDrops) * priceOfXrp;
+          const totalFeeInDrops = ourFeeInDrops;
+          const totalFeeInUsd = dropsToXrp(ourFeeInDrops) * priceOfXrp;
+          const feesCollectedByPlatformInDrops = ourFeeInDrops; // we collect all the fees in case of no referral
+          const feesCollectedByPlatformInUsd = dropsToXrp(ourFeeInDrops) * priceOfXrp;
+
+          await prisma.tx.create({
+            data: {
+              wallet: { connect: { address: wallet.address } },
+              amountInDrops: amountInDrops.toString(),
+              amountInUsd,
+              totalFeeInDrops: totalFeeInDrops.toString(),
+              totalFeeInUsd,
+              feesCollectedByPlatformInDrops: feesCollectedByPlatformInDrops.toString(),
+              feesCollectedByPlatformInUsd: feesCollectedByPlatformInUsd,
+              feesCollectedBy: null,
+            },
+          });
+
           await resend.emails.send({
             from: "TokenOS <notifs@mailer.tokenos.one>",
             to: "rmthomas@pryzma.io",
             subject: "Fee transaction received",
             text: `Collected ${dropsToXrp(ourFeeInDrops).toLocaleString("en-us", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} XRP (${(dropsToXrp(ourFeeInDrops) * priceOfXrp).toLocaleString("en-us", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 })}) from ${wallet.address}. See transaction: https://xrpsan.com/tx/${tx.result.hash}`,
           });
-        } catch (e) {
-          console.error("Error submitting fee transaction or sending email:", e);
         }
       }
     });

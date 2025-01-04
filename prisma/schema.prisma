@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  address   String   @unique
+
+  // referral settings
+  referralKey String @unique // for the user to share https://tokenos.one?ref={referralKey}
+  referralFee Int    @default(25) // 25 percent by default
+
+  // referral open graph settings
+  referralTitle String?
+  referralImage String?
+
+  // wallet that referred this wallet (if any)
+  referredBy String?
+
+  // relations
+  transactions Tx[]
+}
+
+model Tx {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // wallet that initiated the transaction
+  wallet   Wallet @relation(fields: [walletId], references: [id])
+  walletId String
+
+  // transaction details
+  amountInDrops                  String // amount of xrp in the transaction in drops
+  amountInUsd                    Float // usd value of the transaction
+  totalFeeInDrops                String // total fee of the transaction in drops
+  totalFeeInUsd                  Float // usd value of the fee
+  feesCollectedByPlatformInDrops String // fees collected by TokenOS in drops
+  feesCollectedByPlatformInUsd   Float // fees collected by TokenOS in usd
+  feesCollectedByReferralInDrops String? // fees collected by referral wallet (if any) in drops
+  feesCollectedByReferralInUsd   Float? // fees collected by referral wallet (if any) in usd
+
+  // wallet that received the referral fee (if any)
+  feesCollectedBy String? // address of the wallet that received the referral fee (if any)
+}

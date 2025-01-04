@@ -1,30 +1,34 @@
 import { generateMnemonic } from "bip39";
 import { Wallet } from "xrpl";
+import prisma from "@/db/prisma";
+import { nanoid } from "@/utils/alphabet";
+import { cookies } from "next/headers";
 
-// export const createWallet = () => {
-//   const mnemonic = bip39.generateMnemonic(); // 12-word mnemonic
-//   const seedBuffer = bip39.mnemonicToSeedSync(mnemonic);
-//   const truncatedSeed = seedBuffer.subarray(0, 16); // Use the first 16 bytes
-//   const seed = encodeSeed(truncatedSeed, "ed25519");
-//   const keypair = deriveKeypair(seed);
-//   const address = deriveAddress(keypair.publicKey);
-
-//   // Return wallet details
-//   return {
-//     mnemonic,
-//     classicAddress: address,
-//     privateKey: keypair.privateKey,
-//     publicKey: keypair.publicKey,
-//     seed,
-//   };
-// };
-
-export const createWallet = () => {
+export const createWallet = async () => {
   const mnemonic = generateMnemonic();
   const wallet = Wallet.fromMnemonic(mnemonic);
-  // console.log(wallet);
 
-  // const walletFromPrivateKey = new Wallet(wallet.publicKey, wallet.privateKey);
+  let referralKey = nanoid();
+  while (await prisma.wallet.findUnique({ where: { referralKey } })) {
+    referralKey = nanoid();
+  }
+
+  // check if there is a referrer cookie
+  const cookieStore = await cookies();
+  const referrer = cookieStore.get("ref")?.value;
+
+  const referralWallet = referrer
+    ? await prisma.wallet.findUnique({ where: { referralKey: referrer } })
+    : null;
+
+  // create a wallet in the database
+  await prisma.wallet.create({
+    data: {
+      address: wallet.classicAddress,
+      referralKey,
+      ...(referralWallet && { referredBy: referralWallet.address }),
+    },
+  });
 
   return {
     mnemonic,

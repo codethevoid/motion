@@ -86,7 +86,7 @@ export const CreateWalletForm = () => {
     setIsLoading(true);
     // make call to backend to set cookie and redirect to home
     try {
-      const res = await fetch("api/token", {
+      const res = await fetch("/api/token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address, seed, password, privateKey, publicKey }),

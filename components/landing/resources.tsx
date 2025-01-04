@@ -72,7 +72,7 @@ export const Resources = () => {
               </div>
               <div className="flex gap-3 max-md:flex-col">
                 <Button className="w-full justify-between" asChild>
-                  <NextLink href="https://docs.tokenos.one">
+                  <NextLink href="https://docs.tokenos.one" target="_blank">
                     <>
                       <span>Read the docs</span>
                       <ArrowUpRight className="size-4" />

@@ -4,12 +4,14 @@ type Props = {
   title?: string;
   description?: string;
   image?: string;
+  noIndex?: boolean;
 };
 
 export const constructMetadata = ({
   title = `TokenOS • Your Gateway to the XRP Ledger`,
   description = `Connect directly to the XRP Ledger. Send, receive, and explore a world of decentralized possibilities with full control of your assets.`,
-  image = "https://d1amdcfc5q74f4.cloudfront.net/tokenos/tokenos-og.png",
+  image = "https://cdn.tokenos.one/meta/light-hero.png",
+  noIndex = false,
 }: Props): Metadata => {
   return {
     title,
@@ -27,34 +29,46 @@ export const constructMetadata = ({
       creator: "@tokenosdotone",
     },
     metadataBase: new URL("https://tokenos.one"),
+    ...(noIndex && {
+      robots: {
+        follow: false,
+        index: false,
+      },
+    }),
     icons: [
       {
         rel: "apple-touch-icon",
         sizes: "32x32",
-        url: "https://d1amdcfc5q74f4.cloudfront.net/tokenos/apple-touch-icon.png",
+        url: "https://cdn.tokenos.one/meta/apple-touch-icon.png",
       },
       {
         rel: "android-chrome",
         sizes: "192x192",
-        url: "https://d1amdcfc5q74f4.cloudfront.net/tokenos/android-chrome-192x192.png",
+        url: "https://cdn.tokenos.one/meta/android-chrome-192x192.png",
       },
       {
         rel: "android-chrome",
         sizes: "512x512",
-        url: "https://d1amdcfc5q74f4.cloudfront.net/tokenos/android-chrome-512x512.png",
+        url: "https://cdn.tokenos.one/meta/android-chrome-512x512.png",
       },
       {
         rel: "icon",
         type: "image/png",
         sizes: "32x32",
-        url: "https://d1amdcfc5q74f4.cloudfront.net/tokenos/favicon-32x32.png",
+        url: "https://cdn.tokenos.one/meta/favicon-32x32.png",
       },
       {
         rel: "icon",
         type: "image/png",
         sizes: "16x16",
-        url: "https://d1amdcfc5q74f4.cloudfront.net/tokenos/favicon-16x16.png",
+        url: "https://cdn.tokenos.one/meta/favicon-16x16.png",
       },
     ],
   };
+};
+
+export const defaultMetadata = {
+  title: `TokenOS • Your Gateway to the XRP Ledger`,
+  description: `Connect directly to the XRP Ledger. Send, receive, and explore a world of decentralized possibilities with full control of your assets.`,
+  image: "https://cdn.tokenos.one/meta/light-hero.png",
 };
