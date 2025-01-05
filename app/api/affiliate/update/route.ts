@@ -14,8 +14,12 @@ export const POST = withWallet(async ({ req, wallet }) => {
       return NextResponse.json({ error: "Title must be a string" }, { status: 400 });
     }
 
-    // check length of title
+    if (slug?.length > 50) {
+      return NextResponse.json({ error: "Slug must be less than 50 characters" }, { status: 400 });
+    }
+
     if (title?.length > 100) {
+      // check length of title
       return NextResponse.json(
         { error: "Title must be less than 100 characters" },
         { status: 400 },
@@ -43,6 +47,14 @@ export const POST = withWallet(async ({ req, wallet }) => {
     if (image) {
       // Remove the data URL prefix if it exists
       const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
+
+      // Check file size (base64 string length * 0.75 gives approximate size in bytes)
+      const fileSizeInBytes = Math.ceil((base64Data.length * 3) / 4);
+      const fileSizeInMB = fileSizeInBytes / (1024 * 1024);
+
+      if (fileSizeInMB > 10) {
+        return NextResponse.json({ error: "Image must be less than 10MB" }, { status: 400 });
+      }
 
       // get buffer from base64
       const buffer = Buffer.from(base64Data, "base64");
