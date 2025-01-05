@@ -137,7 +137,7 @@ const XPreview = ({
               <p className="truncate text-xs text-white">{title || defaultTitle}</p>
             </div>
           </div>
-          <p className="ml-1 line-clamp-1 text-xs text-muted-foreground">From tokenos.one</p>
+          <p className="ml-1 line-clamp-1 text-xs text-muted-foreground">From go.tokenos.one</p>
         </div>
       </div>
       <AffiliateDialog
