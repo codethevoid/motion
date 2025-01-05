@@ -8,7 +8,7 @@ import { defaultMetadata } from "@/utils/construct-metadata";
 
 export const POST = withWallet(async ({ req, wallet }) => {
   try {
-    const { title, image, imgType } = await req.json();
+    const { title, image, imgType, slug } = await req.json();
 
     if (title && typeof title !== "string") {
       return NextResponse.json({ error: "Title must be a string" }, { status: 400 });
@@ -30,8 +30,12 @@ export const POST = withWallet(async ({ req, wallet }) => {
     // so if user is only updating title, we don't overwrite the image with no image
     const existingData = await prisma.wallet.findUnique({
       where: { address: wallet.address },
-      select: { referralImage: true },
+      select: { referralImage: true, referralKey: true },
     });
+
+    if (!existingData) {
+      return NextResponse.json({ error: "Failed to update referral link" }, { status: 400 });
+    }
 
     // upload image to s3 if it exists
     // set location to existing image if no image is provided so we don't overwrite the image with no image
@@ -58,11 +62,22 @@ export const POST = withWallet(async ({ req, wallet }) => {
       }
     }
 
+    if (slug?.trim() !== existingData?.referralKey && slug?.trim() !== "") {
+      // check if slug is already taken
+      const existingSlug = await prisma.wallet.findUnique({
+        where: { referralKey: slug?.trim() },
+      });
+      if (existingSlug) {
+        return NextResponse.json({ error: "Slug already taken" }, { status: 400 });
+      }
+    }
+
     await prisma.wallet.update({
       where: { address: wallet.address },
       data: {
         referralTitle: title?.trim() === defaultMetadata.title ? null : title?.trim() || null,
         referralImage: location,
+        referralKey: slug?.trim() || existingData?.referralKey,
       },
     });
 

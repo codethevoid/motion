@@ -8,46 +8,57 @@ export const middleware = async (req: NextRequest) => {
   const token = await getToken();
   if (token) await updateCookie(token);
 
-  // check for reference in in the url (for referral links)
-  const ref = req.nextUrl.searchParams.get("ref");
-  if (ref) {
-    // check if bot and serve custom metadata
-    const ua = userAgent(req);
-    const isBot = ua.isBot;
+  let host = req.headers.get("host") || "";
+  host = host.replace("www.", "").toLowerCase();
 
-    if (isBot) {
-      // rewrite to the proxy page
-      // so we can serve the referral metadata
-      return NextResponse.rewrite(new URL(`/proxy?ref=${ref}`, req.url), {
-        headers: { "x-powered-by": "TokenOS", googlebot: "noindex" },
-      });
-    }
-
-    // create new url to work with
-    const url = req.nextUrl.clone();
-
-    // remove the ref from the url
-    url.searchParams.delete("ref");
-
-    // create new response
-    const response = NextResponse.redirect(url, {
-      headers: { "x-powered-by": "TokenOS" },
-    });
-
-    // set the ref cookie
-    const cookieStore = await cookies();
-    cookieStore.set("ref", ref, {
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-    });
-
-    // return response with cookie
-    return response;
+  if (host === "tokenos.one" || host === "localhost:3000") {
+    // continue like normal
+    return NextResponse.next({ headers: { "x-powered-by": "TokenOS" } });
   }
 
-  return NextResponse.next({ headers: { "x-powered-by": "TokenOS" } });
+  // else it is a referral
+  // because we use a different subdomain for referral links
+  // get the ref from the pathname
+  const path = req.nextUrl.pathname;
+  const ref = path.split("/")[1];
+  if (!ref) {
+    return NextResponse.redirect(
+      process.env.NODE_ENV === "production" ? "https://tokenos.one" : "localhost:3000",
+    );
+  }
+
+  // check if it is a bot so we can serve custom metadata
+  const ua = userAgent(req);
+  const isBot = ua.isBot;
+
+  if (isBot) {
+    // rewrite to the proxy page
+    // so we can serve the referral metadata
+    return NextResponse.rewrite(new URL(`/proxy/${ref}`, req.url), {
+      headers: { "x-powered-by": "TokenOS", googlebot: "noindex" },
+    });
+  }
+
+  // redirect to the main domain and set the ref cookie
+  const response = NextResponse.redirect(
+    process.env.NODE_ENV === "production" ? "https://tokenos.one" : "localhost:3000",
+    {
+      headers: { "x-powered-by": "TokenOS" },
+    },
+  );
+
+  // set the ref cookie
+  const cookieStore = await cookies();
+  cookieStore.set("ref", ref, {
+    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    domain: process.env.NODE_ENV === "production" ? ".tokenos.one" : undefined,
+  });
+
+  // return response with cookie
+  return response;
 };
 
 export const config = {

@@ -3,15 +3,11 @@ import { constructMetadata } from "@/utils/construct-metadata";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+type Params = Promise<{ ref: string }>;
 
-export const generateMetadata = async ({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}): Promise<Metadata> => {
-  const search = await searchParams;
-  const ref = search.ref;
+export const generateMetadata = async ({ params }: { params: Params }): Promise<Metadata> => {
+  const awaitedParams = await params;
+  const ref = awaitedParams.ref;
   if (!ref) return constructMetadata({}); // no referrer, just stick with the default metadata for the app
 
   const referrer = await prisma.wallet.findUnique({
@@ -29,17 +25,25 @@ export const generateMetadata = async ({
   });
 };
 
-const ProxyPage = async ({ searchParams }: { searchParams: SearchParams }) => {
-  const search = await searchParams;
-  const ref = search.ref;
-  if (!ref) return redirect("/");
+const ProxyPage = async ({ params }: { params: Params }) => {
+  const awaitedParams = await params;
+  const ref = awaitedParams.ref;
+  if (!ref) {
+    return redirect(
+      process.env.NODE_ENV === "production" ? "https://tokenos.one" : "localhost:3000",
+    );
+  }
 
   const referrer = await prisma.wallet.findUnique({
     where: { referralKey: ref as string },
     select: { id: true },
   });
   console.log("referrer", referrer);
-  if (!referrer) return redirect("/");
+  if (!referrer) {
+    return redirect(
+      process.env.NODE_ENV === "production" ? "https://tokenos.one" : "localhost:3000",
+    );
+  }
 
   return <div>serving metadata to bots...</div>;
 };

@@ -60,11 +60,11 @@ export const Affiliate = () => {
                     className="h-4 w-4 rounded-full"
                   />
                   <p className="min-w-0 truncate font-mono text-[11px] tracking-tight">
-                    https://tokenos.one?ref={data?.referralKey}
+                    go.tokenos.one/{data?.referralKey}
                   </p>
                 </div>
                 {data?.referralKey && (
-                  <CopyButton text={`https://tokenos.one?ref=${data.referralKey}`} />
+                  <CopyButton text={`https://go.tokenos.one/${data.referralKey}`} />
                 )}
               </div>
             )}
@@ -77,6 +77,7 @@ export const Affiliate = () => {
               <XPreview
                 image={data?.referralImage || defaultImage}
                 title={data?.referralTitle || defaultTitle}
+                referralKey={data?.referralKey || ""}
               />
             )}
           </div>
@@ -86,7 +87,15 @@ export const Affiliate = () => {
   );
 };
 
-const XPreview = ({ image, title }: { image: string; title: string }) => {
+const XPreview = ({
+  image,
+  title,
+  referralKey,
+}: {
+  image: string;
+  title: string;
+  referralKey: string;
+}) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -136,6 +145,7 @@ const XPreview = ({ image, title }: { image: string; title: string }) => {
         setIsOpen={setIsOpen}
         title={title || defaultTitle}
         image={image || defaultImage}
+        slug={referralKey}
       />
     </>
   );

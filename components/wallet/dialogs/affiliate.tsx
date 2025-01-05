@@ -30,10 +30,12 @@ type Props = {
   setIsOpen: (isOpen: boolean) => void;
   title: string;
   image: string;
+  slug: string;
 };
 
-export const AffiliateDialog = ({ isOpen, setIsOpen, title, image }: Props) => {
+export const AffiliateDialog = ({ isOpen, setIsOpen, title, image, slug }: Props) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
+  const [localSlug, setLocalSlug] = useState(slug);
   const [localTitle, setLocalTitle] = useState(title);
   const [localImage, setLocalImage] = useState(image);
   const [localImageBase64, setLocalImageBase64] = useState<string | null>(null);
@@ -78,7 +80,12 @@ export const AffiliateDialog = ({ isOpen, setIsOpen, title, image }: Props) => {
       const res = await fetch("/api/affiliate/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: localTitle, image: localImageBase64, imgType }),
+        body: JSON.stringify({
+          title: localTitle,
+          image: localImageBase64,
+          imgType,
+          slug: localSlug,
+        }),
       });
 
       if (!res.ok) {
@@ -101,6 +108,7 @@ export const AffiliateDialog = ({ isOpen, setIsOpen, title, image }: Props) => {
   useEffect(() => {
     setLocalTitle(title);
     setLocalImage(image);
+    setLocalSlug(slug);
     setLocalImageBase64(null);
     setImgType(null);
   }, [isOpen]);
@@ -109,13 +117,22 @@ export const AffiliateDialog = ({ isOpen, setIsOpen, title, image }: Props) => {
     return (
       <Drawer open={isOpen} onOpenChange={setIsOpen} repositionInputs={false}>
         <DrawerContent>
-          <DrawerHeader>
+          <DrawerHeader className="pb-0">
             <DrawerTitle className="text-left">Customize referral link</DrawerTitle>
             <DrawerDescription className="text-left">
               Customize how your referral link will look on X and other platforms.
             </DrawerDescription>
           </DrawerHeader>
           <div className="space-y-4 p-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="slug">Unique slug</Label>
+              <Input
+                id="slug"
+                placeholder="Slug"
+                value={localSlug}
+                onChange={(e) => setLocalSlug(e.target.value)}
+              />
+            </div>
             <div className="space-y-1.5">
               <Label htmlFor="title">Title</Label>
               <Input
@@ -147,14 +164,15 @@ export const AffiliateDialog = ({ isOpen, setIsOpen, title, image }: Props) => {
             </div>
             <DrawerFooter className="p-0">
               <Button
-                disabled={(localTitle === title && localImage === image) || isLoading}
+                disabled={
+                  (localTitle === title && localImage === image && localSlug === slug) ||
+                  isLoading ||
+                  localSlug === ""
+                }
                 className="w-full"
                 onClick={handleSave}
               >
                 {isLoading ? <ButtonSpinner /> : "Save"}
-              </Button>
-              <Button variant="secondary" onClick={() => setIsOpen(false)}>
-                Cancel
               </Button>
             </DrawerFooter>
           </div>
@@ -172,6 +190,15 @@ export const AffiliateDialog = ({ isOpen, setIsOpen, title, image }: Props) => {
             Customize how your referral link will look on X and other platforms.
           </DialogDescription>
         </DialogHeader>
+        <div className="space-y-1.5">
+          <Label htmlFor="slug">Unique slug</Label>
+          <Input
+            id="slug"
+            placeholder="Slug"
+            value={localSlug}
+            onChange={(e) => setLocalSlug(e.target.value)}
+          />
+        </div>
         <div className="space-y-1.5">
           <Label htmlFor="title">Title</Label>
           <Input
@@ -207,7 +234,11 @@ export const AffiliateDialog = ({ isOpen, setIsOpen, title, image }: Props) => {
           </Button>
           <Button
             size="sm"
-            disabled={(localTitle === title && localImage === image) || isLoading}
+            disabled={
+              (localTitle === title && localImage === image && localSlug === slug) ||
+              isLoading ||
+              localSlug === ""
+            }
             className="w-[52px]"
             onClick={handleSave}
           >
