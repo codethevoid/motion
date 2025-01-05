@@ -10,11 +10,19 @@ export const POST = withWallet(async ({ req, wallet }) => {
   try {
     const { title, image, imgType, slug } = await req.json();
 
+    // Add URL-safe slug validation
+    if (slug?.trim() && !/^[a-zA-Z0-9-_]+$/.test(slug.trim())) {
+      return NextResponse.json(
+        { error: "Slug can only contain letters, numbers, hyphens and underscores" },
+        { status: 400 },
+      );
+    }
+
     if (title && typeof title !== "string") {
       return NextResponse.json({ error: "Title must be a string" }, { status: 400 });
     }
 
-    if (slug?.length > 50) {
+    if (slug?.trim().length > 50) {
       return NextResponse.json({ error: "Slug must be less than 50 characters" }, { status: 400 });
     }
 
