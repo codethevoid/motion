@@ -9,6 +9,7 @@ import { resend } from "@/utils/resend";
 import { Amount } from "xrpl";
 import { getXrpValueInUsd } from "@/lib/xrp/get-xrp-value-in-usd";
 import prisma from "@/db/prisma";
+import { xrpToDrops } from "xrpl";
 
 export const maxDuration = 60;
 
@@ -97,13 +98,13 @@ export const POST = withWallet(async ({ req }) => {
     // Calculate platform fees
     const fee = FEE_PERCENTAGE;
     let ourFeeInDrops = 0; // max fee is $100 (100 / price of xrp) * 1_000_000
-    let totalAmountOfTradeInDrops = 0;
+    let totalAmountOfTradeInDrops = "0";
 
     const isXRPDelivery = typeof amountToDeliver === "string";
     if (isXRPDelivery) {
       // Calculate platform fee (1% with $100 USD cap)
       ourFeeInDrops = Math.floor(Number(amountToDeliver) * fee);
-      totalAmountOfTradeInDrops = Math.floor(Number(amountToDeliver));
+      totalAmountOfTradeInDrops = Math.floor(Number(amountToDeliver)).toString();
       const priceOfXrp = await getXrpValueInUsd();
       if (!priceOfXrp) {
         return NextResponse.json({ error: "Error getting price of XRP" }, { status: 400 });
@@ -152,7 +153,6 @@ export const POST = withWallet(async ({ req }) => {
         return NextResponse.json({ error: "Error getting rate of exchange" }, { status: 400 });
       }
       const xrpEquivalent = price * Number(amountToDeliver.value);
-      totalAmountOfTradeInDrops = Math.floor(xrpEquivalent);
       // we need to get the price of XRP in USD to see if the fee is over $100 USD
       const priceOfXrp = await getXrpValueInUsd();
       if (!priceOfXrp) {
@@ -164,8 +164,10 @@ export const POST = withWallet(async ({ req }) => {
         const xrpToCharge = 100 / priceOfXrp;
         // now we need to convert the xrp to drops
         ourFeeInDrops = Math.floor(xrpToCharge * 1_000_000);
+        totalAmountOfTradeInDrops = xrpToDrops(xrpEquivalent.toFixed(6));
       } else {
         ourFeeInDrops = Math.floor(xrpEquivalent * 1_000_000 * fee);
+        totalAmountOfTradeInDrops = xrpToDrops(xrpEquivalent.toFixed(6));
       }
 
       const [balance, reserves, networkFee] = await Promise.all([
