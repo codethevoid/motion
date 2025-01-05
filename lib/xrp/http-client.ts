@@ -11,6 +11,7 @@ import {
   AccountTxResponse,
   FeeResponse,
   LedgerCurrentResponse,
+  AMMInfoResponse,
 } from "xrpl";
 
 const XRPL_HTTP_URL = "https://s1.ripple.com:51234";
@@ -65,6 +66,13 @@ export const xrpClient = {
     return xrplRequest({
       method: "server_state",
       params: [{ ledger_index: "validated" }],
+    });
+  },
+
+  getLiquidity: async (asset: { currency: string; issuer: string }): Promise<AMMInfoResponse> => {
+    return xrplRequest({
+      method: "amm_info",
+      params: [{ asset: asset, asset2: { currency: "XRP" } }],
     });
   },
 

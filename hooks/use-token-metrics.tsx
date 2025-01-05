@@ -60,6 +60,7 @@ export type TokenMetrics = {
     };
   };
   xrpValueInUsd: number;
+  liquidity: number | "n/a";
 };
 
 export const useTokenMetrics = (currency: string, issuer: string) => {

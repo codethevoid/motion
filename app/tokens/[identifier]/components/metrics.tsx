@@ -198,10 +198,12 @@ export const Metrics = ({ currency, issuer }: { currency: string; issuer: string
           )}
         </div>
         <div className="space-y-0.5 rounded-md border bg-background px-3 py-2">
-          <p className="text-center text-xs text-muted-foreground">Holders</p>
+          <p className="text-center text-xs text-muted-foreground">Liquidity</p>
           {tokenData ? (
             <p className="text-center text-[13px]">
-              {formatBigNum(Number(tokenData.metrics.holders), true)}
+              {typeof tokenData.liquidity === "number"
+                ? formatBigNum(Number(tokenData.liquidity))
+                : tokenData.liquidity.toUpperCase()}
             </p>
           ) : (
             <div className="flex h-[19.5px] items-center">
@@ -210,10 +212,13 @@ export const Metrics = ({ currency, issuer }: { currency: string; issuer: string
           )}
         </div>
         <div className="space-y-0.5 rounded-md border bg-background px-3 py-2">
-          <p className="text-center text-xs text-muted-foreground">Supply</p>
+          <p className="text-center text-xs text-muted-foreground">Holders</p>
           {tokenData ? (
             <p className="text-center text-[13px]">
-              {formatBigNum(Number(tokenData.metrics.supply))}
+              {formatBigNum(
+                Number(tokenData.metrics.holders),
+                Number(tokenData.metrics.holders) > 1000 ? false : true,
+              )}
             </p>
           ) : (
             <div className="flex h-[19.5px] items-center">
