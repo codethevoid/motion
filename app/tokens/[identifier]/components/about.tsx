@@ -6,12 +6,6 @@ import { useTokenMetrics } from "@/hooks/use-token-metrics";
 import { Coin } from "@/components/ui/icons/coin";
 import { formatCurrency } from "@/utils/format-currency";
 import { Button } from "@/components/ui/button";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { ExternalLink } from "lucide-react";
 
 export const About = ({ currency, issuer }: { currency: string; issuer: string }) => {
