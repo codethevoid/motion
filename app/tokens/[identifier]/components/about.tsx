@@ -100,7 +100,7 @@ export const About = ({ currency, issuer }: { currency: string; issuer: string }
           )}
         </>
       )}
-      {isLoading ? (
+      {/* {isLoading ? (
         <Skeleton className="h-8 w-full rounded-md" />
       ) : (
         tokenData?.meta.token.description && (
@@ -120,7 +120,13 @@ export const About = ({ currency, issuer }: { currency: string; issuer: string }
             </AccordionItem>
           </Accordion>
         )
-      )}
+      )} */}
+      <div className="space-y-1 rounded-md border bg-secondary/40 p-3">
+        <p className="text-[13px] font-medium">About {tokenData?.meta.token.name || ""}</p>
+        <p className="text-[13px] text-muted-foreground">
+          {tokenData?.meta.token.description || "No description available"}
+        </p>
+      </div>
     </Card>
   );
 };
