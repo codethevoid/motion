@@ -4,7 +4,7 @@ import { LineChart } from "@/components/charts/line";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import type { Timespan } from "@/app/api/aggregates/route";
+import { Timespan } from "@/app/api/aggregates/route";
 import { formatCurrency } from "@/utils/format-currency";
 import { Metrics } from "./components/metrics";
 import { Trade } from "./components/trade";
