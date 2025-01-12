@@ -5,7 +5,6 @@ import { constructMetadata } from "@/utils/construct-metadata";
 import { Analytics } from "@vercel/analytics/react";
 import { Nav } from "@/components/layout/nav";
 import { Footer } from "@/components/layout/footer";
-import { WalletButton } from "@/components/wallet/wallet-button";
 
 export const metadata = constructMetadata({});
 
@@ -29,10 +28,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
-          {process.env.MAINTENANCE_MODE !== "true" && <Nav />}
+          {process.env.NEXT_PUBLIC_MAINTENANCE_MODE !== "true" && <Nav />}
           {children}
-          {/* {process.env.MAINTENANCE_MODE !== "true" && <WalletButton />} */}
-          {process.env.MAINTENANCE_MODE !== "true" && <Footer />}
+          {process.env.NEXT_PUBLIC_MAINTENANCE_MODE !== "true" && <Footer />}
         </Providers>
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>

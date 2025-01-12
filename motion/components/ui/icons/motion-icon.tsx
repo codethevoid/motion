@@ -1,10 +1,12 @@
-export const MotionIcon = () => {
+import { cn } from "@/lib/utils";
+
+export const MotionIcon = ({ className }: { className?: string }) => {
   return (
     <svg
       id="LOGO"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 767.84 767.81"
-      className="size-[18px]"
+      className={cn("size-[18px]", className)}
     >
       <path
         className="motion-icon"

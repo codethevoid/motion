@@ -9,7 +9,7 @@ export const middleware = async (req: NextRequest) => {
   host = host.replace("www.", "").toLowerCase();
   const path = req.nextUrl.pathname;
 
-  if (process.env.MAINTENANCE_MODE === "true" && path !== "/maintenance") {
+  if (process.env.NEXT_PUBLIC_MAINTENANCE_MODE === "true" && path !== "/maintenance") {
     return NextResponse.redirect(
       process.env.NODE_ENV === "production"
         ? "https://motion.zip/maintenance"
