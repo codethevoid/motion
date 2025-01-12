@@ -31,7 +31,7 @@ export default function RootLayout({
         <Providers>
           {process.env.MAINTENANCE_MODE !== "true" && <Nav />}
           {children}
-          {process.env.MAINTENANCE_MODE !== "true" && <WalletButton />}
+          {/* {process.env.MAINTENANCE_MODE !== "true" && <WalletButton />} */}
           {process.env.MAINTENANCE_MODE !== "true" && <Footer />}
         </Providers>
         {process.env.NODE_ENV === "production" && <Analytics />}
