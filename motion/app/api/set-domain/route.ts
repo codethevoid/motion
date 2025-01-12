@@ -8,7 +8,7 @@ import { decryptToken } from "@/lib/token";
 export const GET = withWallet(async ({ req }) => {
   try {
     const body = (await req.json()) as { password: string };
-    const { password = "ryanthomas" } = body;
+    const { password } = body;
 
     const token = await getToken();
     if (!token) return NextResponse.json({ error: "No token found" }, { status: 401 });
