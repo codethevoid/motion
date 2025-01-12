@@ -9,6 +9,15 @@ export const middleware = async (req: NextRequest) => {
   host = host.replace("www.", "").toLowerCase();
   const path = req.nextUrl.pathname;
 
+  if (process.env.MAINTENANCE_MODE === "true" && path !== "/maintenance") {
+    return NextResponse.redirect(
+      process.env.NODE_ENV === "production"
+        ? "https://motion.zip/maintenance"
+        : "http://localhost:3000/maintenance",
+      { headers: { "x-powered-by": "motion.zip" } },
+    );
+  }
+
   // check if it is a request to get the xrp ledger toml file
   if (path === "/.well-known/xrp-ledger.toml") {
     return xrpLedgerMiddleware(req);
