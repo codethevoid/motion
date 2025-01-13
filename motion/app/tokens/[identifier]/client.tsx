@@ -3,7 +3,7 @@
 import { LineChart } from "@/components/charts/line";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Timespan } from "@/app/api/aggregates/route";
 import { formatCurrency } from "@/utils/format-currency";
 import { Metrics } from "./components/metrics";
@@ -13,6 +13,8 @@ import { Transactions } from "./components/transactions";
 import { useTokenMetrics } from "@/hooks/use-token-metrics";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Holders } from "./components/holders";
+import { usePathname } from "next/navigation";
+import { confettiFireworks } from "@/utils/confetti-fireworks";
 
 export const TokenClient = ({ identifier }: { identifier: string }) => {
   const decoded = decodeURIComponent(identifier);
@@ -20,6 +22,13 @@ export const TokenClient = ({ identifier }: { identifier: string }) => {
   const [range, setRange] = useState<Timespan>("1w");
   const [tab, setTab] = useState<"transactions" | "holders">("transactions");
   const { error } = useTokenMetrics(encodeURIComponent(currency), encodeURIComponent(issuer));
+  const path = usePathname();
+
+  useEffect(() => {
+    if (path?.includes("?confetti=true")) {
+      confettiFireworks();
+    }
+  }, [path]);
 
   if (error) return <div>An error occurred</div>;
 

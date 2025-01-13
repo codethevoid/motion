@@ -28,7 +28,6 @@ import { Progress } from "../ui/progress";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { nanoid } from "@/utils/alphabet";
-import { confettiFireworks } from "@/utils/confetti-fireworks";
 
 const motionZipFee = () => {
   return process.env.NODE_ENV === "development" ? 0 : MOTION_ZIP_FEE;
@@ -105,8 +104,7 @@ export const ConfirmTokenLaunch = () => {
       toast.success("Token created successfully!");
       setIsConfirming(false);
       setIsOpen(false);
-      confettiFireworks();
-      router.push(`/tokens/${currency}:${issuer}`);
+      router.push(`/tokens/${currency}:${issuer}?confetti=true`);
     } catch (e) {
       console.error(e);
       toast.error("Failed to launch token");
