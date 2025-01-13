@@ -14,8 +14,7 @@ export const middleware = async (req: NextRequest) => {
     return xrpLedgerMiddleware(req);
   }
 
-  // if path is /sitemap.xml, allow it (this allows google to reach the sitemap if we are in maintenance mode)
-  if (path === "/sitemap.xml") {
+  if (path.includes("/.well-known") || path === "/sitemap.xml") {
     return NextResponse.next({ headers: { "x-powered-by": "motion.zip" } });
   }
 
