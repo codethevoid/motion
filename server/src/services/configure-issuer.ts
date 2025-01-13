@@ -1,6 +1,6 @@
-import { xrplClient } from "../lib/xrpl-client";
+import { xrplClient } from "../lib/xrpl-client.js";
 import { Wallet, AccountSet, AccountSetAsfFlags } from "xrpl";
-import { prisma } from "../db/prisma";
+import { prisma } from "../db/prisma.js";
 import { customAlphabet } from "nanoid";
 
 const baseUrl = () => {

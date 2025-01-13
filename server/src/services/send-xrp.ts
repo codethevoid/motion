@@ -1,5 +1,5 @@
 import { Wallet, xrpToDrops, Payment } from "xrpl";
-import { xrplClient } from "../lib/xrpl-client";
+import { xrplClient } from "../lib/xrpl-client.js";
 
 export const sendXrp = async ({
   from,

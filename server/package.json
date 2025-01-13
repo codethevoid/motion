@@ -2,6 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "NODE_ENV=development tsx watch src/server.ts",
@@ -19,7 +20,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "multer": "1.4.5-lts.1",
-    "shared": "workspace:*"
+    "@motion/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

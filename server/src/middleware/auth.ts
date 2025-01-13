@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { decryptToken } from "../lib/token";
+import { decryptToken } from "../lib/token.js";
 import { Wallet } from "xrpl";
-import { type AuthRequest } from "../types/auth";
+import { type AuthRequest } from "../types/auth.js";
 
 export const auth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

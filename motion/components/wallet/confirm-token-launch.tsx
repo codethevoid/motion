@@ -14,7 +14,7 @@ import {
   LP_WALLET_TRUSTLINE_FEE,
   POOL_CREATION_FEE,
   MOTION_ZIP_FEE,
-} from "shared/constants/fee-structure";
+} from "@motion/shared/constants";
 import { useState } from "react";
 import { ButtonSpinner } from "../ui/button-spinner";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";

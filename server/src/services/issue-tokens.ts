@@ -1,4 +1,4 @@
-import { xrplClient } from "../lib/xrpl-client";
+import { xrplClient } from "../lib/xrpl-client.js";
 import { Wallet, Payment } from "xrpl";
 
 export const issueTokens = async ({

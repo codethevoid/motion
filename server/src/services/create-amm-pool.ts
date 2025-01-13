@@ -1,4 +1,4 @@
-import { xrplClient } from "../lib/xrpl-client";
+import { xrplClient } from "../lib/xrpl-client.js";
 import { Wallet, AMMCreate, xrpToDrops } from "xrpl";
 
 export const createAmmPool = async ({

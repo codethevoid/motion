@@ -1,4 +1,4 @@
-import { xrplClient } from "../lib/xrpl-client";
+import { xrplClient } from "../lib/xrpl-client.js";
 import { AccountSet, AccountSetAsfFlags, SetRegularKey, Wallet } from "xrpl";
 
 export const blackhole = async (wallet: Wallet) => {

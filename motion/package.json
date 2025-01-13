@@ -49,7 +49,7 @@
     "react-hook-form": "^7.53.2",
     "react-responsive": "^10.0.0",
     "resend": "^4.0.1",
-    "shared": "workspace:*",
+    "@motion/shared": "workspace:*",
     "sonner": "^1.7.0",
     "swr": "^2.2.5",
     "tailwind-merge": "^2.5.5",

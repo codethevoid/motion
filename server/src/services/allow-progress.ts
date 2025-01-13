@@ -1,4 +1,4 @@
-import { tokenSchema, type TokenSchema } from "shared/zod/token";
+import { tokenSchema, type TokenSchema } from "@motion/shared/zod";
 import {
   ISSUER_CREATION_FEE,
   TRUSTLINE_FEE,
@@ -8,9 +8,9 @@ import {
   LP_WALLET_TRUSTLINE_FEE,
   LP_DEV_WALLET_TRUSTLINE_FEE,
   BUFFER_FEE,
-} from "shared/constants/fee-structure";
-import { xrplClient } from "../lib/xrpl-client";
-import { Wallet, dropsToXrp, Client, xrpToDrops } from "xrpl";
+} from "@motion/shared/constants";
+import { xrplClient } from "../lib/xrpl-client.js";
+import { Wallet, Client, xrpToDrops } from "xrpl";
 
 const motionZipFee = () => {
   return process.env.NODE_ENV === "development" ? 0 : MOTION_ZIP_FEE;

@@ -1,4 +1,4 @@
-import { xrplClient } from "../lib/xrpl-client";
+import { xrplClient } from "../lib/xrpl-client.js";
 import { Wallet, TrustSet } from "xrpl";
 
 export const setupTrustline = async ({

@@ -1,6 +1,6 @@
 "use client";
 
-import { TokenSchema } from "shared/zod/token";
+import { TokenSchema } from "@motion/shared/zod";
 import { createContext, useContext, useState, ReactNode } from "react";
 import { Amount } from "xrpl";
 import { useSession } from "@/hooks/use-session";

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type TokenSchema, tokenSchema } from "shared/zod/token";
+import { type TokenSchema, tokenSchema } from "@motion/shared/zod";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useRef } from "react";
 import { Image, InfoIcon } from "lucide-react";
@@ -20,7 +20,7 @@ import {
   TRUSTLINE_FEE,
   ISSUER_CREATION_FEE,
   LP_DEV_WALLET_TRUSTLINE_FEE,
-} from "shared/constants/fee-structure";
+} from "@motion/shared/constants";
 import { useWalletActions } from "@/components/wallet/context";
 import { useSession } from "@/hooks/use-session";
 import { RainbowButton } from "@/components/ui/rainbow-button";

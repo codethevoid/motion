@@ -39,6 +39,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^3.9.1
         version: 3.10.0(react-hook-form@7.54.2(react@19.0.0-rc-66855b96-20241106))
+      '@motion/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@radix-ui/react-accordion':
         specifier: ^1.2.1
         version: 1.2.2(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)
@@ -150,9 +153,6 @@ importers:
       resend:
         specifier: ^4.0.1
         version: 4.0.1(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)
-      shared:
-        specifier: workspace:*
-        version: link:../shared
       sonner:
         specifier: ^1.7.0
         version: 1.7.1(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)
@@ -202,6 +202,9 @@ importers:
 
   server:
     dependencies:
+      '@motion/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@types/multer':
         specifier: ^1.4.12
         version: 1.4.12
@@ -217,9 +220,6 @@ importers:
       multer:
         specifier: 1.4.5-lts.1
         version: 1.4.5-lts.1
-      shared:
-        specifier: workspace:*
-        version: link:../shared
     devDependencies:
       '@types/cors':
         specifier: ^2.8.17
@@ -240,7 +240,11 @@ importers:
         specifier: ^5.7.3
         version: 5.7.3
 
-  shared: {}
+  shared:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.7.3
 
 packages:
 
