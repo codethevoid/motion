@@ -6,7 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "NODE_ENV=development tsx watch src/server.ts",
     "build": "rm -rf dist/ && tsc",
-    "start": "NODE_ENV=production node dist/server.js",
+    "start": "node dist/server.js",
     "postinstall": "prisma generate"
   },
   "keywords": [],
