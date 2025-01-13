@@ -9,7 +9,7 @@ export const xrpLedgerMiddleware = async (req: NextRequest) => {
     const toml = `
 [[ACCOUNTS]]
 address = "rQfRb9mGzpvirGaNpLHs2nwXM2vTMzJrU2"
-name = "motion.zip"
+name = "Motion"
 desc = "Your Gateway to the XRP Ledger"
 icon = "https://cdn.motion.zip/logos/motion.png"
 

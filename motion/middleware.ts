@@ -9,6 +9,11 @@ export const middleware = async (req: NextRequest) => {
   host = host.replace("www.", "").toLowerCase();
   const path = req.nextUrl.pathname;
 
+  // check if it is a request to get the xrp ledger toml file
+  if (path === "/.well-known/xrp-ledger.toml") {
+    return xrpLedgerMiddleware(req);
+  }
+
   if (process.env.NEXT_PUBLIC_MAINTENANCE_MODE === "true" && path !== "/maintenance") {
     return NextResponse.redirect(
       process.env.NODE_ENV === "production"
@@ -16,11 +21,6 @@ export const middleware = async (req: NextRequest) => {
         : "http://localhost:3000/maintenance",
       { headers: { "x-powered-by": "motion.zip" } },
     );
-  }
-
-  // check if it is a request to get the xrp ledger toml file
-  if (path === "/.well-known/xrp-ledger.toml") {
-    return xrpLedgerMiddleware(req);
   }
 
   // check if there is a wallet cookie and update it so it expires in 30 days
