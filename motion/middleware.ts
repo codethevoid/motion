@@ -40,11 +40,6 @@ export const middleware = async (req: NextRequest) => {
     return referralMiddleware(req);
   }
 
-  // check if the request is docs.motion.zip
-  if (host === "docs.motion.zip") {
-    return NextResponse.next({ headers: { "x-powered-by": "motion.zip" } });
-  }
-
   // else, request is coming from an unknown subdomain
   // and the path is not a request to get the xrp ledger toml
   // so we redirect to the main domain
