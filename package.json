@@ -1,4 +1,10 @@
 {
+  "private": true,
+  "workspaces": [
+    "motion",
+    "server",
+    "shared"
+  ],
   "dependencies": {
     "@aws-sdk/client-s3": "^3.726.1",
     "@prisma/client": "^6.2.1",
