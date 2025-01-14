@@ -5,6 +5,7 @@ import { constructMetadata } from "@/utils/construct-metadata";
 import { Analytics } from "@vercel/analytics/react";
 import { Nav } from "@/components/layout/nav";
 import { Footer } from "@/components/layout/footer";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata = constructMetadata({});
 
@@ -33,6 +34,7 @@ export default function RootLayout({
           {process.env.NEXT_PUBLIC_MAINTENANCE_MODE !== "true" && <Footer />}
         </Providers>
         {process.env.NODE_ENV === "production" && <Analytics />}
+        {process.env.NODE_ENV === "production" && <SpeedInsights />}
       </body>
     </html>
   );
