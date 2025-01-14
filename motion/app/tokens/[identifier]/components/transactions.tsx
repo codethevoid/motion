@@ -1,6 +1,5 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
 import { formatCurrency } from "@/utils/format-currency";
 import { useTokenTransactions } from "@/hooks/use-token-transactions";
 import { format, formatDistanceToNow } from "date-fns";
