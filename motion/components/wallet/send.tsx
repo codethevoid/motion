@@ -245,7 +245,7 @@ export const Send = () => {
                       alt={balance.currency}
                       width={32}
                       height={32}
-                      className="size-7 shrink-0 rounded-full"
+                      className="size-7 shrink-0 rounded-full object-cover"
                     />
                   ) : (
                     <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary">
