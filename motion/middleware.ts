@@ -41,7 +41,7 @@ export const middleware = async (req: NextRequest) => {
   }
 
   if (host === "docs.motion.zip") {
-    return NextResponse.rewrite("https://tokenos.mintlify.app");
+    return NextResponse.rewrite(`https://tokenos.mintlify.app${path === "/" ? "" : path}`);
   }
 
   // else, request is coming from an unknown subdomain
