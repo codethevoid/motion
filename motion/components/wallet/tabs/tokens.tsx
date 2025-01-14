@@ -15,7 +15,7 @@ export const Tokens = () => {
   const { setIsOpen } = useWalletActions();
   const router = useRouter();
 
-  if (isLoading) return <TokensSkeleton />;
+  if (isLoading) return <TokensSkeleton isDesktop={isDesktop} />;
 
   return (
     <ScrollArea className={cn("h-[245px]", isDesktop ? "h-[245px]" : "h-[300px]")}>
@@ -92,9 +92,9 @@ export const Tokens = () => {
   );
 };
 
-export const TokensSkeleton = () => {
+export const TokensSkeleton = ({ isDesktop }: { isDesktop: boolean }) => {
   return (
-    <div className="space-y-1.5">
+    <div className={cn("h-[245px] space-y-1.5", isDesktop ? "h-[245px]" : "h-[300px]")}>
       <Skeleton className="h-[55.5px] w-full rounded-xl" />
       <Skeleton className="h-[55.5px] w-full rounded-xl" />
       <Skeleton className="h-[55.5px] w-full rounded-xl" />

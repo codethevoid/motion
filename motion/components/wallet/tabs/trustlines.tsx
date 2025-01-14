@@ -38,7 +38,7 @@ export const Trustlines = () => {
 
   if (error) return <div>Error</div>;
 
-  if (isLoading) return <TrustlinesSkeleton />;
+  if (isLoading) return <TrustlinesSkeleton isDesktop={isDesktop} />;
 
   if (trustlines?.length === 0 || !trustlines) {
     return <EmptyState icon={<HandCoins size={18} />} label="No trustlines found" />;
@@ -182,9 +182,9 @@ export const Trustlines = () => {
   );
 };
 
-const TrustlinesSkeleton = () => {
+const TrustlinesSkeleton = ({ isDesktop }: { isDesktop: boolean }) => {
   return (
-    <div className="space-y-1.5">
+    <div className={cn("h-[245px] space-y-1.5", isDesktop ? "h-[245px]" : "h-[300px]")}>
       <Skeleton className="h-[55.5px] w-full rounded-xl" />
       <Skeleton className="h-[55.5px] w-full rounded-xl" />
       <Skeleton className="h-[55.5px] w-full rounded-xl" />

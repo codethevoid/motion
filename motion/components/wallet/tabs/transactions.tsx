@@ -30,7 +30,7 @@ export const Transactions = () => {
   // const pageSize = 20;
   // const router = useRouter();
   const isDesktop = useMediaQuery({ minWidth: 768 });
-  if (isLoading) return <TransactionsSkeleton />;
+  if (isLoading) return <TransactionsSkeleton isDesktop={isDesktop} />;
 
   if (error) {
     return <EmptyState icon={<HandCoins size={18} />} label="Failed to fetch transactions" />;
@@ -162,9 +162,9 @@ export const Transactions = () => {
   );
 };
 
-export const TransactionsSkeleton = () => {
+export const TransactionsSkeleton = ({ isDesktop }: { isDesktop: boolean }) => {
   return (
-    <div className="space-y-1.5">
+    <div className={cn("h-[245px] space-y-1.5", isDesktop ? "h-[245px]" : "h-[300px]")}>
       <Skeleton className="h-[55.5px] w-full rounded-xl" />
       <Skeleton className="h-[55.5px] w-full rounded-xl" />
       <Skeleton className="h-[55.5px] w-full rounded-xl" />

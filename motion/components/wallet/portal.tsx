@@ -9,7 +9,7 @@ import { WalletAuth } from "@/components/wallet/auth";
 import { CreateWalletForm } from "./onboarding/new";
 import { ImportWalletForm } from "./onboarding/import";
 import { WalletMinimal } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import NextLink from "next/link";
 import { Nav } from "./nav";
 import { Receive } from "./receive";
@@ -23,6 +23,7 @@ import { ConfirmTx } from "./confirm-tx";
 import { Affiliate } from "./affiliate";
 import { ConfirmTokenLaunch } from "./confirm-token-launch";
 import { Payload } from "./context";
+import { AnimatePresence, motion } from "framer-motion";
 
 export const WalletPortal = () => {
   const { hasWallet } = useSession();
@@ -31,6 +32,8 @@ export const WalletPortal = () => {
   const { isOpen, setIsOpen, transaction, setTransaction, payload, setPayload } =
     useWalletActions();
   const isDesktop = useMediaQuery({ minWidth: 768 });
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number | "auto">("auto");
 
   useEffect(() => {
     setTimeout(() => {
@@ -44,6 +47,12 @@ export const WalletPortal = () => {
       }, 300);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      setHeight(contentRef.current.offsetHeight);
+    }
+  }, [navTab]);
 
   if (isDesktop) {
     return (
@@ -72,10 +81,24 @@ export const WalletPortal = () => {
                 ) : (
                   <>
                     <Nav navTab={navTab} setNavTab={setNavTab} />
-                    {navTab === "wallet" && <WalletOverview />}
-                    {navTab === "send" && <Send />}
-                    {navTab === "receive" && <Receive />}
-                    {navTab === "affiliate" && <Affiliate />}
+                    <AnimatePresence mode="popLayout">
+                      <motion.div
+                        key={navTab}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{
+                          duration: 0.2,
+                          ease: "easeInOut",
+                        }}
+                        className="overflow-hidden"
+                      >
+                        {navTab === "wallet" && <WalletOverview />}
+                        {navTab === "send" && <Send />}
+                        {navTab === "receive" && <Receive />}
+                        {navTab === "affiliate" && <Affiliate />}
+                      </motion.div>
+                    </AnimatePresence>
                   </>
                 )}
               </div>
@@ -145,67 +168,33 @@ export const WalletPortal = () => {
         <VisuallyHidden>
           <DialogTitle>Wallet</DialogTitle>
         </VisuallyHidden>
-        <div className="p-4">
-          {hasWallet ? (
-            <WalletAuth>
-              <div className="space-y-2">
-                {transaction ? (
-                  <ConfirmTx />
-                ) : Object.keys(payload).length > 0 ? (
-                  <ConfirmTokenLaunch />
-                ) : (
-                  <>
-                    <Nav navTab={navTab} setNavTab={setNavTab} />
-                    {navTab === "wallet" && <WalletOverview />}
-                    {navTab === "send" && <Send />}
-                    {navTab === "receive" && <Receive />}
-                    {navTab === "affiliate" && <Affiliate />}
-                  </>
-                )}
-              </div>
-            </WalletAuth>
-          ) : (
-            <>
-              {!walletMethod && (
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-center text-base font-bold">Get started with Motion</p>
-                    <p className="text-center text-[13px] text-muted-foreground">
-                      Create a new wallet or import an existing one.
-                    </p>
-                  </div>
-                  <div className="w-full space-y-2.5">
-                    <RainbowButton
-                      className="h-9 w-full px-8"
-                      onClick={() => setWalletMethod("new")}
-                    >
-                      Create wallet
-                    </RainbowButton>
-                    <Button
-                      className="w-full"
-                      variant="secondary"
-                      onClick={() => setWalletMethod("import")}
-                    >
-                      Import existing wallet
-                    </Button>
-                  </div>
-                  <p className="mx-auto mt-4 max-w-[280px] text-center text-xs text-muted-foreground">
-                    By creating or importing a wallet, you agree to the{" "}
-                    <NextLink href="/legal/terms" className="text-foreground underline">
-                      Terms of Service
-                    </NextLink>{" "}
-                    and{" "}
-                    <NextLink href={`/legal/privacy`} className="text-foreground underline">
-                      Privacy Policy
-                    </NextLink>
-                  </p>
+        <motion.div
+          animate={{ height }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="overflow-hidden"
+        >
+          <div ref={contentRef} className="p-4">
+            {hasWallet ? (
+              <WalletAuth>
+                <div className="space-y-2">
+                  {transaction ? (
+                    <ConfirmTx />
+                  ) : Object.keys(payload).length > 0 ? (
+                    <ConfirmTokenLaunch />
+                  ) : (
+                    <>
+                      <Nav navTab={navTab} setNavTab={setNavTab} />
+                      {navTab === "wallet" && <WalletOverview />}
+                      {navTab === "send" && <Send />}
+                      {navTab === "receive" && <Receive />}
+                      {navTab === "affiliate" && <Affiliate />}
+                    </>
+                  )}
                 </div>
-              )}
-              {walletMethod === "new" && <CreateWalletForm />}
-              {walletMethod === "import" && <ImportWalletForm />}
-            </>
-          )}
-        </div>
+              </WalletAuth>
+            ) : null}
+          </div>
+        </motion.div>
       </DrawerContent>
     </Drawer>
   );

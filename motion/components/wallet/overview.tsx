@@ -15,7 +15,7 @@ export const WalletOverview = () => {
   const [tab, setTab] = useState<"tokens" | "nfts" | "transactions" | "trustlines">("tokens");
 
   return (
-    <>
+    <div className="space-y-2">
       <Card className="space-y-4 p-4">
         <div className="space-y-2">
           <p className="text-sm font-medium">Decentralized wallet</p>
@@ -77,6 +77,6 @@ export const WalletOverview = () => {
       {/* {tab === "nfts" && <Nfts />} */}
       {tab === "transactions" && <Transactions />}
       {tab === "trustlines" && <Trustlines />}
-    </>
+    </div>
   );
 };
