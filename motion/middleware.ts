@@ -40,10 +40,6 @@ export const middleware = async (req: NextRequest) => {
     return referralMiddleware(req);
   }
 
-  if (host === "docs.motion.zip") {
-    return NextResponse.rewrite(`https://tokenos.mintlify.app${path === "/" ? "" : path}`);
-  }
-
   // else, request is coming from an unknown subdomain
   // and the path is not a request to get the xrp ledger toml
   // so we redirect to the main domain
