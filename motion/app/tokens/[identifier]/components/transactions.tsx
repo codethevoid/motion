@@ -177,7 +177,8 @@ export const Transactions = ({ currency, issuer }: { currency: string; issuer: s
   };
 
   return (
-    <Card className="p-4">
+    // <Card className="p-4">
+    <div>
       <div className="flex rounded-md border bg-secondary/40 px-2.5 py-1.5">
         <div className="flex-1">
           <p className="text-[11px] font-medium uppercase text-muted-foreground">Time</p>
@@ -272,6 +273,7 @@ export const Transactions = ({ currency, issuer }: { currency: string; issuer: s
           </div>
         </ScrollArea>
       )}
-    </Card>
+    </div>
+    // </Card>
   );
 };

@@ -22,7 +22,7 @@ export const Holders = ({ currency, issuer }: { currency: string; issuer: string
   }, [data]);
 
   return (
-    <Card className="p-4">
+    <div>
       <div className="flex rounded-md border bg-secondary/40 px-2.5 py-1.5">
         <div className="w-12 max-lg:hidden">
           <p className="text-[11px] font-medium uppercase text-muted-foreground">Rank</p>
@@ -113,6 +113,6 @@ export const Holders = ({ currency, issuer }: { currency: string; issuer: string
           </div>
         </ScrollArea>
       )}
-    </Card>
+    </div>
   );
 };

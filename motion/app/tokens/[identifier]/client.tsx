@@ -109,18 +109,20 @@ export const TokenClient = ({ identifier }: { identifier: string }) => {
                 </TabsTrigger>
               </TabsList>
             </Tabs>
-            {tab === "transactions" && (
-              <Transactions
-                currency={encodeURIComponent(currency)}
-                issuer={encodeURIComponent(issuer)}
-              />
-            )}
-            {tab === "holders" && (
-              <Holders
-                currency={encodeURIComponent(currency)}
-                issuer={encodeURIComponent(issuer)}
-              />
-            )}
+            <Card className="p-4 dark:bg-transparent">
+              {tab === "transactions" && (
+                <Transactions
+                  currency={encodeURIComponent(currency)}
+                  issuer={encodeURIComponent(issuer)}
+                />
+              )}
+              {tab === "holders" && (
+                <Holders
+                  currency={encodeURIComponent(currency)}
+                  issuer={encodeURIComponent(issuer)}
+                />
+              )}
+            </Card>
           </div>
           {/* <Trade currency={encodeURIComponent(currency)} issuer={encodeURIComponent(issuer)} /> */}
           <About currency={encodeURIComponent(currency)} issuer={encodeURIComponent(issuer)} />
@@ -184,6 +186,7 @@ export const TokenClient = ({ identifier }: { identifier: string }) => {
             </div>
           </Card>
           <div className="space-y-2">
+            {/* <Card className="space-y-2 p-4 dark:bg-transparent"> */}
             <Tabs
               value={tab}
               onValueChange={(value: string) => setTab(value as "transactions" | "holders")}
@@ -197,18 +200,20 @@ export const TokenClient = ({ identifier }: { identifier: string }) => {
                 </TabsTrigger>
               </TabsList>
             </Tabs>
-            {tab === "transactions" && (
-              <Transactions
-                currency={encodeURIComponent(currency)}
-                issuer={encodeURIComponent(issuer)}
-              />
-            )}
-            {tab === "holders" && (
-              <Holders
-                currency={encodeURIComponent(currency)}
-                issuer={encodeURIComponent(issuer)}
-              />
-            )}
+            <Card className="p-4 dark:bg-transparent">
+              {tab === "transactions" && (
+                <Transactions
+                  currency={encodeURIComponent(currency)}
+                  issuer={encodeURIComponent(issuer)}
+                />
+              )}
+              {tab === "holders" && (
+                <Holders
+                  currency={encodeURIComponent(currency)}
+                  issuer={encodeURIComponent(issuer)}
+                />
+              )}
+            </Card>
           </div>
         </div>
         <div className="flex w-1/3 min-w-[336px] flex-col gap-3 max-[900px]:hidden">

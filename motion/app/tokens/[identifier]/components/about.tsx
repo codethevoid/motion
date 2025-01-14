@@ -47,7 +47,7 @@ export const About = ({ currency, issuer }: { currency: string; issuer: string }
               <img
                 src={tokenData?.meta.token.icon}
                 alt={tokenData?.meta.token.name}
-                className="size-16 rounded-md"
+                className="size-16 rounded-md object-cover"
               />
             ) : (
               <div className="flex size-16 items-center justify-center rounded-md border bg-zinc-950">

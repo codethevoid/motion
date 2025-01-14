@@ -23,7 +23,7 @@ export const Metrics = ({ currency, issuer }: { currency: string; issuer: string
             <img
               src={tokenData?.meta.token.icon}
               alt={tokenData?.meta.token.name}
-              className="size-9 rounded-md"
+              className="size-9 rounded-md object-cover"
             />
           ) : (
             <div className="flex size-9 items-center justify-center rounded-full border bg-secondary/80 dark:bg-secondary/40">

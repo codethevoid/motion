@@ -75,7 +75,7 @@ model Token {
   website     String?
   telegram    String?
   x           String?
-  domain      String  @unique // this will be the token's unique subdomain for hosting the /.well-known/xrp-ledger.toml file
+  domain      String? @unique // this will be the token's unique subdomain for hosting the /.well-known/xrp-ledger.toml file
 
   // wallet that created the token
   createdBy   Wallet? @relation(fields: [createdById], references: [id])

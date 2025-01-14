@@ -99,7 +99,7 @@ export const Trustlines = () => {
                       alt={trust.name ? trust.name : trust.currency}
                       width={32}
                       height={32}
-                      className="shrink-0 rounded-full"
+                      className="size-8 shrink-0 rounded-full object-cover"
                     />
                   ) : (
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
