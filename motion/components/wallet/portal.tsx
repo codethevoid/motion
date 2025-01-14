@@ -9,7 +9,7 @@ import { WalletAuth } from "@/components/wallet/auth";
 import { CreateWalletForm } from "./onboarding/new";
 import { ImportWalletForm } from "./onboarding/import";
 import { WalletMinimal } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import NextLink from "next/link";
 import { Nav } from "./nav";
 import { Receive } from "./receive";
@@ -48,10 +48,22 @@ export const WalletPortal = () => {
     }
   }, [isOpen]);
 
-  useEffect(() => {
+  const updateHeight = () => {
     if (contentRef.current) {
       setHeight(contentRef.current.offsetHeight);
     }
+  };
+
+  useLayoutEffect(() => {
+    updateHeight();
+
+    const observer = new ResizeObserver(updateHeight);
+
+    if (contentRef.current) {
+      observer.observe(contentRef.current);
+    }
+
+    return () => observer.disconnect();
   }, [navTab]);
 
   if (isDesktop) {
@@ -169,8 +181,15 @@ export const WalletPortal = () => {
           <DialogTitle>Wallet</DialogTitle>
         </VisuallyHidden>
         <motion.div
-          animate={{ height }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
+          animate={{
+            height,
+            opacity: 1,
+          }}
+          initial={{ opacity: 0 }}
+          transition={{
+            duration: 0.2,
+            opacity: { duration: 0.1 },
+          }}
           className="overflow-hidden"
         >
           <div ref={contentRef} className="p-4">

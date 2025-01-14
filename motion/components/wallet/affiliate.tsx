@@ -14,7 +14,7 @@ const defaultTitle = defaultMetadata.title;
 const defaultImage = defaultMetadata.image;
 
 export const Affiliate = () => {
-  const { data, isLoading, error } = useAffiliate();
+  const { data, error, isLoading } = useAffiliate();
   console.log(data);
 
   if (error) return <div>An error occured</div>;
