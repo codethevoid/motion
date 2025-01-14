@@ -84,7 +84,7 @@ export const LaunchClient = () => {
 
   console.log(errors);
   return (
-    <div className="py-16">
+    <div className="px-4 py-16">
       <Card className="mx-auto max-w-md space-y-4 p-4">
         <div className="space-y-1.5">
           <CardTitle>Launch your token</CardTitle>
