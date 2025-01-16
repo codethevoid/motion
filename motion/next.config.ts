@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { resolve } from "path";
+import { API_BASE_URL } from "./utils/api-base-url";
 
 const nextConfig: NextConfig = {
   /* config options here */

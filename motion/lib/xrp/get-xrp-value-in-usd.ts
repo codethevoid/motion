@@ -6,7 +6,7 @@ export const getXrpValueInUsd = async (): Promise<number> => {
     const res = await fetch(url);
     const data = await res.json();
     const price = data?.ticker?.lastTrade?.p;
-    return price;
+    return price || 0;
   } catch (e) {
     console.error(e);
     return 0;

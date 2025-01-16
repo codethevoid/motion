@@ -81,3 +81,21 @@ model Token {
   createdBy   Wallet? @relation(fields: [createdById], references: [id])
   createdById String?
 }
+
+enum TradeType {
+  payment
+  offerCreate
+}
+
+model Trade {
+  id          String    @id @default(cuid())
+  timestamp   DateTime
+  account     String
+  type        TradeType
+  currency    String
+  issuer      String
+  xrpAmount   String
+  tokenAmount String
+  price       String
+  hash        String    @unique
+}

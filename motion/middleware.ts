@@ -14,7 +14,7 @@ export const middleware = async (req: NextRequest) => {
     return xrpLedgerMiddleware(req);
   }
 
-  if (path.includes("/.well-known") || path === "/sitemap.xml") {
+  if (path.includes("/.well-known") || path === "/sitemap.xml" || path === "/robots.txt") {
     return NextResponse.next({ headers: { "x-powered-by": "motion.zip" } });
   }
 
@@ -27,11 +27,22 @@ export const middleware = async (req: NextRequest) => {
     );
   }
 
-  // check if there is a wallet cookie and update it so it expires in 30 days
-  const token = await getToken();
-  if (token) await updateCookie(token);
-
   if (host === "motion.zip" || host === "localhost:3000") {
+    // check if there is a wallet cookie and update it so it expires in 30 days
+    const token = await getToken();
+    if (token) {
+      // update the cookie so it expires in 30 days
+      const response = NextResponse.next({ headers: { "x-powered-by": "motion.zip" } });
+      response.cookies.set("wallet", token, {
+        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      });
+      return response;
+    }
+
+    // if there is no wallet cookie, continue with request like normal
     return NextResponse.next({ headers: { "x-powered-by": "motion.zip" } });
   }
 

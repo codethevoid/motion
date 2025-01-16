@@ -28,7 +28,7 @@ type Props = {
 
 export const WalletNav = ({ tab, setTab }: Props) => {
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-1">
       {navItems.map((item) => (
         <Button
           key={item.label}

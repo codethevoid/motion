@@ -21,13 +21,13 @@ export const GET = withWallet(async ({ wallet }) => {
 
     const serverState = await xrpClient.getServerState();
 
-    const ownerCount = Number(walletInfo.result.account_data.OwnerCount) || 0;
-    const baseReserve = Number(serverState.result.state.validated_ledger?.reserve_base) || 0;
-    const countReserve = Number(serverState.result.state.validated_ledger?.reserve_inc) || 0;
+    const ownerCount = Number(walletInfo.result?.account_data?.OwnerCount) || 0;
+    const baseReserve = Number(serverState.result?.state?.validated_ledger?.reserve_base) || 0;
+    const countReserve = Number(serverState.result?.state?.validated_ledger?.reserve_inc) || 0;
     const ownerReserve = ownerCount * countReserve;
     const totalReserve = ownerReserve + baseReserve;
 
-    const balance = Number(walletInfo.result.account_data.Balance) / 1_000_000 || 0;
+    const balance = Number(walletInfo.result?.account_data?.Balance) / 1_000_000 || 0;
     const availableBalance = Math.max(0, balance - totalReserve / 1_000_000);
     const xrpPrice = (await getXrpValueInUsd()) || 0;
 
@@ -101,7 +101,7 @@ export const GET = withWallet(async ({ wallet }) => {
 
     const accountNfts = await xrpClient.getAccountNfts(address);
 
-    const nfts = accountNfts.result.account_nfts.map((nft) => {
+    const nfts = accountNfts.result?.account_nfts?.map((nft) => {
       let uri: string | null = null;
       try {
         uri = nft.URI ? decodeURI(String(nft.URI)) : null;

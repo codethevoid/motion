@@ -4,7 +4,7 @@ import { type AuthRequest } from "../types/auth.js";
 import { prisma } from "../db/prisma.js";
 import { allowProgress } from "../services/allow-progress.js";
 import type { TokenSchema, FileInfo } from "@motion/shared/zod";
-import { Wallet, xrpToDrops } from "xrpl";
+import { Wallet } from "xrpl";
 import { sendXrp } from "../services/send-xrp.js";
 import { configureIssuer } from "../services/configure-issuer.js";
 import { getSafeCurrency } from "../utils/currency.js";
@@ -385,16 +385,11 @@ router.post(
      */
     console.log("sending fee...");
     if (process.env.NODE_ENV === "production") {
-      const feePayment: Payment = {
-        TransactionType: "Payment",
-        Account: wallet.classicAddress,
-        Destination: process.env.FEE_WALLET_ADDRESS!,
-        Amount: xrpToDrops(MOTION_ZIP_FEE),
-      };
-
-      const preparedFee = await client.autofill(feePayment);
-      const signedFee = wallet.sign(preparedFee);
-      await client.submit(signedFee.tx_blob);
+      sendXrp({
+        from: wallet,
+        to: process.env.FEE_WALLET_ADDRESS!,
+        amount: MOTION_ZIP_FEE,
+      });
     }
 
     // revalidate tokens since we just created a new one

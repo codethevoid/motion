@@ -8,7 +8,7 @@ export const useTokenTransactions = (currency: string, issuer: string) => {
   searchParams.set("issuer", issuer);
   const url = `/api/transactions?${searchParams.toString()}`;
   const { data, isLoading, error } = useSWR<AccountTxTransaction[]>(url, fetcher, {
-    refreshInterval: 8000, // refresh every 5 seconds
+    refreshInterval: 8000, // refresh every 8 seconds
   });
   return { data, isLoading, error };
 };

@@ -28,7 +28,6 @@ import { Progress } from "../ui/progress";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { nanoid } from "@/utils/alphabet";
-import { API_BASE_URL } from "@/utils/api-base-url";
 
 const motionZipFee = () => {
   return process.env.NODE_ENV === "development" ? 0 : MOTION_ZIP_FEE;
@@ -53,7 +52,7 @@ export const ConfirmTokenLaunch = () => {
 
       // listen for events to set the progress
       const requestId = nanoid(32);
-      const eventSource = new EventSource(`${API_BASE_URL}/progress/${requestId}`);
+      const eventSource = new EventSource(`/api/token/create/progress/${requestId}`);
 
       eventSource.onmessage = (event) => {
         const percent = Number(event.data);
@@ -75,7 +74,7 @@ export const ConfirmTokenLaunch = () => {
         }
       });
 
-      const res = await fetch(`${API_BASE_URL}/token/create`, {
+      const res = await fetch(`/api/token/create`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${jwe}`,

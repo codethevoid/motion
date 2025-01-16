@@ -44,23 +44,7 @@ export const CandleChart = ({ currency, issuer, range }: LineChartProps) => {
       },
     });
 
-    // const dataArray = Object.values(data)
-    //   .filter((point) => parseFloat((point as { value: string }).value) > 0)
-    //   .map((point) => ({
-    //     time: (point as { time: string }).time,
-    //     value: parseFloat((point as { value: string }).value),
-    //   }));
-    // console.log("data.soloData", data.soloData);
-    // const dataArray = data.soloData.map((point: any) => {
-    //   return {
-    //     time: point[0],
-    //     open: parseFloat(point[1]),
-    //     high: parseFloat(point[2]),
-    //     low: parseFloat(point[3]),
-    //     close: parseFloat(point[4]),
-    //   };
-    // });
-    const dataArray = data.candleData;
+    const dataArray = data.candles;
     console.log("dataArray", dataArray);
     areaSeries.setData(dataArray);
     chart.applyOptions({

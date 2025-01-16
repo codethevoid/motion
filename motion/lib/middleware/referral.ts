@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse, userAgent } from "next/server";
-import { cookies } from "next/headers";
 
 export const referralMiddleware = async (req: NextRequest) => {
   const path = req.nextUrl.pathname;
@@ -30,8 +29,7 @@ export const referralMiddleware = async (req: NextRequest) => {
   );
 
   // set the ref cookie
-  const cookieStore = await cookies();
-  cookieStore.set("ref", ref, {
+  response.cookies.set("ref", ref, {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

@@ -183,6 +183,11 @@ export const TokenClient = ({ identifier }: { identifier: string }) => {
                 currency={encodeURIComponent(currency)}
                 range={range}
               />
+              {/* <CandleChart
+                currency={encodeURIComponent(currency)}
+                issuer={encodeURIComponent(issuer)}
+                range={range}
+              /> */}
             </div>
           </Card>
           <div className="space-y-2">

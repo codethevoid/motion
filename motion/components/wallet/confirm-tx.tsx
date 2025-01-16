@@ -13,12 +13,15 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ButtonSpinner } from "../ui/button-spinner";
 import { mutate } from "swr";
+import { useSession } from "@/hooks/use-session";
+import { API_BASE_URL } from "@/utils/api-base-url";
 
 export const ConfirmTx = () => {
   const { wallet, isLoading } = useWallet();
   const { transaction, password, setIsOpen } = useWalletActions();
   const { data: networkFee } = useNetworkFee();
   const [isConfirming, setIsConfirming] = useState(false);
+  const { jwe } = useSession();
 
   const calculateMinimumReceived = () => {
     if (transaction?.type === "buy") {
@@ -40,9 +43,9 @@ export const ConfirmTx = () => {
     if (!transaction) return;
     setIsConfirming(true);
     try {
-      const res = await fetch("/api/trade", {
+      const res = await fetch(`${API_BASE_URL}/trade`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwe}` },
         body: JSON.stringify({ transaction, password }),
       });
 
@@ -57,14 +60,14 @@ export const ConfirmTx = () => {
         const searchParams = new URLSearchParams();
         searchParams.set("currency", transaction?.amountToDeliver.currency);
         searchParams.set("issuer", transaction?.amountToDeliver.issuer);
-        await mutate(`/api/swap/balance?${searchParams.toString()}`);
-        await mutate(`/api/swap/balance?currency=XRP`);
+        mutate(`/api/swap/balance?${searchParams.toString()}`);
+        mutate(`/api/swap/balance?currency=XRP`);
       } else if (typeof transaction?.amountToReceive === "object") {
         const searchParams = new URLSearchParams();
         searchParams.set("currency", transaction?.amountToReceive.currency);
         searchParams.set("issuer", transaction?.amountToReceive.issuer);
-        await mutate(`/api/swap/balance?${searchParams.toString()}`);
-        await mutate(`/api/swap/balance?currency=XRP`);
+        mutate(`/api/swap/balance?${searchParams.toString()}`);
+        mutate(`/api/swap/balance?currency=XRP`);
       }
       setIsConfirming(false);
       setIsOpen(false);

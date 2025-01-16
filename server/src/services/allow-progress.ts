@@ -11,21 +11,10 @@ import {
 } from "@motion/shared/constants";
 import { xrplClient } from "../lib/xrpl-client.js";
 import { Wallet, Client, xrpToDrops } from "xrpl";
+import { calculateReserves } from "../lib/helpers/calc-reserves.js";
 
 const motionZipFee = () => {
   return process.env.NODE_ENV === "development" ? 0 : MOTION_ZIP_FEE;
-};
-
-const calculateReserves = async (address: string, client: Client) => {
-  const accountInfo = await client.request({
-    command: "account_info",
-    account: address,
-    ledger_index: "validated",
-  });
-  const baseReserve = 1_000_000;
-  const ownerCount = accountInfo.result?.account_data.OwnerCount;
-  const ownerReserve = ownerCount * 200_000;
-  return baseReserve + ownerReserve;
 };
 
 const getTotalXrpNeeded = (poolAmount: number) => {
