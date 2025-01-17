@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import tokenRoutes from "./routes/token.routes.js";
 import tradeRoutes from "./routes/trade.routes.js";
+import { jobs } from "./jobs/index.js";
 
 dotenv.config();
 
@@ -15,6 +16,8 @@ app.use(express.json({ limit: "20mb" }));
 // routes
 app.use("/token", tokenRoutes);
 app.use("/trade", tradeRoutes);
+
+jobs();
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

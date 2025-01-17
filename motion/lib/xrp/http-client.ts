@@ -78,6 +78,13 @@ export const xrpClient = {
     });
   },
 
+  getLedgerTransactions: async (ledgerIndex: number): Promise<AccountTxResponse> => {
+    return xrplRequest({
+      method: "ledger",
+      params: [{ ledger_index: ledgerIndex, transactions: true, expand: true }],
+    });
+  },
+
   getTransactions: async (
     address: string,
     limit?: number,

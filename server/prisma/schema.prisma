@@ -83,19 +83,36 @@ model Token {
 }
 
 enum TradeType {
-  payment
-  offerCreate
+  Payment
+  OfferCreate
 }
 
 model Trade {
-  id          String    @id @default(cuid())
-  timestamp   DateTime
-  account     String
-  type        TradeType
-  currency    String
-  issuer      String
-  xrpAmount   String
+  id        String    @id @default(cuid())
+  timestamp DateTime
+  type      TradeType
+  account   String
+  hash      String    @unique
+  ledger    Int
+
+  // easy access field for querying
+  currency String
+  issuer   String
+
+  // for volume calculations
   tokenAmount String
+  xrpAmount   String
   price       String
-  hash        String    @unique
+
+  // affected nodes
+  affectedNodes Json[]
+}
+
+model SyncStatus {
+  id                        String   @id @default("main")
+  lastSyncedAt              DateTime @updatedAt
+  epochLedgerIndex          Int
+  lastLedgerIndex           Int
+  isInitialBackfillComplete Boolean  @default(false)
+  isSyncing                 Boolean  @default(false)
 }
