@@ -243,7 +243,7 @@ router.post("/", auth, async (req: Request, res: Response) => {
   });
 
   // send email notification
-  await resend.emails.send({
+  await resend().emails.send({
     from: "Motion.zip <notifs@mailer.motion.zip>",
     to: "ryan@motion.zip",
     subject: "Fee transaction received",

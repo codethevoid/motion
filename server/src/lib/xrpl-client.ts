@@ -1,6 +1,6 @@
 import { Client } from "xrpl";
 
-const url = "wss://xrplcluster.com";
+const url = "wss://xrpl.motion.zip:6006";
 
 class XrpClientService {
   private static instance: XrpClientService;

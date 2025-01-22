@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import tokenRoutes from "./routes/token.routes.js";
 import tradeRoutes from "./routes/trade.routes.js";
 import { jobs } from "./jobs/index.js";
+import { xrplClient } from "./lib/xrpl-client.js";
 
 dotenv.config();
 
@@ -17,7 +18,7 @@ app.use(express.json({ limit: "20mb" }));
 app.use("/token", tokenRoutes);
 app.use("/trade", tradeRoutes);
 
-jobs();
+// jobs();
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
@@ -25,4 +26,10 @@ app.listen(port, () => {
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
+});
+
+app.get("/ledger", async (req, res) => {
+  const client = await xrplClient.connect();
+  const ledger = await client.getLedgerIndex();
+  res.status(200).json({ ledger });
 });

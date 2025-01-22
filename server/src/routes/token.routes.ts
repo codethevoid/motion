@@ -18,6 +18,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { MOTION_ZIP_FEE } from "@motion/shared/constants";
 import multer from "multer";
 import { S3Client } from "@aws-sdk/client-s3";
+import { s3 } from "../utils/s3.js";
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -353,15 +354,7 @@ router.post(
     const iconLocation = `https://cdn.motion.zip/${iconParams.Key}`;
     const bannerLocation = `https://cdn.motion.zip/${bannerParams.Key}`;
 
-    const s3 = new S3Client({
-      region: process.env.AWS_REGION!,
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-      },
-    });
-
-    Promise.all([s3.send(iconCommand), s3.send(bannerCommand)]).catch((e) => console.error(e));
+    Promise.all([s3().send(iconCommand), s3().send(bannerCommand)]).catch((e) => console.error(e));
 
     await prisma.token.create({
       data: {
