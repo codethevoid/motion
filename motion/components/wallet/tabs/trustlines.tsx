@@ -94,8 +94,8 @@ export const Trustlines = () => {
               <div className="flex items-center justify-between px-3 py-2.5">
                 <div className="flex items-center space-x-2.5">
                   <TokenIcon
-                    url={`https://cdn.motion.zip/${trust.currency}/${trust.account}`}
-                    fallback={trust.icon}
+                    url={`https://cdn.motion.zip/icons/${trust.currency}/${trust.account}`}
+                    fallback={trust.icon?.replace("s2", "s1")}
                     alt={trust.name ? trust.name : trust.formattedCurrency}
                   />
                   <div>

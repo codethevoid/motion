@@ -128,7 +128,7 @@ export const TokensClient = () => {
                         url={`https://cdn.motion.zip/icons/${token.currency}/${token.issuer}`}
                         fallback={
                           token.meta.token.icon && !token.meta.token.icon.includes("null")
-                            ? token.meta.token.icon
+                            ? token.meta.token.icon.replace("s2", "s1")
                             : undefined
                         }
                         alt={token.meta.token.name || formatCurrency(token.currency)}

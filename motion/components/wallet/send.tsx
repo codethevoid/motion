@@ -128,8 +128,8 @@ export const Send = () => {
                     <div className="flex items-center space-x-2">
                       {selectedToken?.icon && (
                         <TokenIcon
-                          url={`https://cdn.motion.zip/${selectedToken.rawCurrency}/${selectedToken.issuer}`}
-                          fallback={selectedToken.icon}
+                          url={`https://cdn.motion.zip/icons/${selectedToken.rawCurrency}/${selectedToken.issuer}`}
+                          fallback={selectedToken.icon?.replace("s2", "s1")}
                           alt={selectedToken.name || selectedToken.currency}
                           className="size-5 shrink-0 rounded-full"
                         />
@@ -247,8 +247,8 @@ export const Send = () => {
                     }}
                   >
                     <TokenIcon
-                      url={`https://cdn.motion.zip/${balance.rawCurrency}/${balance.issuer}`}
-                      fallback={balance.icon}
+                      url={`https://cdn.motion.zip/icons/${balance.rawCurrency}/${balance.issuer}`}
+                      fallback={balance.icon?.replace("s2", "s1")}
                       alt={balance.name || balance.currency}
                     />
                     <div className="w-full">

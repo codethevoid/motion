@@ -48,7 +48,7 @@ export const About = ({ currency, issuer }: { currency: string; issuer: string }
                 url={`https://cdn.motion.zip/icons/${tokenData?.currency}/${tokenData?.issuer}`}
                 fallback={
                   tokenData?.meta.token.icon && !tokenData.meta.token.icon.includes("null")
-                    ? tokenData.meta.token.icon
+                    ? tokenData.meta.token.icon.replace("s2", "s1")
                     : undefined
                 }
                 alt={tokenData?.meta.token.name || formatCurrency(tokenData?.currency as string)}

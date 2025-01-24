@@ -434,7 +434,7 @@ const CoinCard = (token: MetaToken) => {
             src={token.icon}
           /> */}
           <TokenIcon
-            url={`https://cdn.motion.zip/${token.currency}/${token.issuer}`}
+            url={`https://cdn.motion.zip/icons/${token.currency}/${token.issuer}`}
             fallback={token.icon}
             alt={(token.name as string) || formatCurrency(token.currency)}
             className="size-8 rounded-full"

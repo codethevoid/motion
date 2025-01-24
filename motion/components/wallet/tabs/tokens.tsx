@@ -43,8 +43,8 @@ export const Tokens = () => {
             <div className="flex items-center justify-between px-3 py-2.5">
               <div className="flex items-center space-x-2.5">
                 <TokenIcon
-                  url={`https://cdn.motion.zip/${token.rawCurrency}/${token.issuer}`}
-                  fallback={token.icon}
+                  url={`https://cdn.motion.zip/icons/${token.rawCurrency}/${token.issuer}`}
+                  fallback={token.icon?.replace("s2", "s1")}
                   alt={token.name ? token.name : token.currency}
                 />
                 <div>
