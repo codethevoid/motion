@@ -374,13 +374,13 @@ const data = [
   },
 ];
 
-export const CoinSpotlight = () => {
+export const CoinSpotlight = ({ tokens }: { tokens: MetaToken[] }) => {
   const width = useWindowWidth();
   const [updatedWidth, setUpdatedWidth] = useState(0);
 
   const [firstRow, secondRow] = useMemo(() => {
-    const half = Math.ceil(data.length / 2);
-    return [data.slice(0, half), data.slice(half)];
+    const half = Math.ceil(tokens.length / 2);
+    return [tokens.slice(0, half), tokens.slice(half)];
   }, []);
 
   useEffect(() => {
@@ -425,7 +425,7 @@ export const CoinSpotlight = () => {
 
 const CoinCard = (token: MetaToken) => {
   return (
-    <NextLink href={`/tokens/${token.currency}:${token.issuer}`}>
+    <NextLink href={`/tokens/${token.currency}:${token.issuer}`} className="h-[120px]">
       <Card className="h-full w-64 cursor-pointer p-4 transition-colors dark:hover:bg-secondary/60">
         <div className="flex items-center gap-2">
           {/* <img
@@ -440,7 +440,7 @@ const CoinCard = (token: MetaToken) => {
             className="size-8 rounded-full"
           />
           <div>
-            <p className="text-[13px] text-foreground">
+            <p className="line-clamp-1 text-[13px] text-foreground">
               {token.name ? token.name : formatCurrency(token.currency)}
             </p>
             <p className="text-xs text-muted-foreground">{formatCurrency(token.currency)}</p>
