@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ButtonSpinner } from "@/components/ui/button-spinner";
 import { PasswordDialog } from "./dialogs/password-dialog";
 import { toast } from "sonner";
+import { TokenIcon } from "../ui/custom/token-icon";
 
 export type SelectedToken = {
   rawCurrency: string;
@@ -36,7 +37,7 @@ const schema = z.object({
 type SendFormTypes = z.infer<typeof schema>;
 
 export const Send = () => {
-  const { data: balances, mutate } = useBalances();
+  const { data: balances, mutate, isLoading: isBalancesLoading } = useBalances();
   const [selectedToken, setSelectedToken] = useState<SelectedToken | null>();
   const [isSending, setIsSending] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -126,9 +127,10 @@ export const Send = () => {
                   <>
                     <div className="flex items-center space-x-2">
                       {selectedToken?.icon && (
-                        <img
-                          src={selectedToken.icon}
-                          alt={selectedToken.currency}
+                        <TokenIcon
+                          url={`https://cdn.motion.zip/${selectedToken.rawCurrency}/${selectedToken.issuer}`}
+                          fallback={selectedToken.icon}
+                          alt={selectedToken.name || selectedToken.currency}
                           className="size-5 shrink-0 rounded-full"
                         />
                       )}
@@ -227,54 +229,45 @@ export const Send = () => {
             className="bg-card"
           />
           <ScrollArea className="h-[400px] max-md:h-[320px]">
-            <div>
-              {filteredBalances?.map((balance) => (
-                <div
-                  key={`${balance.currency}-${balance.issuer}`}
-                  className="mr-4 flex w-full items-center space-x-2.5 rounded-2xl px-2.5 py-2 transition-colors hover:bg-secondary/50"
-                  role="button"
-                  onClick={() => {
-                    setSelectedToken(balance);
-                    setValue("value", "");
-                    setIsOpen(false);
-                  }}
-                >
-                  {balance?.icon ? (
-                    <img
-                      src={balance.icon}
-                      alt={balance.currency}
-                      width={32}
-                      height={32}
-                      className="size-7 shrink-0 rounded-full object-cover"
+            {isBalancesLoading ? (
+              <div className="flex h-[200px] w-full items-center justify-center">
+                <ButtonSpinner />
+              </div>
+            ) : (
+              <div>
+                {filteredBalances?.map((balance) => (
+                  <div
+                    key={`${balance.currency}-${balance.issuer}`}
+                    className="mr-4 flex w-full items-center space-x-2.5 rounded-2xl px-2.5 py-2 transition-colors hover:bg-secondary/50"
+                    role="button"
+                    onClick={() => {
+                      setSelectedToken(balance);
+                      setValue("value", "");
+                      setIsOpen(false);
+                    }}
+                  >
+                    <TokenIcon
+                      url={`https://cdn.motion.zip/${balance.rawCurrency}/${balance.issuer}`}
+                      fallback={balance.icon}
+                      alt={balance.name || balance.currency}
                     />
-                  ) : (
-                    <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="size-4"
-                      >
-                        <path d="M12.0049 4.00275C18.08 4.00275 23.0049 6.68904 23.0049 10.0027V14.0027C23.0049 17.3165 18.08 20.0027 12.0049 20.0027C6.03824 20.0027 1.18114 17.4115 1.00957 14.1797L1.00488 14.0027V10.0027C1.00488 6.68904 5.92975 4.00275 12.0049 4.00275ZM12.0049 16.0027C8.28443 16.0027 4.99537 14.9953 3.00466 13.4532L3.00488 14.0027C3.00488 15.8849 6.88751 18.0027 12.0049 18.0027C17.0156 18.0027 20.8426 15.9723 20.9999 14.1207L21.0049 14.0027L21.0061 13.4524C19.0155 14.9949 15.726 16.0027 12.0049 16.0027ZM12.0049 6.00275C6.88751 6.00275 3.00488 8.12054 3.00488 10.0027C3.00488 11.8849 6.88751 14.0027 12.0049 14.0027C17.1223 14.0027 21.0049 11.8849 21.0049 10.0027C21.0049 8.12054 17.1223 6.00275 12.0049 6.00275Z"></path>
-                      </svg>
-                    </div>
-                  )}
-                  <div className="w-full">
-                    <p className="text-[13px]">{balance.name || balance.currency}</p>
-                    <div className="flex w-full items-center justify-between space-x-1">
-                      <p className="text-xs text-muted-foreground">{balance.currency}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {/* {balance.issuer?.slice(0, 6)}...{balance.issuer?.slice(-4)} */}
-                        {Number(balance.value).toLocaleString("en-us", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </p>
+                    <div className="w-full">
+                      <p className="text-[13px]">{balance.name || balance.currency}</p>
+                      <div className="flex w-full items-center justify-between space-x-1">
+                        <p className="text-xs text-muted-foreground">{balance.currency}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {/* {balance.issuer?.slice(0, 6)}...{balance.issuer?.slice(-4)} */}
+                          {Number(balance.value).toLocaleString("en-us", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </ScrollArea>
         </DialogContent>
       </Dialog>

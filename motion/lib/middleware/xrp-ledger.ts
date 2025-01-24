@@ -12,6 +12,7 @@ address = "rQfRb9mGzpvirGaNpLHs2nwXM2vTMzJrU2"
 name = "Motion"
 desc = "Your Gateway to the XRP Ledger"
 icon = "https://cdn.motion.zip/logos/motion.png"
+domain = "motion.zip"
 
 [[ACCOUNTS.WEBLINKS]]
 url = "https://x.com/motiondotzip"

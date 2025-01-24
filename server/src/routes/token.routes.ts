@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { auth } from "../middleware/auth.js";
+import { withWalletAction } from "../middleware/auth.js";
 import { type AuthRequest } from "../types/auth.js";
 import { prisma } from "../db/prisma.js";
 import { allowProgress } from "../services/allow-progress.js";
@@ -56,7 +56,7 @@ router.post(
     { name: "icon", maxCount: 1 },
     { name: "banner", maxCount: 1 },
   ]),
-  auth,
+  withWalletAction,
   async (req: Request, res: Response) => {
     const requestId = req.headers["x-request-id"] as string;
     // get info from request

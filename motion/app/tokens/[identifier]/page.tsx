@@ -3,12 +3,13 @@ import { constructMetadata } from "@/utils/construct-metadata";
 import { Metadata } from "next";
 import { formatCurrency } from "@/utils/format-currency";
 import prisma from "@/db/prisma";
+import { API_BASE_URL } from "@/utils/api-base-url";
 
 export const dynamicParams = true;
 
 export const generateStaticParams = async () => {
   const [externalRes, tokensFromDb] = await Promise.all([
-    fetch("https://s1.xrplmeta.org/tokens?sort_by=exchanges_24h&limit=1000", {
+    fetch(`${API_BASE_URL}/tokens?limit=1000`, {
       next: { revalidate: 60 * 60 * 24, tags: ["tokens"] }, // 24 hours
     }),
     prisma.token.findMany({
@@ -60,8 +61,8 @@ export const generateMetadata = async ({
   const [currency, issuer] = decoded.split(":");
 
   const token = await prisma.token.findFirst({
-    where: { currencyHex: currency, issuer },
-    select: { banner: true },
+    where: { AND: [{ currencyHex: currency }, { issuer }] },
+    select: { banner: true, name: true },
   });
 
   if (!token) {
@@ -72,8 +73,8 @@ export const generateMetadata = async ({
   }
 
   return constructMetadata({
-    title: `${formatCurrency(currency)} • motion.zip`,
-    description: `Trade ${formatCurrency(currency)} on Motion. View real-time prices, market performance, and recent transactions. Buy, sell, or hold ${formatCurrency(currency)} easily while exploring market insights.`,
+    title: `${token.name || formatCurrency(currency)} • motion.zip`,
+    description: `Trade ${token.name || formatCurrency(currency)} on Motion. View real-time prices, market performance, and recent transactions. Buy, sell, or hold ${token.name || formatCurrency(currency)} easily while exploring market insights.`,
     image: token.banner,
   });
 };

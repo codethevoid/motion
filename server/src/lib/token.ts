@@ -11,7 +11,7 @@ const deriveKey = (password: string, salt: string) => scryptSync(password, salt,
 
 export const decryptToken = async (
   token: string,
-  password: string
+  password: string,
 ): Promise<{ privateKey: string; publicKey: string }> => {
   try {
     const encodedSecret = getEncodedSecret();
@@ -31,4 +31,14 @@ export const decryptToken = async (
   } catch (error) {
     throw new Error("Invalid token or password");
   }
+};
+
+export const getWallet = async (token: string) => {
+  const { payload } = await jwtVerify(token, getEncodedSecret());
+  const { address, salt, isCurrent } = payload as {
+    address: string;
+    salt: string;
+    isCurrent: boolean;
+  };
+  return { address, salt, isCurrent };
 };

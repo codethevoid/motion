@@ -12,11 +12,12 @@ export const TokenIcon = ({
   className,
 }: {
   url: string;
-  fallback: string | null;
+  fallback?: string;
   alt: string;
   className?: string;
 }) => {
   const [isError, setIsError] = useState(false);
+
   return (
     <>
       {isError ? (

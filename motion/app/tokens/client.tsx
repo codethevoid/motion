@@ -22,7 +22,7 @@ export const TokensClient = () => {
   const { data, isLoading } = useTokens(name, page);
   const { data: xrpPrice } = useXrpPrice();
   const [total, setTotal] = useState(0);
-  const pageSize = 100;
+  const pageSize = 25;
   console.log(total);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [previousData, setPreviousData] = useState(data);
@@ -124,23 +124,12 @@ export const TokensClient = () => {
                     )}
                   >
                     <div className="flex min-w-[160px] flex-1 items-center space-x-2.5">
-                      {/* {token.meta.token.icon && !token.meta.token.icon.includes("null") ? (
-                        <img
-                          src={token.meta.token.icon}
-                          alt={token.meta.token.name}
-                          className="size-8 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex size-8 items-center justify-center rounded-full bg-secondary/40">
-                          <Coin />
-                        </div>
-                      )} */}
                       <TokenIcon
                         url={`https://cdn.motion.zip/icons/${token.currency}/${token.issuer}`}
                         fallback={
                           token.meta.token.icon && !token.meta.token.icon.includes("null")
                             ? token.meta.token.icon
-                            : null
+                            : undefined
                         }
                         alt={token.meta.token.name || formatCurrency(token.currency)}
                       />

@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { xrpClient } from "@/lib/xrp/http-client";
-import { AccountTxTransaction, TransactionMetadata } from "xrpl"
+import { AccountTxTransaction, TransactionMetadata } from "xrpl";
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -13,7 +13,6 @@ export const GET = async (req: NextRequest) => {
 
     const res = await xrpClient.getTransactions(issuer, 200);
 
-    console.log(res);
     const transactions = res.result.transactions.filter((tx: AccountTxTransaction) => {
       const txType = tx.tx_json?.TransactionType;
 

@@ -1,9 +1,10 @@
 import { MetadataRoute } from "next";
 import prisma from "@/db/prisma";
+import { API_BASE_URL } from "@/utils/api-base-url";
 
 const getTokens = async () => {
   const [externalRes, tokensFromDb] = await Promise.all([
-    fetch("https://s1.xrplmeta.org/tokens?sort_by=exchanges_24h&limit=1000", {
+    fetch(`${API_BASE_URL}/tokens?limit=1000`, {
       next: { revalidate: 60 * 60 * 24, tags: ["tokens"] }, // 24 hours
     }),
     prisma.token.findMany({
@@ -55,7 +56,6 @@ const getTokens = async () => {
 
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   const tokens = await getTokens();
-  console.log("tokens", tokens);
   return [
     {
       url: "https://motion.zip",

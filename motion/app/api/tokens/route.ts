@@ -20,14 +20,6 @@ export const GET = async (req: NextRequest) => {
     if (!res.ok) return NextResponse.json({ error: "Error fetching tokens" }, { status: 500 });
 
     const data = await res.json();
-    // sort tokens by marketcap
-    // let tokens = data.tokens;
-    // if (!name) {
-    //   tokens = tokens.sort(
-    //     (a: { metrics: { marketcap: number } }, b: { metrics: { marketcap: number } }) =>
-    //       b.metrics.marketcap - a.metrics.marketcap,
-    //   );
-    // }
     return NextResponse.json({ tokens: data.tokens, total: data.count });
   } catch (e) {
     console.error(e);

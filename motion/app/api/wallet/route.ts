@@ -55,7 +55,6 @@ export const GET = withWallet(async ({ wallet }) => {
 
       // convert raw currency to string
       let currencyStr = token.currency;
-      currencyStr = formatCurrency(currencyStr);
 
       // fetch the token metadata
       let icon: string | undefined = undefined;
@@ -76,6 +75,8 @@ export const GET = withWallet(async ({ wallet }) => {
       } catch (error) {
         console.error("Error fetching token metadata:", error);
       }
+
+      currencyStr = formatCurrency(currencyStr);
 
       // fetch the token info from the db
       const tokenInfo = await prisma.token.findFirst({

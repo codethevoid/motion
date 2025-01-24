@@ -1,5 +1,6 @@
 import { fetcher } from "@/utils/fetcher";
 import useSWR from "swr";
+import { API_BASE_URL } from "@/utils/api-base-url";
 
 export type TokenMetrics = {
   currency: string;
@@ -70,10 +71,9 @@ export const useTokenMetrics = (currency: string, issuer: string) => {
   searchParams.set("issuer", issuer || "");
 
   const { data, error, isLoading, mutate } = useSWR<TokenMetrics>(
-    `/api/token-metrics?${searchParams.toString()}`,
+    `${API_BASE_URL}/tokens/metrics?${searchParams.toString()}`,
     fetcher,
     { refreshInterval: 1000 * 30 }, // 30 seconds
   );
-  console.log(data);
   return { data, error, isLoading, mutate };
 };

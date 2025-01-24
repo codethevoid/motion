@@ -1,5 +1,6 @@
 import { fetcher } from "@/utils/fetcher";
 import useSWR from "swr";
+import { API_BASE_URL } from "@/utils/api-base-url";
 
 type Token = {
   currency: string;
@@ -65,7 +66,7 @@ export const useTokens = (name?: string, page?: number) => {
   const searchParams = new URLSearchParams();
   if (page) searchParams.set("page", page.toString());
   if (name) searchParams.set("name", name);
-  const url = `/api/tokens?${searchParams.toString()}`;
+  const url = `${API_BASE_URL}/tokens?${searchParams.toString()}`;
   const { data, isLoading, error } = useSWR<{ tokens: Token[]; total: number }>(url, fetcher);
   return { data, isLoading, error };
 };

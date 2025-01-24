@@ -1,5 +1,7 @@
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { fetcher } from "@/utils/fetcher";
+import { useSession } from "./use-session";
+import { API_BASE_URL } from "@/utils/api-base-url";
 
 export type Wallet = {
   address: string; // wallet address
@@ -34,6 +36,15 @@ export type Wallet = {
 };
 
 export const useWallet = () => {
-  const { data, error, isLoading } = useSWR<Wallet>("/api/wallet", fetcher);
+  const { jwe } = useSession();
+  const { data, error, isLoading } = useSWR<Wallet>(
+    [`${API_BASE_URL}/wallet`, jwe],
+    ([url, token]) =>
+      fetcher(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+  );
   return { wallet: data, error, isLoading };
 };

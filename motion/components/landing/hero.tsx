@@ -7,7 +7,6 @@ import { Button } from "../ui/button";
 import { Search } from "lucide-react";
 import { useTokenMetrics } from "@/hooks/use-token-metrics";
 import { Skeleton } from "../ui/skeleton";
-import { Coin } from "../ui/icons/coin";
 import { LineChart } from "../charts/line";
 import { cn } from "@/lib/utils";
 import { ExternalLink } from "lucide-react";
@@ -15,6 +14,7 @@ import { formatCurrency } from "@/utils/format-currency";
 import AnimatedGridPattern from "../ui/animated-grid-pattern";
 import NextLink from "next/link";
 import { RainbowButton } from "../ui/rainbow-button";
+import { TokenIcon } from "../ui/custom/token-icon";
 
 export const Hero = () => {
   const { isOpen, setIsOpen } = useWalletActions();
@@ -83,16 +83,17 @@ export const Hero = () => {
           <div className="flex items-center space-x-2.5">
             {isLoading ? (
               <Skeleton className="size-9 rounded-full" />
-            ) : tokenData?.meta.token.icon ? (
-              <img
-                src={tokenData?.meta.token.icon}
-                alt={tokenData?.meta.token.name}
-                className="size-9 rounded-full"
-              />
             ) : (
-              <div className="flex size-9 items-center justify-center rounded-full border bg-secondary/80 dark:bg-secondary/40">
-                <Coin />
-              </div>
+              <TokenIcon
+                url={`https://cdn.motion.zip/icons/${tokenData?.currency}/${tokenData?.issuer}`}
+                fallback={
+                  tokenData?.meta.token.icon && !tokenData.meta.token.icon.includes("null")
+                    ? tokenData.meta.token.icon
+                    : undefined
+                }
+                alt={tokenData?.meta.token.name || formatCurrency(tokenData?.currency as string)}
+                className="size-9 rounded-full object-cover"
+              />
             )}
             <div>
               {tokenData ? (

@@ -8,6 +8,7 @@ import NextLink from "next/link";
 import { RainbowButton } from "../ui/rainbow-button";
 import { useWindowWidth } from "@react-hook/window-size";
 import { useState } from "react";
+import { TokenIcon } from "../ui/custom/token-icon";
 
 export type MetaToken = {
   name?: string;
@@ -427,10 +428,16 @@ const CoinCard = (token: MetaToken) => {
     <NextLink href={`/tokens/${token.currency}:${token.issuer}`}>
       <Card className="h-full w-64 cursor-pointer p-4 transition-colors dark:hover:bg-secondary/60">
         <div className="flex items-center gap-2">
-          <img
+          {/* <img
             className="size-8 rounded-full"
             alt={token.name || formatCurrency(token.currency)}
             src={token.icon}
+          /> */}
+          <TokenIcon
+            url={`https://cdn.motion.zip/${token.currency}/${token.issuer}`}
+            fallback={token.icon}
+            alt={(token.name as string) || formatCurrency(token.currency)}
+            className="size-8 rounded-full"
           />
           <div>
             <p className="text-[13px] text-foreground">

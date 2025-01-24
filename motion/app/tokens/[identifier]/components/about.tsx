@@ -3,12 +3,12 @@
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTokenMetrics } from "@/hooks/use-token-metrics";
-import { Coin } from "@/components/ui/icons/coin";
 import { formatCurrency } from "@/utils/format-currency";
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { TokenIcon } from "@/components/ui/custom/token-icon";
 
 export const About = ({ currency, issuer }: { currency: string; issuer: string }) => {
   const { data: tokenData, isLoading } = useTokenMetrics(currency, issuer);
@@ -43,16 +43,17 @@ export const About = ({ currency, issuer }: { currency: string; issuer: string }
           <div className="flex justify-center">
             {isLoading ? (
               <Skeleton className="size-16 rounded-md" />
-            ) : tokenData?.meta.token.icon ? (
-              <img
-                src={tokenData?.meta.token.icon}
-                alt={tokenData?.meta.token.name}
+            ) : (
+              <TokenIcon
+                url={`https://cdn.motion.zip/icons/${tokenData?.currency}/${tokenData?.issuer}`}
+                fallback={
+                  tokenData?.meta.token.icon && !tokenData.meta.token.icon.includes("null")
+                    ? tokenData.meta.token.icon
+                    : undefined
+                }
+                alt={tokenData?.meta.token.name || formatCurrency(tokenData?.currency as string)}
                 className="size-16 rounded-md object-cover"
               />
-            ) : (
-              <div className="flex size-16 items-center justify-center rounded-md border bg-zinc-950">
-                <Coin />
-              </div>
             )}
           </div>
           <div>

@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
       {
         hostname: "cdn.motion.zip",
       },
+      {
+        hostname: "s1.xrplmeta.org",
+      },
+      {
+        hostname: "s2.xrplmeta.org",
+      },
     ],
   },
   compiler: {

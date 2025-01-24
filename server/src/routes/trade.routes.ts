@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { auth } from "../middleware/auth.js";
+import { withWalletAction } from "../middleware/auth.js";
 import type { AuthRequest } from "../types/auth.js";
 import { Amount, dropsToXrp, Payment, PaymentFlags, Wallet } from "xrpl";
 import { xrplClient } from "../lib/xrpl-client.js";
@@ -22,7 +22,7 @@ type TradeRequest = {
   };
 };
 
-router.post("/", auth, async (req: Request, res: Response) => {
+router.post("/", withWalletAction, async (req: Request, res: Response) => {
   const { wallet } = req as AuthRequest;
   const { transaction } = req.body as TradeRequest;
   const { amountToDeliver, amountToReceive, slippage } = transaction;
