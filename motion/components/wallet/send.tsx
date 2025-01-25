@@ -17,6 +17,8 @@ import { ButtonSpinner } from "@/components/ui/button-spinner";
 import { PasswordDialog } from "./dialogs/password-dialog";
 import { toast } from "sonner";
 import { TokenIcon } from "../ui/custom/token-icon";
+import { API_BASE_URL } from "@/utils/api-base-url";
+import { useSession } from "@/hooks/use-session";
 
 export type SelectedToken = {
   rawCurrency: string;
@@ -37,6 +39,7 @@ const schema = z.object({
 type SendFormTypes = z.infer<typeof schema>;
 
 export const Send = () => {
+  const { jwe } = useSession();
   const { data: balances, mutate, isLoading: isBalancesLoading } = useBalances();
   const [selectedToken, setSelectedToken] = useState<SelectedToken | null>();
   const [isSending, setIsSending] = useState(false);
@@ -70,9 +73,9 @@ export const Send = () => {
     }
     try {
       setIsSending(true);
-      const res = await fetch("/api/send", {
+      const res = await fetch(`${API_BASE_URL}/wallet/send`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwe}` },
         body: JSON.stringify({ ...values, selectedToken, password: masterPassword }),
       });
 

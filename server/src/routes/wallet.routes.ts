@@ -1,14 +1,22 @@
 import express, { Request, Response } from "express";
 import { xrplClient } from "../lib/xrpl-client.js";
-import { withWallet } from "../middleware/auth.js";
-import { WalletRequest } from "../types/auth.js";
-import { AccountInfoResponse, dropsToXrp, xrpToDrops } from "xrpl";
+import { withWallet, withWalletAction } from "../middleware/auth.js";
+import { AuthRequest, WalletRequest } from "../types/auth.js";
+import {
+  AccountInfoResponse,
+  Amount,
+  dropsToXrp,
+  xrpToDrops,
+  Payment,
+  isValidClassicAddress,
+} from "xrpl";
 import { getXrpPrice } from "../utils/xrp-price.js";
 import { formatCurrency } from "../utils/currency.js";
 import { xrplMeta } from "../lib/xrpl-meta.js";
 import type { TrustlineWithMeta, Balance } from "../types/general.js";
 import { prisma } from "../db/prisma.js";
 import { calculateReserves } from "../lib/helpers/calc-reserves.js";
+import { z } from "zod";
 
 const router = express.Router();
 
@@ -316,6 +324,75 @@ router.get("/balance", withWallet, async (req: Request, res: Response) => {
   }
 
   res.json({ balance: Number(line.balance) });
+});
+
+const sendSchema = z.object({
+  destination: z.string().min(1, "Destination address is required"),
+  value: z.string().min(1, "Amount is required"), // this is the amount the user wants to send
+  memo: z.string().optional(),
+  destinationTag: z.string().optional(),
+  selectedToken: z.object({
+    rawCurrency: z.string().min(1, "Currency is required"),
+    issuer: z.string().optional(),
+    value: z.string().min(1, "Amount is required"), // this is the balance the user has in their wallet
+  }),
+});
+
+router.post("/send", withWalletAction, async (req: Request, res: Response) => {
+  const { wallet } = req as AuthRequest;
+  const { destination, value, memo, destinationTag, selectedToken } = req.body as z.infer<
+    typeof sendSchema
+  >;
+
+  const isValid = sendSchema.safeParse({ destination, value, memo, destinationTag, selectedToken });
+  if (!isValid.success) {
+    res.status(400).json({ error: "Invalid request" });
+    return;
+  }
+
+  if (!isValidClassicAddress(destination)) {
+    res.status(400).json({ error: "Invalid destination address" });
+    return;
+  }
+
+  if (Number(value) > Number(selectedToken.value)) {
+    res.status(400).json({ error: "Insufficient balance" });
+    return;
+  }
+
+  const amount: Amount =
+    selectedToken.rawCurrency === "XRP" && !selectedToken.issuer
+      ? xrpToDrops(Number(value).toFixed(6))
+      : {
+          currency: selectedToken.rawCurrency,
+          issuer: selectedToken.issuer as string,
+          value,
+        };
+
+  const client = await xrplClient.connect();
+
+  const payment: Payment = {
+    TransactionType: "Payment",
+    Account: wallet.classicAddress,
+    Destination: destination,
+    Amount: amount,
+    ...(destinationTag && { DestinationTag: parseInt(destinationTag) }),
+    ...(memo && { Memos: [{ Memo: { MemoData: Buffer.from(memo).toString("hex") } }] }),
+  };
+
+  // send the payment
+  const prepared = await client.autofill(payment);
+  const signed = wallet.sign(prepared);
+  const tx = await client.submitAndWait(signed.tx_blob);
+
+  if (typeof tx.result.meta === "object") {
+    if (tx.result.meta.TransactionResult !== "tesSUCCESS") {
+      res.status(400).json({ error: `Error sending ${formatCurrency(selectedToken.rawCurrency)}` });
+      return;
+    }
+  }
+
+  res.json({ message: "Transaction successful" });
 });
 
 export default router;

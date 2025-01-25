@@ -4,8 +4,5 @@ import { syncTokenImages } from "./sync-token-images.js";
 
 export const jobs = async () => {
   // cron.schedule("*/10 * * * * *", syncTrades);
-
-  // sync token images
-  await syncTokenImages(); // run immediately
   cron.schedule("0 0 * * *", syncTokenImages); // every day at midnight
 };
