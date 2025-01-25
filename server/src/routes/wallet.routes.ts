@@ -272,4 +272,50 @@ router.get("/balances", withWallet, async (req: Request, res: Response) => {
   res.json(balances);
 });
 
+/**
+ * Route to get the balance of a token in the wallet
+ */
+router.get("/balance", withWallet, async (req: Request, res: Response) => {
+  const { address } = req as WalletRequest;
+  const { currency, issuer } = req.query;
+
+  if (!currency) {
+    res.json({ balance: 0 });
+    return;
+  }
+
+  if (currency !== "XRP" && !issuer) {
+    res.json({ balance: 0 });
+    return;
+  }
+
+  const client = await xrplClient.connect();
+
+  if (currency === "XRP" && !issuer) {
+    const balance = await client.getXrpBalance(address);
+    const networkFee = 24;
+    const reserves = await calculateReserves(address, client);
+    const availableBalance = Number(xrpToDrops(balance)) - reserves - networkFee;
+    res.json({ balance: dropsToXrp(availableBalance) });
+    return;
+  }
+
+  // find the balance of the token
+  const balances = await client.request({
+    command: "account_lines",
+    account: address,
+    peer: issuer as string,
+    ledger_index: "validated",
+  });
+
+  const line = balances.result?.lines.find((l) => l.currency === currency && l.account === issuer);
+
+  if (!line) {
+    res.json({ balance: 0 });
+    return;
+  }
+
+  res.json({ balance: Number(line.balance) });
+});
+
 export default router;

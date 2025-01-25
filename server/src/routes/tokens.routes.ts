@@ -124,4 +124,34 @@ router.get("/metrics", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * Route to get token's current price
+ */
+router.get("/price", async (req: Request, res: Response) => {
+  const currency = req.query.currency || "";
+  const issuer = req.query.issuer || "";
+
+  if (!currency || !issuer) {
+    res.status(400).json({ error: "Missing currency or issuer" });
+    return;
+  }
+
+  // get price of token in usd
+  const response = await xrplMeta.request({
+    command: "token",
+    token: { currency, issuer },
+  });
+
+  // get price of xrp in usd
+  const xrpPrice = await getXrpPrice();
+  const price = Number(response.result?.metrics?.price);
+  if (!price) {
+    res.json({ price: 0 });
+    return;
+  }
+  const priceInUsd = price * xrpPrice;
+
+  res.json({ price: priceInUsd });
+});
+
 export default router;

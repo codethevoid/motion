@@ -9,6 +9,7 @@ class XrplMetaService {
   private connectPromise: Promise<WebSocket> | null = null;
   private requestId: number = 0;
   private pendingRequests: Map<number, { resolve: Function; reject: Function }> = new Map();
+  private pingInterval: NodeJS.Timeout | null = null;
 
   private constructor() {}
 
@@ -35,6 +36,7 @@ class XrplMetaService {
 
       this.ws.once("open", () => {
         this.isConnecting = false;
+        this.startPingInterval();
         resolve(this.ws!);
       });
 
@@ -56,6 +58,11 @@ class XrplMetaService {
   }
 
   async disconnect(): Promise<void> {
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+      this.pingInterval = null;
+    }
+
     if (this.isConnected()) {
       this.ws!.close();
       this.ws = null;
@@ -115,6 +122,20 @@ class XrplMetaService {
     } catch (error) {
       throw error;
     }
+  }
+
+  private startPingInterval(): void {
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+    }
+
+    this.pingInterval = setInterval(() => {
+      if (this.isConnected()) {
+        this.request({ command: "ping" }).catch((err) => {
+          console.error("Ping failed:", err);
+        });
+      }
+    }, 30000);
   }
 }
 

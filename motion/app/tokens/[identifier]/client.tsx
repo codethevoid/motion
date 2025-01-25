@@ -4,7 +4,6 @@ import { LineChart } from "@/components/charts/line";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { Timespan } from "@/app/api/aggregates/route";
 import { formatCurrency } from "@/utils/format-currency";
 import { Metrics } from "./components/metrics";
 import { Trade } from "./components/trade";
@@ -15,6 +14,17 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Holders } from "./components/holders";
 import { usePathname } from "next/navigation";
 import { confettiFireworks } from "@/utils/confetti-fireworks";
+
+// const intervalsMap = {
+//   "1h": 1, // 1 second intervals
+//   "1d": 60, // 1 minute intervals
+//   "1w": 1800, // 30 minute intervals
+//   "1m": 3600 * 2, // 2 hour intervals
+//   "1y": 3600 * 24, // 1 day intervals
+//   all: 3600 * 24 * 30, // 1 month intervals
+// } as const;
+
+type Timespan = "1h" | "1d" | "1w" | "1m" | "1y" | "all";
 
 export const TokenClient = ({ identifier }: { identifier: string }) => {
   const decoded = decodeURIComponent(identifier);

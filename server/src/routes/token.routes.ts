@@ -17,7 +17,6 @@ import { Payment } from "xrpl";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { MOTION_ZIP_FEE } from "@motion/shared/constants";
 import multer from "multer";
-import { S3Client } from "@aws-sdk/client-s3";
 import { s3 } from "../utils/s3.js";
 
 const storage = multer.memoryStorage();

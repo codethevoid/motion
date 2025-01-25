@@ -2,9 +2,10 @@ import { ColorType, createChart, CrosshairMode, LineStyle } from "lightweight-ch
 import { useAggregates } from "@/hooks/use-aggregates";
 import { useEffect, useRef } from "react";
 import { format } from "date-fns";
-import { Timespan } from "@/app/api/aggregates/route";
 import { useXrpPrice } from "@/hooks/use-xrp-price";
 import { Loader } from "lucide-react";
+
+type Timespan = "1h" | "1d" | "1w" | "1m" | "1y" | "all";
 
 type LineChartProps = {
   currency: string;
